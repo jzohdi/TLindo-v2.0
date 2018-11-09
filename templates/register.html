@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block title %}
+register
+{% endblock %}
+{% block head %}
+<script>
+    Flask.url_for("register")
+
+</script>
+{% endblock %}
+{% block main %}
+<div class="container register-content">
+    <p> {{ error }}</p>
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-3">
+            <form action="{{ url_for('register') }}" method="post">
+                <fieldset>
+                    <div class="form-group">
+                        <input class="form-control" name="first-name" placeholder="First Name" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" name="last-name" placeholder="Last Name" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username"
+                            type="text" />
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" id="psw" name="password" placeholder="Password" type="password" />
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" name="confirm-password" placeholder="Confirm Passowrd" type="password" />
+                    </div>
+                    <div class="form-group">
+                        <button id='register' class="btn btn-default" type="submit">Register</button>
+                    </div>
+
+                </fieldset>
+            </form>
+        </div>
+
+        <div class='col-sm-2 pass-box' id='message'>
+            <h4 style='color: white;'>Password still needs:</h4>
+            <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+            <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+            <p id="number" class="invalid">A <b>number</b></p>
+            <p id="length" class="invalid">Minimum <b>8 characters</b></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('register').disabled = true;
+    var myInput = document.getElementById("psw");
+    var letter = document.getElementById("letter");
+    var capital = document.getElementById("capital");
+    var number = document.getElementById("number");
+    var length = document.getElementById("length");
+
+    // When the user starts to type something inside the password field
+    myInput.onkeyup = function () {
+        // console.log("click")
+        // Validate lowercase letters
+        var lowerCaseLetters = /[a-z]/g;
+        if (myInput.value.match(lowerCaseLetters)) {
+            letter.classList.remove("invalid");
+            letter.classList.add("valid");
+        } else {
+            letter.classList.remove("valid");
+            letter.classList.add("invalid");
+        }
+
+        // Validate capital letters
+        var upperCaseLetters = /[A-Z]/g;
+        if (myInput.value.match(upperCaseLetters)) {
+            capital.classList.remove("invalid");
+            capital.classList.add("valid");
+        } else {
+            capital.classList.remove("valid");
+            capital.classList.add("invalid");
+        }
+
+        // Validate numbers
+        var numbers = /[0-9]/g;
+        if (myInput.value.match(numbers)) {
+            number.classList.remove("invalid");
+            number.classList.add("valid");
+        } else {
+            number.classList.remove("valid");
+            number.classList.add("invalid");
+        }
+
+        // Validate length
+        if (myInput.value.length >= 8) {
+            length.classList.remove("invalid");
+            length.classList.add("valid");
+        } else {
+            length.classList.remove("valid");
+            length.classList.add("invalid");
+        }
+        let invalid_params = document.getElementsByClassName('invalid');
+        if (invalid_params.length == 0) {
+
+            document.getElementById('register').disabled = false;
+            document.getElementById("message").style.display = "none";
+        } else {
+            document.getElementById('register').disabled = true;
+            document.getElementById("message").style.display = "block";
+        }
+    }
+</script>
+{% endblock %}

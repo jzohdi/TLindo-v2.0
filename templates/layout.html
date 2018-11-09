@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    {# https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta #}
+    <meta charset="utf-8" />
+    <meta content="initial-scale=1, width=device-width" name="viewport" />
+
+    {# documentation at http://getbootstrap.com/, alternative themes at https://www.bootstrapcdn.com/bootswatch/ #}
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    {{ JSGlue.include() }}
+
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
+    <title>{% block title %} Lindo Catering {% endblock %}</title>
+
+</head>
+
+<body class="feather">
+
+    <div class="container-fluid">
+
+        <nav class="navbar" style="background-color: #0D034C">
+            <div id="all-nav-bar" class="nav-pad container-fluid">
+                <div class="navbar-header menu">
+                    <button aria-expanded="false" class="navbar-toggle collapsed" data-target="#navbar" data-toggle="collapse"
+                        type="button"><span class="titles"><i class="fa fa-gear" style="font-size:24px"></i></span>
+
+                    </button>
+                    <a class="main-nav-item titles navbar-brand" href="#"><span>Taco Lindo</span></span></a>
+                </div>
+                <div class="collapse navbar-collapse" id="navbar">
+                    {% if session.user_id %}
+                    <ul class="nav navbar-nav menu">
+                        <li><a class="titles main-nav-item" href="#">My Orders</a></li>
+                        {# href="{{ url_for('index') }}" #}
+                        <li><a class="titles main-nav-item" href="#">Make reservation</a></li>
+                        {# href="{{ url_for('make') }}" #}
+                        <li><a class="titles main-nav-item" href="#"></a></li>
+                        {# href="{{ url_for('friends') }}" #}
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right menu">
+                        <li><a class="titles main-nav-item" href="#">Change Password</a></li>
+                        {# {{ url_for('newpass') }} #}
+                        <li><a class="titles main-nav-item" href="#">Log Out</a></li>
+                        {# {{ url_for('logout') }} #}
+                    </ul>
+                    {% else %}
+                    <ul class="nav navbar-nav navbar-right menu">
+                        <li><a class="titles main-nav-item" href="#">Register</a></li>
+                        {# {{ url_for('register') }} #}
+                        <li><a class="titles main-nav-item" href="#">Log In</a></li>
+                        {# {{ url_for('login') }} #}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        {% if get_flashed_messages() %}
+        <header>
+            <div class="alert alert-info" role="alert">
+                {{ get_flashed_messages() | join(" ") }}
+            </div>
+        </header>
+        {% endif %}
+
+        <main class="back">
+
+            {% block main %}{% endblock %}
+        </main>
+
+    </div>
+</body>
+<!-- Footer -->
+<footer style="font-family: Raleway, Arial, Helvetica, sans-serif" class="page-footer font-small pt-4">
+
+    <!-- Footer Text -->
+    <div class="container-fluid text-center text-md-left">
+
+        <!-- Grid row -->
+        <div class="row">
+
+            <!-- Grid column -->
+            <div class="col-md-6 mt-md-0 mt-3">
+
+                <!-- Content -->
+                <h5 class="footer-ele-pad text-uppercase font-weight-bold">Contact</h5>
+                <hr class="clearfix w-100 d-md-none pb-3">
+                <p><a class='footer-link' href="#">525 Beckett Rd Logan Township, NJ 08085</a></p>
+                <p><a class='footer-link' href="#">(856) 214-3413</a></p>
+
+            </div>
+            <!-- Grid column -->
+
+            <!-- Grid column -->
+            <div class="col-md-6 mb-md-0 mb-3">
+
+                <!-- Content -->
+                <h5 class="footer-ele-pad text-uppercase font-weight-bold">Resources</h5>
+                <hr class="clearfix w-100 d-md-none pb-3">
+                <p><a class='footer-link' href="#">Terms and Conditions</a></p>
+                <p><a class='footer-link' href="#">Privacy Policy</a></p>
+
+            </div>
+            <!-- Grid column -->
+
+        </div>
+        <!-- Grid row -->
+
+    </div>
+    <!-- Footer Text -->
+
+    <!-- Copyright -->
+    <!-- <div class="footer-copyright text-center py-3">© 2018 Copyright
+    
+            </div> -->
+    <!-- Copyright -->
+
+</footer>
+
+</html>
