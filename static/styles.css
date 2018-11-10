@@ -1,3 +1,6 @@
+/*
+Layout / navbar / footer 
+*/
 html,
 body,
 .container-fluid {
@@ -39,21 +42,7 @@ body,
 
 /*color for layout background*/
 .feather {
-  background-image: linear-gradient(to bottom right, #40dbf7, white);
-}
-
-/*grey color used throughout*/
-.grey {
-  background-color: #e5e7e9;
-}
-
-.fleft {
-  float: left;
-}
-
-.regright {
-  padding: 25px 25px 25px 25px;
-  float: left;
+  background-image: linear-gradient(to bottom right, white, #fdce55);
 }
 
 .titles {
@@ -68,6 +57,7 @@ body,
   font-size: 15px;
 }
 
+/* register-content valid and invlad for register page */
 main,
 .form-control {
   /* center form controls */
@@ -106,4 +96,16 @@ footer {
 }
 .footer-ele-pad {
   padding-top: 15px;
+}
+@media (min-width: 768px) {
+  .navbar-nav {
+    float: none;
+    margin: 0 auto;
+    display: table;
+    table-layout: fixed;
+  }
+}
+/* for index page / main page */
+.jumbotron {
+  background: rgba(255, 255, 255, 0.5);
 }
