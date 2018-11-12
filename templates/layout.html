@@ -61,8 +61,8 @@
   </head>
 
   <body class="feather">
-    <div class="container-fluid">
-      <nav class="navbar" style="background-color: #0D034C">
+    <div class="container-fullwidth">
+      <nav class="navbar" style="background-color: rgb(13, 3, 76, 0)">
         <div id="all-nav-bar" class="nav-pad container-fluid">
           <div class="navbar-header menu">
             <button
@@ -76,7 +76,9 @@
                 ><i class="fa fa-gear" style="font-size:24px"></i
               ></span>
             </button>
-            <a class="main-nav-item titles navbar-brand" href="#"
+            <a
+              class="main-nav-item titles navbar-brand"
+              href="{{ url_for('index') }}"
               ><img
                 style="float:left; padding-right: 10px; margin-top: -5px;"
                 src="static/logo-png.png"
@@ -87,17 +89,17 @@
           <div class="collapse navbar-collapse" id="navbar">
             {% if session.user_id %}
             <ul class="nav navbar-nav menu">
-              <li><a class="titles main-nav-item" href="#">My Orders</a></li>
+              <li>
+                <a class="titles main-nav-item" href="#">New Reservation</a>
+              </li>
               {# href="{{
                 url_for("index")
               }}" #}
-              <li>
-                <a class="titles main-nav-item" href="#">Make reservation</a>
-              </li>
+              <li><a class="titles main-nav-item" href="#">My Orders</a></li>
               {# href="{{
                 url_for("make")
               }}" #}
-              <li><a class="titles main-nav-item" href="#"></a></li>
+              <li><a class="titles main-nav-item" href="#">Prices</a></li>
               {# href="{{
                 url_for("friends")
               }}" #}
@@ -176,11 +178,19 @@
           </h5>
           <hr class="clearfix w-100 d-md-none pb-3" />
           <p>
-            <a class="footer-link" href="#"
+            <a
+              class="footer-link"
+              href="https://www.google.com/maps/place/525+Beckett+Rd,+Logan+Township,+NJ+08085/@39.7577528,-75.3580979,16z/data=!4m5!3m4!1s0x89c6e0970ed24cc9:0xde4cdf53eb2b98a7!8m2!3d39.7596911!4d-75.3548363"
               >525 Beckett Rd Logan Township, NJ 08085</a
             >
           </p>
-          <p><a class="footer-link" href="#">(856) 214-3413</a></p>
+          <p
+            id="phone-number"
+            class="footer-link"
+            onclick="copyToClipBoard('8562143413')"
+          >
+            (856) 214-3413
+          </p>
         </div>
         <!-- Grid column -->
 

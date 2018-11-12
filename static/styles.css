@@ -3,7 +3,7 @@ Layout / navbar / footer
 */
 html,
 body,
-.container-fluid {
+.container-fullwidth {
   height: 100%;
 }
 .container {
@@ -19,6 +19,10 @@ body,
 .nav-pad {
   padding-right: 0px !important;
 }
+/* Override default navbar.less radius of 4px */
+.navbar {
+  border-radius: 0px !important;
+}
 .col-centered {
   float: left;
   margin: 0 auto;
@@ -29,9 +33,16 @@ body,
 .main-nav-item:hover,
 .footer-link:hover {
   /* background-color: #3b10d4 !important; */
-  background-color: #0d034c !important;
+  background-color: rgba(13, 3, 76, 1) !important;
   color: #fbbb13;
   /* font-size: 16px; */
+}
+.footer-link:hover,
+.footer-link:active,
+.footer-link:visited,
+.footer-link:focus {
+  text-decoration: none;
+  color: #fbbb13;
 }
 
 .float {
@@ -48,7 +59,13 @@ body,
 .titles {
   font-family: Raleway, Arial, Helvetica, sans-serif;
   font-size: 20px;
-  color: white;
+  color: #0d034c;
+  -webkit-transition: background-color 1s; /* Safari */
+  transition: background-color 1s;
+}
+.register-pass-requirements {
+  font-family: Raleway, Arial, Helvetica, sans-serif;
+  color: #0d034c;
 }
 
 #titlesb {
@@ -75,7 +92,7 @@ main,
   display: none;
 }
 .invalid {
-  color: white;
+  /* color: white; */
   font-size: 12px;
   display: block;
 }
@@ -108,4 +125,10 @@ footer {
 /* for index page / main page */
 .jumbotron {
   background: rgba(255, 255, 255, 0.5);
+}
+/*Override date picker default top margin */
+@media only screen and (min-height: 33.875em) {
+  .picker--opened .picker__frame {
+    top: 20% !important;
+  }
 }
