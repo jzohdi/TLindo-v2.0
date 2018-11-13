@@ -11,6 +11,15 @@ window.onload = function() {
     ]);
     console.log("picker set");
   }
+  let el = document.getElementById("timepicker");
+  if (el) {
+    var $timeInput = $("#timepicker").pickatime();
+    var timePicker = $timeInput.pickatime("picker");
+    let minTime = [11, 00];
+    let maxTime = [20, 00];
+    timePicker.set("min", minTime);
+    timePicker.set("max", maxTime);
+  }
   //   var today = new Date();
   //   var dd = today.getDate();
   //   var mm = today.getMonth();
@@ -21,12 +30,14 @@ window.onload = function() {
 copy text to clipBoard
 */
 function copyToClipBoard(textValue) {
-  navigator.clipboard.writeText(textValue).then(
-    function() {
-      alert("Copied to clipboard");
-    },
-    function() {
-      console.log("failed to copy");
-    }
-  );
+  if (textValue == "phoneNumber") {
+    navigator.clipboard.writeText("8562143413").then(
+      function() {
+        alert("Copied to clipboard");
+      },
+      function() {
+        console.log("failed to copy");
+      }
+    );
+  }
 }
