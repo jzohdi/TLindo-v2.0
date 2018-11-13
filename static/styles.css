@@ -145,13 +145,19 @@ footer {
   animation-duration: 1s;
   overflow: hidden;
 }
+@media (max-width: 992px) {
+  .main-card {
+    margin: 10px 20px 10px 20px;
+  }
+}
 /*Override date picker default top margin */
 @media only screen and (min-height: 33.875em) {
   .picker--opened .picker__frame {
     top: 20% !important;
   }
 }
-/* main-card to be same within each row*/
+/* main-card to be same within each row
+ but will break bootstrap when it needs to reconcile col ( md-6 = 992 )*/
 @media (min-width: 992px) {
   .normalize-height {
     display: flex;
@@ -188,6 +194,9 @@ footer {
   .normalize-height {
     display: flex;
   }
+}
+.normalize-height {
+  margin-left: -25px;
 }
 /* fade animations for index main-cards */
 @-webkit-keyframes fade-in-right {

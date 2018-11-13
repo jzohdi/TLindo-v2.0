@@ -12,7 +12,9 @@ from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_jsglue import JSGlue
 from config import getKeys
-
+import psycopg2
+import psycopg2.extras
+import json
 
 app = Flask(__name__)
 #app.static_folder = 'static'
@@ -33,9 +35,12 @@ app.jinja_env.globals.update(classForButton=classForButton)
 app.jinja_env.globals.update(isfree=isfree)
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 """
+settings = {}
+
 params = getKeys()
 for key in params:
-    os.environ[key] = params[key]
+    
+    settings[key] = params[key]
 
 """
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
@@ -54,6 +59,51 @@ app.config["SESSION_TYPE"] = "filesystem"
 sess = Session()
 sess.init_app(app)
 """
+def config():
+    db = {'host': settings.get('HOST', None),
+        'db' : settings.get('DB', None),
+        'user' : settings.get('USER', None),
+        'port' : settings.get('PORT', None),
+        'pw' : settings.get('PW', None)
+        }
+
+    return db
+
+POSTGRES = config()
+
+params = {
+                'host' : POSTGRES['host'],
+                'dbname' : POSTGRES['db'],
+                'user' : POSTGRES['user'],
+                'password' : POSTGRES['pw']
+                    }
+#print( POSTGRES )
+#print( params )
+
+def execute(statement, values):
+    conn = False
+    cur = False
+    res = None
+    try:
+        conn = psycopg2.connect(**params)
+    except:
+        print("unable to connect")
+    
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute( statement, values )
+        #conn.commit()
+        res = [json.loads(json.dumps(dict(record))) for record in cur]
+        
+    except:
+        print("connot select users")
+    finally:
+        if conn:
+            if cur:
+                cur.close()
+            conn.close()
+    return res
+   
 @app.route('/')
 def index():
     return render_template('index.html')
