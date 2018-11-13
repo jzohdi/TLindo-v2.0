@@ -128,20 +128,29 @@ footer {
 .footer-ele-pad {
   padding-top: 15px;
 }
-/* @media only screen and (min-width: 768px) {
-  margin: 0 auto;
-  display: table;
-  table-layout: fixed;
-} */
+@media (min-width: 768px) {
+  .navbar-nav {
+    float: none;
+    margin: 0 auto;
+    display: table;
+    table-layout: fixed;
+  }
+}
 /* for index page / main page */
 .main-card {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
-  padding: 0 10px 0 10px;
+  margin: 0px 15px 0px 15px;
 }
 /*Override date picker default top margin */
 @media only screen and (min-height: 33.875em) {
   .picker--opened .picker__frame {
     top: 20% !important;
+  }
+}
+/* main-card to be same within each row*/
+@media (min-width: 992px) {
+  .normalize-height {
+    display: flex;
   }
 }
