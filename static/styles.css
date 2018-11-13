@@ -141,6 +141,9 @@ footer {
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
   margin: 0px 15px 0px 15px;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
 }
 /*Override date picker default top margin */
 @media only screen and (min-height: 33.875em) {
@@ -153,4 +156,63 @@ footer {
   .normalize-height {
     display: flex;
   }
+}
+/* fade animations for index main-cards */
+@-webkit-keyframes fade-in-left {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateX(-20%);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-20%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-left {
+  -webkit-animation-name: fade-in-left;
+  animation-name: fade-in-left;
+}
+@media (min-width: 992px) {
+  .normalize-height {
+    display: flex;
+  }
+}
+/* fade animations for index main-cards */
+@-webkit-keyframes fade-in-right {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateX(+20%);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(+20%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-right {
+  -webkit-animation-name: fade-in-right;
+  animation-name: fade-in-right;
 }
