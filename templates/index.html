@@ -3,6 +3,7 @@ head %}
 <script>
   Flask.url_for("index");
 </script>
+
 {% endblock %} {% block main %}
 
 <div class="container" style="margin-top:10%;">
@@ -42,4 +43,10 @@ head %}
     </div>
   </div>
 </div>
+<script src="{{ url_for('static', filename='picker.js') }}"></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='defaultcompressed.css') }}"
+/>
 {% endblock %}
