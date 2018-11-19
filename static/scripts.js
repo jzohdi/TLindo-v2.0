@@ -1,7 +1,9 @@
-window.onload = function() {
+function setPicker() {
   let ele = document.getElementById("datepicker");
   if (ele) {
-    var $input = $("#datepicker").pickadate();
+    var $input = $("#datepicker").pickadate({
+      today: ""
+    });
     var picker = $input.pickadate("picker");
     let minDate = new Date();
     picker.set("min", [
@@ -24,7 +26,7 @@ window.onload = function() {
   //   var dd = today.getDate();
   //   var mm = today.getMonth();
   //   var yyyy = today.getFullYear();
-};
+}
 
 /*
 copy text to clipBoard
@@ -41,3 +43,5 @@ function copyToClipBoard(textValue) {
     );
   }
 }
+
+function planEvent() {}
