@@ -141,15 +141,16 @@ footer {
 }
 /* for index page / main page */
 .main-card {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 1);
   border-radius: 8px;
-  /* margin: 0px 15px 0px 15px; */
   -webkit-animation-duration: 1s;
   animation-duration: 1s;
   overflow: hidden;
 }
 @media (max-width: 992px) {
   .main-card {
+    padding-top: 10px;
+    padding-bottom: 10px;
     margin: 10px 20px 10px 20px;
   }
 }
@@ -165,12 +166,17 @@ footer {
   .normalize-height {
     display: flex;
   }
+  .main-card {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 10px;
+  }
 }
 /* fade animations for index main-cards */
 @-webkit-keyframes fade-in-left {
   0% {
     opacity: 0;
-    -webkit-transform: translateX(-20%);
+    -webkit-transform: translateX(-30%);
   }
   100% {
     opacity: 1;
@@ -181,7 +187,7 @@ footer {
 @keyframes fade-in-left {
   0% {
     opacity: 0;
-    transform: translateX(-20%);
+    transform: translateX(-30%);
   }
   100% {
     opacity: 1;
@@ -205,7 +211,7 @@ footer {
 @-webkit-keyframes fade-in-right {
   0% {
     opacity: 0;
-    -webkit-transform: translateX(+20%);
+    -webkit-transform: translateX(+30%);
   }
   100% {
     opacity: 1;
@@ -216,7 +222,7 @@ footer {
 @keyframes fade-in-right {
   0% {
     opacity: 0;
-    transform: translateX(+20%);
+    transform: translateX(+30%);
   }
   100% {
     opacity: 1;
@@ -227,4 +233,29 @@ footer {
 .fade-in-right {
   -webkit-animation-name: fade-in-right;
   animation-name: fade-in-right;
+}
+.button {
+  text-decoration: none;
+  font-family: Raleway, Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  border-radius: 10px;
+  border-color: #0d034c;
+  background-color: white;
+  color: #0d034c;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-transition: background-color 0.4s, color 0.4s, border-color 0.4s; /* Safari */
+  transition: background-color 0.4s, color 0.4s, border-color 0.4s;
+}
+.button1:hover {
+  border-color: white;
+  background-color: #0d034c;
+  color: white;
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
+}
+#next-button {
+  margin-top: 5vh;
 }
