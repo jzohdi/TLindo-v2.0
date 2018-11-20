@@ -95,7 +95,7 @@
           </div>
           <div class="collapse navbar-collapse" id="navbar">
             {% if session.user_id %}
-            <ul class="nav navbar-nav menu">
+            <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a class="titles main-nav-item" href="#">New Reservation</a>
               </li>
@@ -128,7 +128,7 @@
               #}
             </ul>
             {% else %}
-            <ul class="nav navbar-nav menu">
+            <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a class="titles main-nav-item" href="{{ url_for('index') }}"
                   >New Reservation</a

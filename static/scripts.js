@@ -1,5 +1,15 @@
 var eventVariables = {};
-
+var device;
+if (
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
+) {
+  device = "mobile";
+} else {
+  device = "desk";
+}
+var windowWidth = window.innerWidth;
 // Element.prototype.remove = function() {
 //   this.parentElement.removeChild(this);
 // };
@@ -170,6 +180,7 @@ function fadeOutMain() {
   let datePlanner = $("#card2");
   let needPhone = $("#card3");
   let nextButton = $("#button1");
+  let helpScreen = $("#card4");
 
   datePlanner.addClass("fade-out-right");
   if (document.getElementById("card3") === null) {
@@ -178,6 +189,7 @@ function fadeOutMain() {
     needPhone.addClass("fade-out-left");
     nextButton.addClass("fade-out-right");
   }
+  helpScreen.addClass("fade-out-right");
 }
 
 function setStep3() {
@@ -187,9 +199,57 @@ function setStep3() {
     "</div>";
   $("#top-message").append(newDiv);
   let newDiv2 =
-    '<div id=card3 class="card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left"><h3 class="question-titles">No Thanks, I know how much I want' +
-    "<h3></div>" +
-    '<div id=card4 class="card-margin2 col-md-4 main-card fade-in-right"><h3 class="question-titles">I could use some help!' +
-    "<h3></div>";
+    '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left"><h4 class="question-titles">No Thanks, I know how much I want' +
+    "</h4></div>" +
+    '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="card-margin2 col-md-4 main-card fade-in-right"><h4 class="question-titles">I could use some help!' +
+    "</h4></div>";
   $("#event-planner").append(newDiv2);
+}
+
+function setUpHelpScreen(needHelp) {
+  fadeOutMain();
+
+  setTimeout(function() {
+    [$("#top-message"), $("#event-planner")].map(div => div.empty());
+    if (needHelp === "help") startHelpScreen();
+    if (needHelp === "nohelp") startSelectionScreen();
+  }, 1000);
+}
+function startHelpScreen() {
+  let maxItems = Math.floor(
+    (eventVariables.numberOfPeople.adults +
+      eventVariables.numberOfPeople.kids) /
+      8
+  );
+  let maxFlavors = Math.min([maxItems, 4]);
+  let itemsGrammer = maxItems > 1 ? " items" : " item";
+  let helperScreenDiv =
+    '<div id="card2" class="col-lg-8 col-lg-offset-2 main-card fade-in-left helper-screen">' +
+    '<h4 class="question-titles">We recommend that you choose ' +
+    maxItems.toString() +
+    itemsGrammer +
+    " from the options below. </h4><div class='row normalize-height'><div class='col-md-6'>Test</div><div class='col-md-6'>Test2</div></div></div>";
+  $("#top-message").append(helperScreenDiv);
+}
+function startSelectionScreen() {
+  console.log("no Help");
+}
+
+function setNav() {
+  if (windowWidth >= 992) {
+    let offsetNavX = $("#nav-list").offset().left;
+    let offsetMainX = $("#card2").offset().left;
+
+    let widthNav = $("#nav-list").width();
+    let widthMain = $("#card2").width();
+
+    let addDifference = Math.abs(widthMain - widthNav) / 2;
+
+    let differenceX = Math.abs(offsetNavX - offsetMainX) / 2;
+    console.log(offsetNavX, offsetMainX);
+    $("#nav-list")[0].setAttribute(
+      "style",
+      "transform: translate(" + (addDifference - differenceX) + "px, 0)"
+    );
+  }
 }
