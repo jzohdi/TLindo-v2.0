@@ -81,6 +81,7 @@ body,
 
 /* register-content valid and invlad for register page */
 .gear {
+  -o-transition: all 0.35s linear;
   -moz-transition: all 0.35s linear;
   -webkit-transition: all 0.35s linear;
   transition: all 0.35s linear;
@@ -147,6 +148,15 @@ footer {
   animation-duration: 1s;
   overflow: hidden;
 }
+
+.main-card:hover {
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  -webkit-transition: box-shadow 0.7s;
+  -moz-transition: box-shadow 0.7s;
+  -o-transition: box-shadow 0.7s;
+  transition: box-shadow 0.7s;
+}
 @media (max-width: 992px) {
   .main-card {
     padding-top: 10px;
@@ -194,6 +204,28 @@ footer {
     transform: translateX(0);
   }
 }
+.fade-out-right {
+  -webkit-transition: transform 1s, opacity 1s;
+  -moz-transition: transform 1s, opacity 1s;
+  -o-transition: transform 1s, opacity 1s;
+  transition: transform 1s, opacity 1s;
+  opacity: 0;
+  -ms-transform: translateX(+30%);
+  -moz-transform: translateX(+30%);
+  -webkit-transform: translateX(+30%);
+  transform: translateX(+30%);
+}
+.fade-out-left {
+  -webkit-transition: transform 1s, opacity 1s;
+  -moz-transition: transform 1s, opacity 1s;
+  -o-transition: transform 1s, opacity 1s;
+  transition: transform 1s, opacity 1s;
+  opacity: 0;
+  -ms-transform: translateX(-30%);
+  -moz-transform: translateX(-30%);
+  -webkit-transform: translateX(-30%);
+  transform: translateX(-30%);
+}
 
 .fade-in-left {
   -webkit-animation-name: fade-in-left;
@@ -229,7 +261,6 @@ footer {
     transform: translateX(0);
   }
 }
-
 .fade-in-right {
   -webkit-animation-name: fade-in-right;
   animation-name: fade-in-right;
@@ -256,6 +287,14 @@ footer {
   box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
     0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
+
 #next-button {
   margin-top: 5vh;
+}
+#next-arrow {
+  padding-left: 0px;
+  -webkit-transition: padding-left 0.5s;
+  -moz-transition: padding-left 0.5s;
+  -o-transition: padding-left 0.5s;
+  transition: padding-left 0.5s;
 }

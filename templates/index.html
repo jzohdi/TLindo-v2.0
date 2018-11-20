@@ -62,8 +62,14 @@ head %}
   </div>
   <div id="next-button" class="row normalize-height hidden">
     <div class="col-md-6 col-md-offset-3">
-      <button class="button button1">
-        Next <span class="glyphicon glyphicon-menu-right"></span>
+      <button
+        onclick="nextWindow()"
+        onmouseout="arrowMoveBack()"
+        onmouseover="arrowMove()"
+        class="button button1"
+      >
+        Next
+        <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span>
       </button>
     </div>
   </div>

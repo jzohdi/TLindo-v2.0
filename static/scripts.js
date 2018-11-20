@@ -1,3 +1,4 @@
+var eventVariables = {};
 function setPicker() {
   let ele = document.getElementById("datepicker");
   if (ele) {
@@ -46,7 +47,7 @@ function copyToClipBoard(textValue) {
 
 function planEvent() {
   let dateSelector = $("#datepicker");
-  console.log(dateSelector);
+  // console.log(dateSelector);
   document.querySelector('input[name="date"]').onchange = changeEventHandler;
   // dateSelector[0].addEventListener("input", function(e) {
   //   console.log("yes");
@@ -70,4 +71,31 @@ function changeEventHandler(event) {
     nextButton[0].setAttribute("style", cssAnimationTiming);
     nextButton.removeClass("hidden").addClass("fade-in-left");
   }
+}
+
+function arrowMove() {
+  let next_Arrow = $("#next-arrow");
+  next_Arrow.css("padding-left", "14px");
+}
+function arrowMoveBack() {
+  let next_Arrow = $("#next-arrow");
+  next_Arrow.css("padding-left", "0px");
+}
+function nextWindow() {
+  let eventDate = document.getElementById("datepicker").value;
+  eventVariables.date = eventDate;
+
+  let datePlanner = $("#event-planner");
+  let needPhone = $("#need-phone");
+  let nextButton = $("#next-button");
+
+  datePlanner.addClass("fade-out-right");
+  needPhone.addClass("fade-out-left");
+  nextButton.addClass("fade-out-right");
+
+  setTimeout(function(datePlanner, needPhone, nextButton) {
+    datePlanner.empty();
+    needPhone.empty();
+    nextButton.empty();
+  }, 1000);
 }
