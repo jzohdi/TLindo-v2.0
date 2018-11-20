@@ -33,6 +33,10 @@ body,
 .col-center-right {
   float: left;
 }
+/* #date-form {
+  float: center;
+  max-width: 200px;
+} */
 .main-nav-item:hover,
 .footer-link:hover {
   /* background-color: #3b10d4 !important; */
@@ -142,21 +146,26 @@ footer {
 }
 /* for index page / main page */
 .main-card {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   background-color: rgba(255, 255, 255, 1);
   border-radius: 8px;
   -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  -o-animation-duration: 1s;
+  -ms-animation-duration: 1s;
   animation-duration: 1s;
   overflow: hidden;
-}
-
-.main-card:hover {
-  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
-    0 17px 50px 0 rgba(0, 0, 0, 0.19);
   -webkit-transition: box-shadow 0.7s;
   -moz-transition: box-shadow 0.7s;
   -o-transition: box-shadow 0.7s;
   transition: box-shadow 0.7s;
 }
+
+.main-card:hover {
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
+}
+
 @media (max-width: 992px) {
   .main-card {
     padding-top: 10px;
@@ -181,6 +190,10 @@ footer {
     padding-bottom: 15px;
     margin-top: 10px;
   }
+
+  .card-margin2 {
+    margin-left: 10px;
+  }
 }
 /* fade animations for index main-cards */
 @-webkit-keyframes fade-in-left {
@@ -204,6 +217,37 @@ footer {
     transform: translateX(0);
   }
 }
+@-moz-keyframes fade-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-30%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@-ms-keyframes fade-in-left {
+  0% {
+    opacity: 0;
+    -ms-transform: translateX(-30%);
+  }
+  100% {
+    opacity: 1;
+    -ms-transform: translateX(0);
+  }
+}
+@-o-keyframes fade-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-30%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .fade-out-right {
   -webkit-transition: transform 1s, opacity 1s;
   -moz-transition: transform 1s, opacity 1s;
@@ -229,6 +273,9 @@ footer {
 
 .fade-in-left {
   -webkit-animation-name: fade-in-left;
+  -moz-animation-name: fade-in-left;
+  -ms-animation-name: fade-in-left;
+  -o-animation-name: fade-in-left;
   animation-name: fade-in-left;
 }
 @media (min-width: 992px) {
@@ -250,6 +297,36 @@ footer {
     -webkit-transform: translateX(0);
   }
 }
+@-moz-keyframes fade-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(+30%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@-ms-keyframes fade-in-right {
+  0% {
+    opacity: 0;
+    -ms-transform: translateX(+30%);
+  }
+  100% {
+    opacity: 1;
+    -ms-transform: translateX(0);
+  }
+}
+@-o-keyframes fade-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(+30%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
 @keyframes fade-in-right {
   0% {
@@ -263,6 +340,9 @@ footer {
 }
 .fade-in-right {
   -webkit-animation-name: fade-in-right;
+  -moz-animation-name: fade-in-right;
+  -ms-animation-name: fade-in-right;
+  -o-animation-name: fade-in-rignt;
   animation-name: fade-in-right;
 }
 .button {
@@ -297,4 +377,10 @@ footer {
   -moz-transition: padding-left 0.5s;
   -o-transition: padding-left 0.5s;
   transition: padding-left 0.5s;
+}
+.card-margin1 {
+  border: 2px solid #0d034c;
+}
+.card-margin2 {
+  border: 2px solid #0d034c;
 }

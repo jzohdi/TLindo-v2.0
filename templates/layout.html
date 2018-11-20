@@ -48,7 +48,9 @@
     <!-- local JQuery backup -->
     <script>
       window.jQuery ||
-        document.write( {% raw %} "<script src=\"{{ url_for('static', filename='jquery-3.3.1.min.js') }}\"><\/script>" {% endraw %} );
+        document.write(
+          "<script src=\"{{ url_for('static', filename='jquery-3.3.1.min.js') }}\"><\/script>"
+        );
     </script>
     <!-- Latest compiled and minified JavaScript bootstrap CDN -->
     <script
@@ -218,7 +220,7 @@
     <!-- Copyright -->
 
     <div class="footer-copyright text-center py-3">
-      © 2018 Copyright Taco Lindo | Made with Bootstrap and JQuery
+      © 2018 Copyright Taco Lindo | Made with Bootstrap | JQuery | pickadate.js
     </div>
 
     <!-- Copyright -->
