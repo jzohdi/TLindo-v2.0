@@ -58,7 +58,7 @@
       integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
       crossorigin="anonymous"
     ></script>
-
+    <script id="append-css" type="text/css"></script>
     {{
       JSGlue.include()
     }}
@@ -68,7 +68,7 @@
 
   <body class="feather">
     <div id="bootstrapCssTest" class="hidden"></div>
-    <div class="container-fullwidth">
+    <div id="layout-page" class="container-fullwidth">
       <nav class="navbar" style="background-color: rgb(13, 3, 76, 0)">
         <div id="all-nav-bar" class="nav-pad container-fluid">
           <div class="navbar-header menu" style="margin-right: 0px;">
@@ -94,7 +94,7 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id %}
+            {% if session.user_id %} {% if admin %} {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a class="titles main-nav-item" href="#">New Reservation</a>
@@ -106,12 +106,13 @@
               {# href="{{
                 url_for("make")
               }}" #}
+              <li>
+                <a class="titles main-nav-item" href="#">Incomplete Orders</a>
+              </li>
               <li><a class="titles main-nav-item" href="#">Prices</a></li>
               {# href="{{
                 url_for("friends")
               }}" #}
-            </ul>
-            <ul class="nav navbar-nav navbar-right menu">
               <li>
                 <a class="titles main-nav-item" href="#">Change Password</a>
               </li>
@@ -127,7 +128,7 @@
               }}
               #}
             </ul>
-            {% else %}
+            {% endif %} {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a class="titles main-nav-item" href="{{ url_for('index') }}"

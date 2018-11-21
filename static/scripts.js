@@ -223,13 +223,26 @@ function startHelpScreen() {
   );
   let maxFlavors = Math.min([maxItems, 4]);
   let itemsGrammer = maxItems > 1 ? " items" : " item";
+
+  /* Return an array of the div elements representing food options*/
+  const setFoodOptions = getFoodOptionsDivs();
+
   let helperScreenDiv =
     '<div id="card2" class="col-lg-8 col-lg-offset-2 main-card fade-in-left helper-screen">' +
     '<h4 class="question-titles">We recommend that you choose ' +
     maxItems.toString() +
     itemsGrammer +
-    " from the options below. </h4><div class='row normalize-height'><div class='col-md-6'>Test</div><div class='col-md-6'>Test2</div></div></div>";
+    " from the options below. </h4><div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 style='border-bottom: 1px solid;'>Entree Options</h3></div>" +
+    "<div id='selected-food' class='col-md-6'><h3 style='border-bottom: 1px solid;' >Selected Items</h3>" +
+    "<p>( <span id='selected-message'> Choose <span id='num-to-choose'>" +
+    maxItems.toString() +
+    " more</spand></span> )</p></div></div></div>";
+
   $("#top-message").append(helperScreenDiv);
+
+  setFoodOptions.forEach(function(element) {
+    $("#food-options").append(element);
+  });
 }
 function startSelectionScreen() {
   console.log("no Help");
@@ -246,10 +259,20 @@ function setNav() {
     let addDifference = Math.abs(widthMain - widthNav) / 2;
 
     let differenceX = Math.abs(offsetNavX - offsetMainX) / 2;
-    console.log(offsetNavX, offsetMainX);
+
     $("#nav-list")[0].setAttribute(
       "style",
       "transform: translate(" + (addDifference - differenceX) + "px, 0)"
     );
   }
+}
+function getFoodOptionsDivs() {
+  let divs = [
+    '<div id="item1" class="entree-options row"><div class="col-lg-12 entree-item">Burrito Tray</div></div>',
+    '<div id="item2" class="entree-options row"><div class="col-lg-12 entree-item">Chicken Tray</div></div>',
+    '<div id="item3" class="entree-options row"><div class="col-lg-12 entree-item">Taco Tray</div></div>',
+    '<div id="item4" class="entree-options row"><div class="col-lg-12 entree-item">Nacho Bar</div></div>',
+    '<div id="item5" class="entree-options row"><div class="col-lg-12 entree-item">Chili</div></div>'
+  ];
+  return divs;
 }
