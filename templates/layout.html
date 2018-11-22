@@ -97,34 +97,40 @@
             {% if session.user_id %} {% if admin %} {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
-                <a class="titles main-nav-item" href="#">New Reservation</a>
-              </li>
-              {# href="{{
-                url_for("index")
-              }}" #}
-              <li><a class="titles main-nav-item" href="#">My Orders</a></li>
-              {# href="{{
-                url_for("make")
-              }}" #}
-              <li>
-                <a class="titles main-nav-item" href="#">Incomplete Orders</a>
+                <a id="user_logged_in" class="titles main-nav-item" href="#"
+                  >New Reservation</a
+                >
               </li>
               <li><a class="titles main-nav-item" href="#">Prices</a></li>
-              {# href="{{
-                url_for("friends")
-              }}" #}
-              <li>
-                <a class="titles main-nav-item" href="#">Change Password</a>
+
+              <li class="dropdown">
+                <a
+                  class="dropdown-toggle titles main-nav-item"
+                  data-toggle="dropdown"
+                  href="#"
+                  >Manage Account<span class="caret"></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="titles main-nav-item" href="#">My Orders</a>
+                  </li>
+                  <li>
+                    <a class="titles main-nav-item" href="#"
+                      >Incomplete Orders</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="titles main-nav-item"
+                      href="{{ url_for('logout') }}"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
               </li>
               {#
               {{
                 url_for("newpass")
-              }}
-              #}
-              <li><a class="titles main-nav-item" href="#">Log Out</a></li>
-              {#
-              {{
-                url_for("logout")
               }}
               #}
             </ul>
@@ -146,7 +152,11 @@
                 url_for("register")
               }}
               #}
-              <li><a class="titles main-nav-item" href="#">Log In</a></li>
+              <li>
+                <a class="titles main-nav-item" href="{{ url_for('login') }}"
+                  >Log In</a
+                >
+              </li>
               {#
               {{
                 url_for("login")

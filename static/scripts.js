@@ -248,24 +248,6 @@ function startSelectionScreen() {
   console.log("no Help");
 }
 
-function setNav() {
-  if (windowWidth >= 992) {
-    let offsetNavX = $("#nav-list").offset().left;
-    let offsetMainX = $("#card2").offset().left;
-
-    let widthNav = $("#nav-list").width();
-    let widthMain = $("#card2").width();
-
-    let addDifference = Math.abs(widthMain - widthNav) / 2;
-
-    let differenceX = Math.abs(offsetNavX - offsetMainX) / 2;
-
-    $("#nav-list")[0].setAttribute(
-      "style",
-      "transform: translate(" + (addDifference - differenceX) + "px, 0)"
-    );
-  }
-}
 function getFoodOptionsDivs() {
   let divs = [
     '<div id="item1" class="entree-options row"><div class="col-lg-12 entree-item">Burrito Tray</div></div>',

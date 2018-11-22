@@ -5,7 +5,7 @@ head %}
 </script>
 {% endblock %} {% block main %}
 <div class="container register-content">
-  <p>{{ error }}</p>
+  <p class="question-titles">{{ error }}</p>
   <div class="row">
     <div class="col-sm-4 col-sm-offset-3">
       <form action="{{ url_for('register') }}" method="post">

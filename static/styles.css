@@ -12,6 +12,11 @@ body,
   margin-right: auto;
   text-align: center;
 }
+@media (min-width: 886px) {
+  #nav-list {
+    transform: translate(-96px, 0px);
+  }
+}
 .navbar-header {
   margin-right: 0px;
 }
