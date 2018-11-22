@@ -4,3 +4,4 @@ static/picker.js
 static/jquery-3.3.1.min.js
 static/bootstrap-3.3.7-dist/
 static/defaultcompressed.css
+flask_session/
