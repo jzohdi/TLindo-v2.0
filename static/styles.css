@@ -394,6 +394,9 @@ footer {
 .entree-options {
   margin: 5px 0px;
 }
+#selected-food {
+  margin-bottom: 50px;
+}
 .entree-item {
   margin: 5px 0px;
   padding: 10px;
@@ -429,6 +432,7 @@ footer {
 
 /* Modal Content */
 .modal-content {
+  min-height: 75vh;
   background-color: #fefefe;
   margin: auto;
   padding: 20px;

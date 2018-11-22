@@ -254,23 +254,23 @@ function startSelectionScreen() {
 
 function getFoodOptionsDivs() {
   let divs = [
-    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\')" class="col-lg-12 entree-item">Burrito Tray</div></div>',
-    '<div id="item2" class="entree-options row"><div onclick="showSelection1(\'Chicken\')" class="col-lg-12 entree-item">Chicken Tray</div></div>',
-    '<div id="item3" class="entree-options row"><div onclick="showSelection1(\'Taco\')" class="col-lg-12 entree-item">Taco Tray</div></div>',
-    '<div id="item4" class="entree-options row"><div onclick="showSelection1(\'Nacho\')" class="col-lg-12 entree-item">Nacho Bar</div></div>',
-    '<div id="item5" class="entree-options row"><div onclick="showSelection1(\'Chili\')" class="col-lg-12 entree-item">Chili</div></div>'
+    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-lg-12 entree-item">Burrito Tray</div></div>',
+    '<div id="item2" class="entree-options row"><div onclick="showSelection1(\'Chicken\', 2)" class="col-lg-12 entree-item">Chicken Tray</div></div>',
+    '<div id="item3" class="entree-options row"><div onclick="showSelection1(\'Taco\', 3)" class="col-lg-12 entree-item">Taco Tray</div></div>',
+    '<div id="item4" class="entree-options row"><div onclick="showSelection1(\'Nacho\', 4)" class="col-lg-12 entree-item">Nacho Bar</div></div>',
+    '<div id="item5" class="entree-options row"><div onclick="showSelection1(\'Chili\', 5)" class="col-lg-12 entree-item">Chili</div></div>'
   ];
   return divs;
 }
 
-function showSelection1(itemName) {
+function showSelection1(itemName, num) {
   let modalDiv =
-    '<div id="myModal" class="modal"><div class="modal-content"> <span class="close">Close</span>' +
-    "<p>Some text in the Modal..</p> </div></div>";
+    '<div id="myModal" class="modal"><div class="modal-content">Choose from the options<span class="close">X</span>' +
+    "<p></p> </div></div>";
   $("#event-planner").append(modalDiv);
 
   let modal = document.getElementById("myModal");
-  let openButton = document.getElementById("item1");
+  let openButton = document.getElementById("item" + num.toString());
   let span = document.getElementsByClassName("close")[0];
 
   openButton.onclick = function() {
@@ -278,10 +278,12 @@ function showSelection1(itemName) {
   };
   span.onclick = function() {
     modal.style.display = "none";
+    $("#event-planner").empty();
   };
   window.onclick = function(event) {
     if (event.target == modal) {
       modal.style.display = "none";
+      $("#event-planner").empty();
     }
   };
 }
