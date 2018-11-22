@@ -125,6 +125,8 @@ db = SQLAlchemy(app)
 
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 
+app.config["SESSION_PERMANENT"] = False
+
 app.secret_key = os.environ.get("SECRET_KEY", None)
 app.config["SESSION_TYPE"] = "filesystem"
 
