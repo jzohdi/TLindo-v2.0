@@ -22,6 +22,14 @@ var windowWidth = window.innerWidth;
 // };
 
 function setPicker() {
+  let finalArrayOfDates = [];
+  let disableDates = document.getElementById("dates-to-hide").innerHTML;
+  disableDates = eval(disableDates);
+  for (let y = 0; y < disableDates.length; y++) {
+    let formatDate = new Date(disableDates[y]);
+    finalArrayOfDates.push(formatDate);
+  }
+
   let ele = document.getElementById("datepicker");
   if (ele) {
     var $input = $("#datepicker").pickadate({
@@ -34,6 +42,7 @@ function setPicker() {
       minDate.getMonth(),
       minDate.getDate() + 2
     ]);
+    picker.set("disable", finalArrayOfDates);
     console.log("picker set");
   }
   let el = document.getElementById("timepicker");
@@ -66,17 +75,13 @@ function copyToClipBoard(textValue) {
     );
   }
 }
-
+/*
+Functions below are functions used to javascript page interaction for setting a new
+*/
 function planEvent() {
   let dateSelector = $("#datepicker");
   // console.log(dateSelector);
   document.querySelector('input[name="date"]').onchange = changeEventHandler;
-  // dateSelector[0].addEventListener("input", function(e) {
-  //   console.log("yes");
-  //   $("#need-phone")
-  //     .removeClass("hidden")
-  //     .addClass("fade-in-right");
-  // });
 }
 function changeEventHandler(event) {
   if (!event.target.value) console.log("nothing here");

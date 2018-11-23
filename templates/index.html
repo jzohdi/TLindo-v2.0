@@ -14,8 +14,12 @@ head %}
     </div>
   </div>
   <div id="event-planner" class="row normalize-height">
-    <div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-left">
-      <h4 class="question-titles">What day will your event be?</h4>
+    <div
+      id="card2"
+      class="question-titles col-md-6 col-md-offset-3 main-card fade-in-left"
+    >
+      <h4>What day will your event be?</h4>
+      <p id="dates-to-hide" class="hidden">{{ dates }}</p>
       <div id="date-form" class="form-group">
         <input
           class="form-control"

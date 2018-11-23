@@ -1,0 +1,128 @@
+{% extends "layout.html" %} {% block title %} Manage Dates {% endblock %} {%
+block head %}
+<script>
+  Flask.url_for("managedates");
+</script>
+
+{{ super() }} {% endblock %} {% block main %}
+<div style="margin-top: 20vh;" class="container">
+  <p class="question-titles">{{ error }}</p>
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="main-card question-titles">
+        <form action="{{ url_for('managedates') }}" method="post">
+          <h4>Select dates here</h4>
+          <fieldset>
+            <div class="form-group">
+              <input id="hidden-input" name="data" class="hidden" />
+              <input
+                autocomplete="off"
+                id="datepicker"
+                class="form-control"
+                name="date"
+                placeholder="None"
+                type="text"
+              />
+            </div>
+            <div>
+              <h4>Dates Selected:</h4>
+              <p>( click on date to remove )</p>
+              <p id="dates-selected"></p>
+            </div>
+            <div class="form-group">
+              <h4>Submit to markout selected dates</h4>
+
+              <button class="btn btn-default" type="submit">Submit</button>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="main-card question-titles">
+        <h4 style="border-bottom: 1px #0d034c solid; padding: 5px 15px;">
+          All Dates - dates in red are currently unavailable
+        </h4>
+        <table class="manage-dates-table">
+          <tr>
+            <th>Date</th>
+            <th>Order amount</th>
+          </tr>
+          {% for date in dates %} {% if date.sum >= 2000 %}
+          <tr style="font-weight: bold; color: #ff0202;">
+            <td>{{ date.day }}</td>
+            <td>{{ date.sum }}</td>
+          </tr>
+          {% elif date.sum == 0 %}
+          <tr style="font-weight: bold; color: #ff0202;">
+            <td>{{ date.day }}</td>
+            <td>{{ date.sum }}</td>
+          </tr>
+          {% else %}
+          <tr syle="color: black;">
+            <td>{{ date.day }}</td>
+            <td>{{ date.sum }}</td>
+          </tr>
+          {% endif %} {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='picker.js') }}"></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='defaultcompressed.css') }}"
+/>
+<script type="text/javascript">
+  window.onload = function() {
+    var sendDates = [];
+    setPicker();
+    function dateChangeHandler() {
+      document.querySelector('input[name="date"]').onchange = dateHandler;
+    }
+    function dateHandler(event) {
+      //   if (!event.target.value) console.log("nothing here");
+      //   else {
+      let new_date = document.getElementById("datepicker").value;
+
+      if (sendDates.indexOf(new_date) == -1) {
+        sendDates.push(new_date.toString());
+
+        setDiv();
+      }
+    }
+
+    function setDiv() {
+      let setInput = "";
+      let divString = "";
+
+      for (let i = 0; i < sendDates.length; i++) {
+        let dateString = sendDates[i].toString();
+
+        divString += "<p id=" + i.toString() + ">" + sendDates[i] + "</p>";
+        setInput += dateString + "/";
+      }
+      setInput = setInput.substring(0, setInput.length - 1);
+      document.getElementById("hidden-input").value = setInput;
+      document.getElementById("dates-selected").innerHTML = divString;
+      for (let x = 0; x < sendDates.length; x++) {
+        document
+          .getElementById(x.toString())
+          .addEventListener("click", function() {
+            removeFromDates(x);
+          });
+      }
+    }
+
+    function removeFromDates(element) {
+      sendDates.splice(element, 1);
+      setDiv();
+    }
+
+    dateChangeHandler();
+  };
+</script>
+
+{% endblock %}

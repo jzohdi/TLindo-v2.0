@@ -454,3 +454,17 @@ footer {
   text-decoration: none;
   cursor: pointer;
 }
+.manage-dates-table {
+  width: 90%;
+  margin: 5px 20px;
+  text-align: center;
+  border-bottom: 1px solid;
+}
+.manage-dates-table th {
+  border-bottom: 1px solid;
+  text-align: center;
+}
+#dates-selected p:hover {
+  color: white;
+  background-color: #0d034c;
+}

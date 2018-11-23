@@ -15,7 +15,8 @@ from config import getKeys
 import psycopg2
 import psycopg2.extras
 import json
-from helpers import get_salt
+from helpers import get_salt, parse_dictionary
+from tempfile import mkdtemp
 
 settings = {}
 
@@ -38,10 +39,14 @@ def execute(statement, values):
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if "SELECT" in statement:
-            cur.execute( statement, values )
-        #conn.commit()
-            res = [json.loads(json.dumps(dict(record))) for record in cur]
-            print(res)
+            if "%s" not in statement:
+                cur.execute(statement)
+                res = [json.loads(json.dumps(dict(record))) for record in cur]
+            else:            
+                cur.execute( statement, values )
+            #conn.commit()
+                res = [json.loads(json.dumps(dict(record))) for record in cur]
+            #print(res)
         if "INSERT" in statement or "UPDATE" in statement:
             cur.execute( statement, values )
             conn.commit()
@@ -80,7 +85,10 @@ app = Flask(__name__)
 jsglue = JSGlue(app)
 
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 secret_Key = settings.get("SECRET_KEY")
 
@@ -93,7 +101,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-app.config["SESSION_TYPE"] = "filesystem"
+
 
 if app.config["DEBUG"]:
     @app.after_request
@@ -159,7 +167,14 @@ def dated_url_for(endpoint, **values):
 """"""
 @app.route('/')
 def index():
-    return render_template('index.html')
+    dates = execute("""
+                    SELECT * FROM managedates WHERE row = 1
+                    """,("NA",))
+    dates = json.loads(dates[0]["dates"])
+    final = []
+    for date in dates:
+        final.append(date.get("day"))
+    return render_template('index.html', dates=final)
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -187,6 +202,10 @@ def login():
         
         session["user_id"] = users[0]["id"]
         print("user logged in succesfully")
+        print(username)
+        if username == 'admin':
+            session['admin'] = True
+            return redirect( url_for("managedates") )
         
         return redirect( url_for("index") )
         
@@ -196,8 +215,8 @@ def login():
 def logout():
     
     session.pop("user_id", None)
-    
-    return render_template("index.html")
+    session.pop("admin", None)
+    return redirect(url_for("index"))
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -245,12 +264,40 @@ def register():
         user_id_num = confirm_user_added[0]["id"]
         
         session["user_id"] = user_id_num
-        
-        
+        if username == 'admin':
+            session['admin'] = True
+            return redirect( url_for("managedates") )
         return redirect(url_for("index"))
     
     return render_template('register.html')
+
+@app.route('/managedates', methods=["GET", "POST"])
+def managedates():
     
+    if "user_id" not in session:
+        return redirect(url_for('login'))
+    if "admin" not in session:
+        return redirect(url_for('login'))
+    dates = execute("""
+                    SELECT * FROM managedates
+                    """, "NA")
+    dates = json.loads(dates[0].get("dates"))
+    
+    # must convert sum - string to sum - integer for each date
+    dates = parse_dictionary(dates)
+ 
+    if request.method == "POST":
+        data = request.form.get("data")
+        data = data.split("/")
+        for date in data:
+            dates.append({ "day": str(date), "sum": "0"})
+        dates_to_add = json.dumps(dates)
+        execute("""
+                UPDATE managedates SET dates = %s WHERE row = 1
+                """,(dates_to_add, ))
+        return redirect(url_for("managedates"))
+    return render_template("managedates.html", dates = dates, admin=True)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -258,6 +305,6 @@ def favicon():
 
 if __name__ == '__main__':
 
-    app.run(debug=True)
+    app.run(debug=False)
     #app.add_url_rule('/favicon.ico',
     #            redirect_to=url_for('static', filename='favicon.ico'))

@@ -94,7 +94,26 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id %} {% if admin %} {% else %}
+            {% if session.user_id %} {% if admin %}
+            <ul id="nav-list" class="nav navbar-nav menu">
+              <li><a href="#" class="titles main-nav-item">Past Orders</a></li>
+              <li>
+                <a href="#" class="titles main-nav-item">Scheduled Orders</a>
+              </li>
+              <li>
+                <a
+                  href="{{ url_for('managedates') }}"
+                  class="titles main-nav-item"
+                  >Manage Dates</a
+                >
+              </li>
+              <li>
+                <a href="{{ url_for('logout') }}" class="titles main-nav-item"
+                  >Logout</a
+                >
+              </li>
+            </ul>
+            {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a id="user_logged_in" class="titles main-nav-item" href="#"
@@ -118,6 +137,9 @@
                     <a class="titles main-nav-item" href="#"
                       >Incomplete Orders</a
                     >
+                  </li>
+                  <li>
+                    <a class="titles main-nav-item" href="#">Delete Account</a>
                   </li>
                   <li>
                     <a
