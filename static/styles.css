@@ -437,9 +437,17 @@ footer {
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
 }
-
+@media (min-width: 900px) {
+  .modal-content {
+    width: 60%;
+  }
+}
+@media (max-width: 899px) {
+  .modal-content {
+    width: 80%;
+  }
+}
 /* The Close Button */
 .close {
   color: #aaaaaa;
@@ -467,4 +475,20 @@ footer {
 #dates-selected p:hover {
   color: white;
   background-color: #0d034c;
+}
+
+.custom-select select {
+  background-color: rgb(240, 240, 240);
+  min-width: 120px;
+  color: #0d034c !important;
+}
+.custom-select select option {
+  background-color: rgb(240, 240, 240);
+  min-width: 120px;
+}
+.custom-select select:hover {
+  color: #0d034c;
+}
+.custom-select select option:hover {
+  color: #0d034c;
 }

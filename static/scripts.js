@@ -22,14 +22,17 @@ var windowWidth = window.innerWidth;
 // };
 
 function setPicker() {
+  // collect dates to disable for picker + check to see if element exists on page.
   let finalArrayOfDates = [];
-  let disableDates = document.getElementById("dates-to-hide").innerHTML;
-  disableDates = eval(disableDates);
-  for (let y = 0; y < disableDates.length; y++) {
-    let formatDate = new Date(disableDates[y]);
-    finalArrayOfDates.push(formatDate);
+  let disableDates = document.getElementById("dates-to-hide");
+  if (typeof disableDates !== "undefined" && disableDates !== null) {
+    disableDates = disableDates.innerHTML;
+    disableDates = eval(disableDates);
+    for (let y = 0; y < disableDates.length; y++) {
+      let formatDate = new Date(disableDates[y]);
+      finalArrayOfDates.push(formatDate);
+    }
   }
-
   let ele = document.getElementById("datepicker");
   if (ele) {
     var $input = $("#datepicker").pickadate({
@@ -45,6 +48,7 @@ function setPicker() {
     picker.set("disable", finalArrayOfDates);
     console.log("picker set");
   }
+  // if using time picker as well to select for time of the day.
   let el = document.getElementById("timepicker");
   if (el) {
     var $timeInput = $("#timepicker").pickatime();
@@ -54,10 +58,6 @@ function setPicker() {
     timePicker.set("min", minTime);
     timePicker.set("max", maxTime);
   }
-  //   var today = new Date();
-  //   var dd = today.getDate();
-  //   var mm = today.getMonth();
-  //   var yyyy = today.getFullYear();
 }
 
 /*
@@ -220,28 +220,14 @@ function setUpHelpScreen(needHelp) {
     if (needHelp === "nohelp") startSelectionScreen();
   }, 1000);
 }
-function startHelpScreen() {
-  let maxItems = Math.floor(
-    (eventVariables.numberOfPeople.adults +
-      eventVariables.numberOfPeople.kids) /
-      8
-  );
-  let maxFlavors = Math.min([maxItems, 4]);
-  let itemsGrammer = maxItems > 1 ? " items" : " item";
-
+function startSelectionScreen() {
   /* Return an array of the div elements representing food options*/
   const setFoodOptions = getFoodOptionsDivs();
-
+  window.selectedFoodOptions = {};
   let helperScreenDiv =
-    '<div id="card2" class="col-lg-8 col-lg-offset-2 main-card fade-in-left helper-screen">' +
-    '<h4 class="question-titles">We recommend that you choose ' +
-    maxItems.toString() +
-    itemsGrammer +
-    " from the options below. </h4><div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 style='border-bottom: 1px solid;'>Entree Options</h3></div>" +
-    "<div id='selected-food' class='col-md-6'><h3 style='border-bottom: 1px solid;' >Selected Items</h3>" +
-    "<p>( <span id='selected-message'> Choose <span id='num-to-choose'>" +
-    maxItems.toString() +
-    " more</spand></span> )</p></div></div></div>";
+    '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen">' +
+    "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 style='border-bottom: 1px solid;'>Entree Options</h3></div>" +
+    "<div id='selected-food' class='col-md-6'><h3 style='border-bottom: 1px solid;' >Selected Items</h3> </div></div></div>";
 
   $("#top-message").append(helperScreenDiv);
 
@@ -253,8 +239,15 @@ function startHelpScreen() {
   //   element.addEventListener("click", showSelection1(element.innerText));
   // });
 }
-function startSelectionScreen() {
-  console.log("no Help");
+function startHelpScreen() {
+  console.log("Help");
+  let maxItems = Math.floor(
+    (eventVariables.numberOfPeople.adults +
+      eventVariables.numberOfPeople.kids) /
+      8
+  );
+  let maxFlavors = Math.min([maxItems, 4]);
+  let itemsGrammer = maxItems > 1 ? " items" : " item";
 }
 
 function getFoodOptionsDivs() {
@@ -263,15 +256,19 @@ function getFoodOptionsDivs() {
     '<div id="item2" class="entree-options row"><div onclick="showSelection1(\'Chicken\', 2)" class="col-lg-12 entree-item">Chicken Tray</div></div>',
     '<div id="item3" class="entree-options row"><div onclick="showSelection1(\'Taco\', 3)" class="col-lg-12 entree-item">Taco Tray</div></div>',
     '<div id="item4" class="entree-options row"><div onclick="showSelection1(\'Nacho\', 4)" class="col-lg-12 entree-item">Nacho Bar</div></div>',
-    '<div id="item5" class="entree-options row"><div onclick="showSelection1(\'Chili\', 5)" class="col-lg-12 entree-item">Chili</div></div>'
+    '<div id="item5" class="entree-options row"><div onclick="showSelection1(\'Chili\', 5)" class="col-lg-12 entree-item">Chili</div></div>',
+    '<div id="item6" class="entree-options row"><div onclick="showSelection1(\'Sides\', 6)" class="col-lg-12 entree-item">Sides</div></div>'
   ];
   return divs;
 }
 
 function showSelection1(itemName, num) {
+  let itemSelection = getSelection(num);
   let modalDiv =
-    '<div id="myModal" class="modal"><div class="modal-content">Choose from the options<span class="close">X</span>' +
-    "<p></p> </div></div>";
+    '<div id="myModal" class="modal question-titles"><div id="add-modal-content" class="modal-content">' +
+    '<span class="close">X</span>' +
+    itemSelection +
+    "</div></div>";
   $("#event-planner").append(modalDiv);
 
   let modal = document.getElementById("myModal");
@@ -293,18 +290,72 @@ function showSelection1(itemName, num) {
   };
 }
 
+function getSelection(itemNum) {
+  let divToAppendInModal;
+  let entreeType;
+  let meatChoices = "";
+  if (itemNum == 1) {
+    entreeType = "Burrito";
+    /* get flavor optiosn for that option, and iterate through, creating div elements to match */
+    let AllChoices = getFlavorOptions(itemNum);
+    let portions = getPortionOptions(itemNum);
+    for (let meatChoice = 0; meatChoice < AllChoices.length; meatChoice++) {
+      let selectionPortion = "";
+      for (
+        let portionChoice = 0;
+        portionChoice < portions.length;
+        portionChoice++
+      ) {
+        selectionPortion +=
+          "<option value=" +
+          portionChoice.toString() +
+          ">" +
+          portions[portionChoice] +
+          "</option>";
+      }
+      let meatChoiceDiv =
+        "<div class='col-md-12 entree-item'><div class='row'><div class='col-sm-6'>" +
+        AllChoices[meatChoice] +
+        "</div><div class='col-sm-6'><div class='custom-select'><select id='" +
+        AllChoices[meatChoice] +
+        "' " +
+        "onchange='addToSelection(\"" +
+        AllChoices[meatChoice] +
+        "\")'>" +
+        selectionPortion +
+        "</select></div></div></div></div>";
+      meatChoices += meatChoiceDiv;
+    }
+  }
+  meatChoices +=
+    "<div onclick='enterOptionsOntoSelection()' class='col-sm-4 col-sm-offset-4 button button1'> Done! </div>";
+  divToAppendInModal =
+    "<div style='padding-top: 10vh'><h4 style='border-bottom: 2px solid;' >Choose meat and portion options for " +
+    entreeType +
+    ":</h4>" +
+    meatChoices;
+  return divToAppendInModal;
+}
+function addToSelection(meatSelection) {
+  console.log(meatSelection);
+}
 function getFlavorOptions(item) {
-  if (item == "Burrito")
-    return {
-      itemNum: "1",
-      choices: [
-        "Beef",
-        "Steak",
-        "Carnitas",
-        "Chicken",
-        "Fish",
-        "Shrimp",
-        "Veggie"
-      ]
-    };
+  if (item == 1)
+    return [
+      "Ground Beef",
+      "Marinated Steak",
+      "Carnitas",
+      "Shredded Chicken",
+      "Fish",
+      "Grilled Shrimp",
+      "Veggie"
+    ];
+}
+function getPortionOptions(item) {
+  if (item == 1) {
+    return ["None", "Full Pan"];
+  }
+}
+function enterOptionsOntoSelection() {
+  console.log(selectedFoodOptions);
 }
