@@ -202,7 +202,7 @@ def index():
 #    print(calender)
     final = []
     for date in calender:
-        if date.get("sum") == 0 or date.get("sum") >= max_val:
+        if int(date.get("sum")) == 0 or int(date.get("sum")) >= max_val:
             final.append(date.get("day"))
     return render_template('index.html', dates=final)
 
@@ -314,10 +314,10 @@ def managedates():
     dates = execute("""
                     SELECT * FROM managedates
                     """, "NA")
-    dates = json.loads(dates[0].get("dates"))
+    all_dates = json.loads(dates[0].get("dates"))
     max_val = dates[0].get("max")
     # must convert sum - string to sum - integer for each date
-    dates = parse_dictionary(dates)
+    dates = parse_dictionary(all_dates)
  
     if request.method == "POST":
         data = request.form.get("data")
