@@ -34,10 +34,7 @@
     />
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Raleway"
-    />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <!-- JQuery CDN -->
     <script
@@ -100,17 +97,36 @@
               <li>
                 <a href="#" class="titles main-nav-item">Scheduled Orders</a>
               </li>
-              <li>
+
+              <li class="dropdown">
                 <a
-                  href="{{ url_for('managedates') }}"
-                  class="titles main-nav-item"
-                  >Manage Dates</a
-                >
-              </li>
-              <li>
-                <a href="{{ url_for('logout') }}" class="titles main-nav-item"
-                  >Logout</a
-                >
+                  class="dropdown-toggle titles main-nav-item"
+                  data-toggle="dropdown"
+                  href="#"
+                  >Functions<span class="caret"></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('managedates') }}"
+                      class="titles main-nav-item"
+                      >Manage Dates</a
+                    >
+                  </li>
+                  <li>
+                    <a class="titles main-nav-item" href="#">View/Edit Menu</a>
+                  </li>
+                  <li>
+                    <a class="titles main-nav-item" href="#">Change Password</a>
+                  </li>
+                  <li>
+                    <a
+                      class="titles main-nav-item"
+                      href="{{ url_for('logout') }}"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
               </li>
             </ul>
             {% else %}
@@ -203,7 +219,7 @@
   </body>
   <!-- Footer -->
   <footer
-    style="font-family: Raleway, Arial, Helvetica, sans-serif"
+    style="font-family: LTPro, Arial, Helvetica, sans-serif"
     class="page-footer font-small pt-4"
   >
     <!-- Footer Text -->

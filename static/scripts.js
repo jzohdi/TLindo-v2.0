@@ -252,8 +252,8 @@ function startHelpScreen() {
 
 function getFoodOptionsDivs() {
   let divs = [
-    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-lg-12 entree-item">Burrito Tray</div></div>',
-    '<div id="item2" class="entree-options row"><div onclick="showSelection1(\'Chicken\', 2)" class="col-lg-12 entree-item">Chicken Tray</div></div>',
+    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-lg-6 col-xs-6 col-xs-offset-3 entree-item">Burrito Tray</div></div>',
+    '<div id="item2" class="entree-options row"><div onclick="showSelection1(\'Chicken\', 2)" class="col-lg-12 col-xs-6 col-xs-offset-3 entree-item">Chicken Tray</div></div>',
     '<div id="item3" class="entree-options row"><div onclick="showSelection1(\'Taco\', 3)" class="col-lg-12 entree-item">Taco Tray</div></div>',
     '<div id="item4" class="entree-options row"><div onclick="showSelection1(\'Nacho\', 4)" class="col-lg-12 entree-item">Nacho Bar</div></div>',
     '<div id="item5" class="entree-options row"><div onclick="showSelection1(\'Chili\', 5)" class="col-lg-12 entree-item">Chili</div></div>',
@@ -264,6 +264,7 @@ function getFoodOptionsDivs() {
 
 function showSelection1(itemName, num) {
   let itemSelection = getSelection(num);
+
   let modalDiv =
     '<div id="myModal" class="modal question-titles"><div id="add-modal-content" class="modal-content">' +
     '<span class="close">X</span>' +
@@ -274,6 +275,7 @@ function showSelection1(itemName, num) {
   let modal = document.getElementById("myModal");
   let openButton = document.getElementById("item" + num.toString());
   let span = document.getElementsByClassName("close")[0];
+  let done = document.getElementById("done");
 
   openButton.onclick = function() {
     modal.style.display = "block";
@@ -292,53 +294,62 @@ function showSelection1(itemName, num) {
 
 function getSelection(itemNum) {
   let divToAppendInModal;
-  let entreeType;
+  let entreeType = getEntreeType(itemNum);
   let meatChoices = "";
-  if (itemNum == 1) {
-    entreeType = "Burrito";
-    /* get flavor optiosn for that option, and iterate through, creating div elements to match */
-    let AllChoices = getFlavorOptions(itemNum);
-    let portions = getPortionOptions(itemNum);
-    for (let meatChoice = 0; meatChoice < AllChoices.length; meatChoice++) {
-      let selectionPortion = "";
-      for (
-        let portionChoice = 0;
-        portionChoice < portions.length;
-        portionChoice++
-      ) {
-        selectionPortion +=
-          "<option value=" +
-          portionChoice.toString() +
-          ">" +
-          portions[portionChoice] +
-          "</option>";
-      }
-      let meatChoiceDiv =
-        "<div class='col-md-12 entree-item'><div class='row'><div class='col-sm-6'>" +
-        AllChoices[meatChoice] +
-        "</div><div class='col-sm-6'><div class='custom-select'><select id='" +
-        AllChoices[meatChoice] +
-        "' " +
-        "onchange='addToSelection(\"" +
-        AllChoices[meatChoice] +
-        "\")'>" +
-        selectionPortion +
-        "</select></div></div></div></div>";
-      meatChoices += meatChoiceDiv;
+  let AllChoices = getFlavorOptions(itemNum);
+  let portions = getPortionOptions(itemNum);
+
+  /* get flavor optiosn for that option, and iterate through, creating div elements to match */
+
+  for (let meatChoice = 0; meatChoice < AllChoices.length; meatChoice++) {
+    let selectionPortion = "";
+    for (
+      let portionChoice = 0;
+      portionChoice < portions.length;
+      portionChoice++
+    ) {
+      selectionPortion +=
+        "<option value='" +
+        portions[portionChoice] +
+        "'>" +
+        portions[portionChoice] +
+        "</option>";
     }
+    let meatChoiceDiv =
+      "<div class='col-md-12 entree-item'><div class='row'><div class='col-sm-6'>" +
+      AllChoices[meatChoice] +
+      "</div><div class='col-sm-6'><div class='custom-select'><select id='" +
+      AllChoices[meatChoice] +
+      "' " +
+      "onchange='addToSelection(\"" +
+      AllChoices[meatChoice] +
+      "\")'>" +
+      selectionPortion +
+      "</select></div></div></div></div>";
+    meatChoices += meatChoiceDiv;
   }
+
   meatChoices +=
-    "<div onclick='enterOptionsOntoSelection()' class='col-sm-4 col-sm-offset-4 button button1'> Done! </div>";
+    "<div id='done' onclick='enterOptionsOntoSelection()' class='col-sm-4 col-sm-offset-4 button button1'> Done! </div>";
   divToAppendInModal =
-    "<div style='padding-top: 10vh'><h4 style='border-bottom: 2px solid;' >Choose meat and portion options for " +
+    "<div style='padding-top: 10vh'><h4 style='border-bottom: 2px solid;' >Choose meat and portion options for <span id='food-type'>" +
     entreeType +
-    ":</h4>" +
+    "</span>:</h4>" +
     meatChoices;
   return divToAppendInModal;
 }
+
 function addToSelection(meatSelection) {
-  console.log(meatSelection);
+  let portion_size = document.getElementById(meatSelection).value;
+  if (portion_size === "None") {
+    delete selectedFoodOptions[meatSelection];
+  } else {
+    let food_type = document.getElementById("food-type").innerHTML;
+
+    selectedFoodOptions[meatSelection] = [portion_size, food_type];
+  }
 }
+
 function getFlavorOptions(item) {
   if (item == 1)
     return [
@@ -350,12 +361,62 @@ function getFlavorOptions(item) {
       "Grilled Shrimp",
       "Veggie"
     ];
+  if (item == 2) return ["Rotissererie Chicken"];
+  if (item == 3)
+    return [
+      "Ground Beef",
+      "Marinated Steak",
+      "Carnitas",
+      "Shredded Chicken",
+      "Fish",
+      "Grilled Shrimp",
+      "Veggie"
+    ];
+  if (item == 4) return [];
 }
 function getPortionOptions(item) {
+  console.log(item);
   if (item == 1) {
     return ["None", "Full Pan"];
   }
+  if (item == 2) return ["None", "Half Pan", "Full Pan"];
+  if (item == 3) return ["None", "Half Pan", "Full Pan"];
+  if (item == 4) return;
 }
+function getEntreeType(item) {
+  if (item == 1) return "Burrito Tray";
+
+  if (item == 2) return "Chicken Tray";
+  if (item == 3) return "Taco Tray";
+  if (item == 4) return "Nacho Bar";
+  if (item == 5) return "Chili";
+  if (item == 6) return "Sides";
+}
+
 function enterOptionsOntoSelection() {
-  console.log(selectedFoodOptions);
+  let select_Food = $("#selected-food");
+  let index = 1;
+  let divToAdd = "<div class='row'>";
+  for (var flavor in selectedFoodOptions) {
+    if (selectedFoodOptions.hasOwnProperty(flavor)) {
+      divToAdd +=
+        '<div style="font-size: 12px;"class="col-lg-12 question-titles"><input style="width:25px"type="text" value = "' +
+        index.toString() +
+        '"> ' +
+        selectedFoodOptions[flavor][1] +
+        ", " +
+        flavor +
+        ", " +
+        selectedFoodOptions[flavor][0] +
+        "</div>";
+      delete selectedFoodOptions[flavor];
+    }
+  }
+  divToAdd += "</div>";
+  select_Food.append(divToAdd);
+
+  let modal = document.getElementById("myModal");
+
+  modal.style.display = "none";
+  $("#event-planner").empty();
 }

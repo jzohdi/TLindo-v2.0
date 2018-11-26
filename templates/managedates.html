@@ -48,7 +48,7 @@ block head %}
             <th>Date</th>
             <th>Order amount</th>
           </tr>
-          {% for date in dates %} {% if date.sum >= 2000 %}
+          {% for date in dates %} {% if date.sum >= maximum %}
           <tr style="font-weight: bold; color: #ff0202;">
             <td>{{ date.day }}</td>
             <td>{{ date.sum }}</td>

@@ -4,6 +4,7 @@ Created on Thu Nov  8 16:12:38 2018
 
 @author: jakez
 """
+import datetime
 import os
 import sys
 from flask import Flask, flash, redirect, render_template, request, session, url_for, jsonify, send_from_directory
@@ -18,6 +19,31 @@ import json
 from helpers import get_salt, parse_dictionary
 from tempfile import mkdtemp
 
+##############################################################################
+###################### function that sorts managedates table by date  ######## 
+def sort_managedates():
+    
+    dates_json = execute("""SELECT * FROM managedates WHERE row = 1""",("NA",))[0].get("dates")
+    dates = json.loads(dates_json)
+ 
+    all_dates = [date.get('day') for date in dates]
+    
+    date_keys = dict( ( dates[index]['day'], index) for index in range( len(dates) ) )
+    sort_dates = sorted(all_dates, key=lambda x: datetime.datetime.strptime(x, '%d %B, %Y'))
+    
+    final_sorted = []
+
+    for date in sort_dates:
+        final_sorted.append(dates[date_keys[date]])
+         
+    final_sorted = json.dumps(final_sorted)
+    
+    if dates_json != final_sorted:
+        execute("""UPDATE managedates SET dates = %s WHERE row = 1""",(final_sorted,))
+    else:
+        print("already sorted")
+
+###################################################################################
 settings = {}
 
 params = getKeys()
@@ -163,17 +189,21 @@ def dated_url_for(endpoint, **values):
             file_path = os.path.join(app.root_path,
                                      endpoint, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
-    return url_for(endpoint, **values)   
+    return url_for(endpoint, **values)
+
 """"""
 @app.route('/')
 def index():
     dates = execute("""
                     SELECT * FROM managedates WHERE row = 1
                     """,("NA",))
-    dates = json.loads(dates[0]["dates"])
+    max_val = dates[0].get("max")
+    calender = json.loads(dates[0]["dates"])
+#    print(calender)
     final = []
-    for date in dates:
-        final.append(date.get("day"))
+    for date in calender:
+        if date.get("sum") == 0 or date.get("sum") >= max_val:
+            final.append(date.get("day"))
     return render_template('index.html', dates=final)
 
 @app.route('/login', methods=["GET", "POST"])
@@ -278,11 +308,14 @@ def managedates():
         return redirect(url_for('login'))
     if "admin" not in session:
         return redirect(url_for('login'))
+    
+    sort_managedates()
+    
     dates = execute("""
                     SELECT * FROM managedates
                     """, "NA")
     dates = json.loads(dates[0].get("dates"))
-    
+    max_val = dates[0].get("max")
     # must convert sum - string to sum - integer for each date
     dates = parse_dictionary(dates)
  
@@ -296,7 +329,7 @@ def managedates():
                 UPDATE managedates SET dates = %s WHERE row = 1
                 """,(dates_to_add, ))
         return redirect(url_for("managedates"))
-    return render_template("managedates.html", dates = dates, admin=True)
+    return render_template("managedates.html", dates = dates, admin=True, maximum = max_val)
 
 @app.route('/favicon.ico')
 def favicon():
@@ -305,6 +338,8 @@ def favicon():
 
 if __name__ == '__main__':
 
+
+        #print(all_dates)
     app.run(debug=False)
     #app.add_url_rule('/favicon.ico',
     #            redirect_to=url_for('static', filename='favicon.ico'))

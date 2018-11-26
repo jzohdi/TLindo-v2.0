@@ -1,3 +1,13 @@
+@font-face {
+  font-family: LTPro;
+  src: url("customfont/DINNextRoundedLTPro-Regular.otf") format("opentype");
+}
+@font-face {
+  font-family: LTPro;
+  font-weight: bold;
+  src: url("customfont/DINNextRoundedLTPro-Bold.otf") format("opentype");
+}
+
 /*
 Layout / navbar / footer 
 */
@@ -67,23 +77,23 @@ body,
   background-image: linear-gradient(to bottom right, white, #fdce55);
 }
 .question-titles {
-  font-family: Raleway, Arial, Helvetica, sans-serif;
+  font-family: LTPro, Arial, Helvetica, sans-serif;
   color: #0d034c;
 }
 .titles {
-  font-family: Raleway, Arial, Helvetica, sans-serif;
+  font-family: LTPro, Arial, Helvetica, sans-serif;
   font-size: 20px;
   color: #0d034c;
   -webkit-transition: background-color 1s; /* Safari */
   transition: background-color 1s;
 }
 .register-pass-requirements {
-  font-family: Raleway, Arial, Helvetica, sans-serif;
+  font-family: LTPro, Arial, Helvetica, sans-serif;
   color: #0d034c;
 }
 
 #titlesb {
-  font-family: Raleway, Arial, Helvetica, sans-serif;
+  font-family: LTPro, Arial, Helvetica, sans-serif;
   color: white;
   font-size: 15px;
 }
@@ -352,7 +362,7 @@ footer {
 }
 .button {
   text-decoration: none;
-  font-family: Raleway, Arial, Helvetica, sans-serif;
+  font-family: LTPro, Arial, Helvetica, sans-serif;
   font-weight: bold;
   border-radius: 10px;
   border-color: #0d034c;
