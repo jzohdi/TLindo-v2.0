@@ -14,7 +14,7 @@ head %}
       </div>
       <form action="{{ url_for('menusetter') }}" method="post">
         <fieldset>
-          <table id="menu-setter-table">
+          <table id="menu-setter-table" class="menu-table">
             <tr>
               <th>Entree Item</th>
               <th>Flavors</th>
@@ -23,47 +23,115 @@ head %}
             </tr>
             {% for menuItem in range( menu | length + 1) %}
             <tr>
-              <div class="textarea-container">
-                <td>
-                  <input
-                    type="text"
-                    name="{{ menuItem }}"
-                    autocomplete="off"
-                    class="form-input-box textarea-size"
-                  />
-                </td>
-                <td>
-                  <input
-                    autocomplete="off"
-                    class="form-input-box"
-                    name="{{ menuItem }}flavor"
-                    type="text"
-                  />
-                </td>
-                <td>
-                  <input
-                    autocomplete="off"
-                    class="form-input-box"
-                    name="{{ menuItem }}portion"
-                    type="text"
-                  />
-                </td>
-                <td>
-                  <input
-                    id="{{ menuItem }}"
-                    autocomplete="off"
-                    onclick="showModal('#modal-holder', '{{ menuItem }}')"
-                    class="form-input-box description"
-                    name="{{ menuItem }}des"
-                    type="text"
-                  />
-                </td>
-              </div>
+              <td>
+                <input
+                  type="text"
+                  name="{{ menuItem }}"
+                  autocomplete="off"
+                  class="form-input-box textarea-size"
+                />
+              </td>
+              <td>
+                <input
+                  autocomplete="off"
+                  class="form-input-box"
+                  name="{{ menuItem }}flavor"
+                  type="text"
+                />
+              </td>
+              <td>
+                <input
+                  autocomplete="off"
+                  class="form-input-box"
+                  name="{{ menuItem }}portion"
+                  type="text"
+                />
+              </td>
+              <td>
+                <input
+                  id="{{ menuItem }}"
+                  autocomplete="off"
+                  onclick="showModal('#modal-holder', '{{ menuItem }}')"
+                  class="form-input-box description"
+                  name="{{ menuItem }}des"
+                  type="text"
+                />
+              </td>
             </tr>
             {% endfor %}
           </table>
 
-          <div class="button button1 question-titles add-row-button">
+          <div
+            onclick="addRow('#menu-setter-table', '')"
+            class="button button1 question-titles add-row-button"
+          >
+            Add Row
+          </div>
+          <div class="form-group">
+            <button class="button button1" type="submit">Submit Changes</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="main-card question-titels col-lg-10 col-lg-offset-1">
+      <div class="header-size question-titles">
+        Sides included here will be included in menu options
+      </div>
+      <form action="{{ url_for('menusetter') }}" method="post">
+        <fieldset>
+          <table id="menu-setter-table2" class="menu-table">
+            <tr>
+              <th>Entree Item</th>
+              <th>Flavors</th>
+              <th>Portions</th>
+              <th>Description</th>
+            </tr>
+            {% for sidesItem in range( sides | length + 1) %}
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  name="sides{{ sidesItem }}"
+                  autocomplete="off"
+                  class="form-input-box textarea-size"
+                />
+              </td>
+              <td>
+                <input
+                  autocomplete="off"
+                  class="form-input-box"
+                  name="sides{{ sidesItem }}flavor"
+                  type="text"
+                />
+              </td>
+              <td>
+                <input
+                  autocomplete="off"
+                  class="form-input-box"
+                  name="sides{{ sidesItem }}portion"
+                  type="text"
+                />
+              </td>
+              <td>
+                <input
+                  id="{{ sidesItem }}s"
+                  autocomplete="off"
+                  onclick="showModal('#modal-holder', '{{ sidesItem }}s')"
+                  class="form-input-box description"
+                  name="sides{{ sidesItem }}des"
+                  type="text"
+                />
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+
+          <div
+            onclick="addRow('#menu-setter-table2', 'sides')"
+            class="button button1 question-titles add-row-button"
+          >
             Add Row
           </div>
           <div class="form-group">
@@ -76,21 +144,27 @@ head %}
 </div>
 <script type="text/javascript">
   function showModal(tempId, idNum) {
+    let id_of_element = idNum;
+    if (typeof id_of_element === "number") {
+      id_of_element = id_of_element.toString();
+    }
     let modalDiv =
       '<div id="myModal" class="modal"><div id="add-modal-content" class="menu-modal ' +
       'col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">' +
-      '<span class="close">X</span><textarea id="modal-text" autofocus name="descript-text" class="menu-text"></textarea></div></div>';
+      '<span class="close">X</span><textarea id="modal-text" name="descript-text" class="menu-text"></textarea></div></div>';
     $(tempId).append(modalDiv);
 
     let modal = document.getElementById("myModal");
     let text_area = document.getElementById("modal-text");
-    let text_target = document.getElementById(idNum.toString());
+    let text_target = document.getElementById(id_of_element);
     let span = document.getElementsByClassName("close")[0];
     let done = document.getElementById("done");
 
     text_area.value = text_target.value;
 
     modal.style.display = "block";
+
+    text_area.focus();
 
     text_area.oninput = function() {
       text_target.value = text_area.value;
@@ -106,6 +180,37 @@ head %}
         $(tempId).empty();
       }
     };
+  }
+  function addRow(idOfTable, name_prefix) {
+    let count = $(idOfTable + " tr").length - 1;
+
+    let table_row_div =
+      "<tr> <td>" +
+      '<input type="text" name="' +
+      name_prefix +
+      count.toString() +
+      '" autocomplete="off" class="form-input-box textarea-size" /> </td>' +
+      '<td> <input autocomplete="off" class="form-input-box" name="' +
+      name_prefix +
+      count.toString() +
+      'flavor" type="text" /> </td>' +
+      '<td> <input autocomplete="off" class="form-input-box" name="' +
+      name_prefix +
+      count.toString() +
+      'portion" type="text" /> </td> <td>' +
+      '<input id="' +
+      name_prefix +
+      count.toString() +
+      '" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
+      name_prefix +
+      count.toString() +
+      "')\" " +
+      'class="form-input-box description" name="' +
+      name_prefix +
+      count.toString() +
+      'des" type="text"/> </td> </tr>';
+
+    $(idOfTable).append(table_row_div);
   }
 </script>
 {% endblock %}

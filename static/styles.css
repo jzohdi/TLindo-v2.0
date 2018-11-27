@@ -512,14 +512,14 @@ footer {
   color: #0d034c;
 }
 /* include admin menu setter styling here */
-#menu-setter-table {
+.menu-table {
   margin-top: 40px;
   width: 100%;
 }
-#menu-setter-table tbody tr td input {
+.menu-table tbody tr td input {
   width: 100%;
 }
-#menu-setter-table tbody tr th {
+.menu-table tbody tr th {
   text-align: center;
   border-right: 1px solid;
   border-left: 1px solid;
