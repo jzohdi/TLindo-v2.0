@@ -582,3 +582,9 @@ footer {
     padding: 0.3vw;
   }
 }
+.submit-button {
+  width: 12vmin;
+  font-size: 2vmin;
+  height: 2.8vmin;
+  padding: 0.1vmin;
+}
