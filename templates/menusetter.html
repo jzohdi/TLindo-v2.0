@@ -18,7 +18,7 @@ head %}
             <tr>
               <th>Entree Item</th>
               <th>Flavors</th>
-              <th>Portions</th>
+              <th>Sizes</th>
               <th>Description</th>
             </tr>
             {% for menuItem in range( menu | length + 1) %}
@@ -28,7 +28,7 @@ head %}
                   type="text"
                   name="{{ menuItem }}"
                   autocomplete="off"
-                  class="form-input-box textarea-size"
+                  class="form-input-box"
                 />
               </td>
               <td>
@@ -61,14 +61,28 @@ head %}
             {% endfor %}
           </table>
 
-          <div
-            onclick="addRow('#menu-setter-table', '')"
-            class="button button1 question-titles add-row-button"
-          >
-            Add Row
+          <div class="row">
+            <div class="col-xs-2">
+              <div
+                onclick="addRow('#menu-setter-table', '')"
+                class="button button1 question-titles add-row-button"
+              >
+                Add Row
+              </div>
+            </div>
+            <div class="col-xs-2 col-xs-offset-8">
+              <div
+                onclick="deleteRow('#menu-setter-table', '')"
+                class="button button1 question-titles delete-row-button"
+              >
+                Delete Row
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <button class="button button1" type="submit">Submit Changes</button>
+            <button name="submit-entrees" class="button button1" type="submit">
+              Submit Changes
+            </button>
           </div>
         </fieldset>
       </form>
@@ -83,9 +97,11 @@ head %}
         <fieldset>
           <table id="menu-setter-table2" class="menu-table">
             <tr>
-              <th>Entree Item</th>
-              <th>Flavors</th>
-              <th>Portions</th>
+              <th>Sides Item</th>
+              {#<!--
+                <th>Flavors</th>
+              -->#}
+              <th>Sizes</th>
               <th>Description</th>
             </tr>
             {% for sidesItem in range( sides | length + 1) %}
@@ -98,14 +114,17 @@ head %}
                   class="form-input-box textarea-size"
                 />
               </td>
-              <td>
-                <input
-                  autocomplete="off"
-                  class="form-input-box"
-                  name="sides{{ sidesItem }}flavor"
-                  type="text"
-                />
-              </td>
+              {#<!--
+                <td>
+                  <input
+                    autocomplete="off"
+                    class="form-input-box"
+                    name="sides{{ sidesItem }}flavor"
+                    type="text"
+                  />
+                </td>
+              -->
+              #}
               <td>
                 <input
                   autocomplete="off"
@@ -128,14 +147,28 @@ head %}
             {% endfor %}
           </table>
 
-          <div
-            onclick="addRow('#menu-setter-table2', 'sides')"
-            class="button button1 question-titles add-row-button"
-          >
-            Add Row
+          <div class="row">
+            <div class="col-xs-2">
+              <div
+                onclick="addRow('#menu-setter-table2', 'sides')"
+                class="button button1 question-titles add-row-button"
+              >
+                Add Row
+              </div>
+            </div>
+            <div class="col-xs-2 col-xs-offset-8">
+              <div
+                onclick="deleteRow('#menu-setter-table2', '')"
+                class="button button1 question-titles delete-row-button"
+              >
+                Delete Row
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <button class="button button1" type="submit">Submit Changes</button>
+            <button name="submit-sides" class="button button1" type="submit">
+              Submit Changes
+            </button>
           </div>
         </fieldset>
       </form>
@@ -184,33 +217,63 @@ head %}
   function addRow(idOfTable, name_prefix) {
     let count = $(idOfTable + " tr").length - 1;
 
+    count = count.toString();
     let table_row_div =
-      "<tr> <td>" +
-      '<input type="text" name="' +
-      name_prefix +
-      count.toString() +
-      '" autocomplete="off" class="form-input-box textarea-size" /> </td>' +
-      '<td> <input autocomplete="off" class="form-input-box" name="' +
-      name_prefix +
-      count.toString() +
-      'flavor" type="text" /> </td>' +
-      '<td> <input autocomplete="off" class="form-input-box" name="' +
-      name_prefix +
-      count.toString() +
-      'portion" type="text" /> </td> <td>' +
-      '<input id="' +
-      name_prefix +
-      count.toString() +
-      '" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
-      name_prefix +
-      count.toString() +
-      "')\" " +
-      'class="form-input-box description" name="' +
-      name_prefix +
-      count.toString() +
-      'des" type="text"/> </td> </tr>';
+      "<tr>" +
+      getColumnString(name_prefix, count, "") +
+      getColumn2String(name_prefix, count) +
+      getColumnString(name_prefix, count, "portion") +
+      getDescriptColString(name_prefix, count) +
+      "</tr>";
 
     $(idOfTable).append(table_row_div);
+  }
+  function deleteRow(idOfTable) {
+    let count = $(idOfTable + " tr").length - 1;
+    if (count >= 2) {
+      $(idOfTable + " tr:last").remove();
+    }
+  }
+
+  function getColumn2String(prefix, row_num) {
+    if (prefix == "") {
+      return (
+        '<td> <input autocomplete="off" class="form-input-box" name="' +
+        prefix +
+        row_num +
+        'flavor" type="text" /> </td>'
+      );
+    }
+    return "";
+  }
+
+  function getColumnString(prefix, row_num, identifier) {
+    if (prefix == "" || prefix == "sides") {
+      return (
+        '<td><input type="text" name="' +
+        prefix +
+        row_num +
+        identifier +
+        '" autocomplete="off" class="form-input-box textarea-size" /> </td>'
+      );
+    }
+    return "";
+  }
+  function getDescriptColString(prefix, row_num) {
+    return (
+      "<td>" +
+      '<input id="' +
+      prefix +
+      row_num +
+      '" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
+      prefix +
+      row_num +
+      "')\" " +
+      'class="form-input-box description" name="' +
+      prefix +
+      row_num +
+      'des" type="text"/> </td>'
+    );
   }
 </script>
 {% endblock %}

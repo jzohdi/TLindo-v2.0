@@ -234,7 +234,7 @@ def login():
         
         session["user_id"] = users[0]["id"]
         print("user logged in succesfully")
-        print(username)
+        #print(username)
         if username == 'admin':
             session['admin'] = True
             return redirect( url_for("managedates") )
@@ -286,12 +286,12 @@ def register():
                          INSERT INTO users (username, email, password, salt) 
                          VALUES (%s, %s, %s, %s)
                          """,(username, email, pass_hash, hash_salt))
-        print(result)
+        #print(result)
         
         confirm_user_added = execute("""
                               SELECT * FROM users WHERE username = %s
                               """,(username,))
-        print(confirm_user_added)
+        #print(confirm_user_added)
     
         user_id_num = confirm_user_added[0]["id"]
         
@@ -306,8 +306,10 @@ def register():
 @app.route('/managedates', methods=["GET", "POST"])
 def managedates():
     
+    # validate that user is logged in and is admin
     if "user_id" not in session:
         return redirect(url_for('login'))
+    
     if "admin" not in session:
         return redirect(url_for('login'))
     
@@ -316,22 +318,32 @@ def managedates():
     dates = execute("""
                     SELECT * FROM managedates
                     """, "NA")
+    
     all_dates = json.loads(dates[0].get("dates"))
+    
     max_val = dates[0].get("max")
+    
     # must convert sum - string to sum - integer for each date
     dates = parse_dictionary(all_dates)
  
     if request.method == "POST":
+        
         data = request.form.get("data")
         data = data.split("/")
+        
         for date in data:
             dates.append({ "day": str(date), "sum": "0"})
+            
         dates_to_add = json.dumps(dates)
+        
         execute("""
                 UPDATE managedates SET dates = %s WHERE row = 1
                 """,(dates_to_add, ))
+        
         return redirect(url_for("managedates"))
+    
     return render_template("managedates.html", dates = dates, admin=True, maximum = max_val)
+
 @app.route('/menusetter', methods=["GET", "POST"])
 def menusetter():
     
@@ -344,17 +356,45 @@ def menusetter():
     menu_items = []
     
     if request.method == "POST":
-        print(request.form)
+        
+        set_menu = []
+        
+        if 'submit-entrees' in request.form:
+            
+            # we know that since there are 4 columns : this will iterate each
+            # entree set as each entree's input fields only differ by index num
+            # also ( -1 ) due to the submit button being part of form
+            
+            for entree in range(int( ( len(request.form) - 1 ) / 4 ) ):
+                
+                item_num = str(entree)
+                
+                item_dict = {'item' : request.form.get(item_num), 
+                             'flavors': request.form.get(item_num + 'flavor'),
+                             'sizes': request.form.get(item_num + 'portion'),
+                             'description' : request.form.get(item_num + 'des')}
+                
+                set_menu.append(item_dict)
+                
+            execute("""
+                    UPDATE menu SET entree = %s WHERE row = 1
+                    """,(set_menu, ))
+            
+        elif 'submit-sides' in request.form:
+            print(request.form.length)
+            
         return redirect(url_for('menusetter'))
     
     return render_template("menusetter.html", admin=True, menu= menu_items)
+
+# define route for flask to get favicon in static folder 
+# will not work during development
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/png')
 
 if __name__ == '__main__':
-
 
         #print(all_dates)
     app.run(debug=False)

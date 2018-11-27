@@ -487,11 +487,15 @@ footer {
   text-align: center;
   border-bottom: 1px solid;
 }
+.manage-dates-table tbody tr:hover {
+  background-color: rgb(195, 196, 252);
+}
 .manage-dates-table th {
   border-bottom: 1px solid;
   text-align: center;
 }
 #dates-selected p:hover {
+  cursor: pointer;
   color: white;
   background-color: #0d034c;
 }
@@ -525,29 +529,56 @@ footer {
   border-left: 1px solid;
 }
 .menu-modal {
-  min-height: 50vh;
   background-color: #fefefe;
-
   padding: 20px;
   border: 1px solid #888;
+  border-radius: 15px;
 }
 .menu-text {
   width: 80%;
   height: 40vh;
 }
 .add-row-button {
-  padding: 1vw !important;
+  padding: 1vw;
   text-align: center;
   font-weight: 10;
-  width: 6vw;
 }
+.delete-row-button {
+  padding: 1vw;
+  text-align: center;
+  font-weight: 10;
+  float: right;
+}
+
 @media (max-width: 700px) {
   .add-row-button {
     font-size: 1.5vw;
+    width: 6vw;
+  }
+  .delete-row-button {
+    font-size: 1.5vw;
+    width: 6.2vw;
   }
 }
 @media (min-width: 701px) {
   .add-row-button {
     font-size: 1vw;
+    width: 6vw;
+  }
+  .delete-row-button {
+    font-size: 1vw;
+    width: 6.9vw;
+  }
+}
+@media (min-width: 1200px) {
+  .add-row-button {
+    font-size: 0.6vw;
+    width: 4.5vw;
+    padding: 0.3vw;
+  }
+  .delete-row-button {
+    font-size: 0.6vw;
+    width: 4.9vw;
+    padding: 0.3vw;
   }
 }
