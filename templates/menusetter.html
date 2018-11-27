@@ -9,7 +9,9 @@ head %}
   <div id="modal-holder"></div>
   <div class="row">
     <div class="main-card question-titels col-lg-10 col-lg-offset-1">
-      <h3>Entrees included here will be included in menu options</h3>
+      <div class="header-size question-titles">
+        Entrees included here will be included in menu options
+      </div>
       <form action="{{ url_for('menusetter') }}" method="post">
         <fieldset>
           <table id="menu-setter-table">
@@ -61,6 +63,9 @@ head %}
             {% endfor %}
           </table>
 
+          <div class="button button1 question-titles add-row-button">
+            Add Row
+          </div>
           <div class="form-group">
             <button class="button button1" type="submit">Submit Changes</button>
           </div>
@@ -74,15 +79,22 @@ head %}
     let modalDiv =
       '<div id="myModal" class="modal"><div id="add-modal-content" class="menu-modal ' +
       'col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">' +
-      '<span class="close">X</span><textarea name="descript-text" class="menu-text"></textarea></div></div>';
+      '<span class="close">X</span><textarea id="modal-text" autofocus name="descript-text" class="menu-text"></textarea></div></div>';
     $(tempId).append(modalDiv);
 
     let modal = document.getElementById("myModal");
-
+    let text_area = document.getElementById("modal-text");
+    let text_target = document.getElementById(idNum.toString());
     let span = document.getElementsByClassName("close")[0];
     let done = document.getElementById("done");
 
+    text_area.value = text_target.value;
+
     modal.style.display = "block";
+
+    text_area.oninput = function() {
+      text_target.value = text_area.value;
+    };
 
     span.onclick = function() {
       modal.style.display = "none";

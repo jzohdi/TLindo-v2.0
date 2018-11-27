@@ -387,7 +387,10 @@ footer {
   box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
     0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
-
+/* sizing for header-fonts to be responsive to screen width */
+.header-size {
+  font-size: 3vmin;
+}
 #next-button {
   margin-top: 5vh;
 }
@@ -510,6 +513,7 @@ footer {
 }
 /* include admin menu setter styling here */
 #menu-setter-table {
+  margin-top: 40px;
   width: 100%;
 }
 #menu-setter-table tbody tr td input {
@@ -530,4 +534,20 @@ footer {
 .menu-text {
   width: 80%;
   height: 40vh;
+}
+.add-row-button {
+  padding: 1vw !important;
+  text-align: center;
+  font-weight: 10;
+  width: 6vw;
+}
+@media (max-width: 700px) {
+  .add-row-button {
+    font-size: 1.5vw;
+  }
+}
+@media (min-width: 701px) {
+  .add-row-button {
+    font-size: 1vw;
+  }
 }
