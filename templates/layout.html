@@ -21,7 +21,7 @@
       integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
       crossorigin="anonymous"
     />
-
+    <!-- required for fa fa-gear -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
@@ -114,7 +114,11 @@
                     >
                   </li>
                   <li>
-                    <a class="titles main-nav-item" href="#">View/Edit Menu</a>
+                    <a
+                      class="titles main-nav-item"
+                      href="{{ url_for('menusetter') }}"
+                      >View/Edit Menu</a
+                    >
                   </li>
                   <li>
                     <a class="titles main-nav-item" href="#">Change Password</a>

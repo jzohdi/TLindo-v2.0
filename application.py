@@ -194,6 +194,8 @@ def dated_url_for(endpoint, **values):
 """"""
 @app.route('/')
 def index():
+    if 'admin' in session:
+        return redirect(url_for('managedates'))
     dates = execute("""
                     SELECT * FROM managedates WHERE row = 1
                     """,("NA",))
@@ -330,7 +332,22 @@ def managedates():
                 """,(dates_to_add, ))
         return redirect(url_for("managedates"))
     return render_template("managedates.html", dates = dates, admin=True, maximum = max_val)
-
+@app.route('/menusetter', methods=["GET", "POST"])
+def menusetter():
+    
+    if "user_id" not in session:
+        return redirect(url_for('login'))
+    
+    if "admin" not in session:
+        return redirect(url_for('login'))
+    
+    menu_items = []
+    
+    if request.method == "POST":
+        print(request.form)
+        return redirect(url_for('menusetter'))
+    
+    return render_template("menusetter.html", admin=True, menu= menu_items)
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),

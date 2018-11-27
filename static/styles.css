@@ -8,6 +8,12 @@
   src: url("customfont/DINNextRoundedLTPro-Bold.otf") format("opentype");
 }
 
+@media (min-width: 768px) {
+  .col-sm-offset-2 {
+    margin-left: 16.66666667%;
+  }
+}
+
 /*
 Layout / navbar / footer 
 */
@@ -501,4 +507,27 @@ footer {
 }
 .custom-select select option:hover {
   color: #0d034c;
+}
+/* include admin menu setter styling here */
+#menu-setter-table {
+  width: 100%;
+}
+#menu-setter-table tbody tr td input {
+  width: 100%;
+}
+#menu-setter-table tbody tr th {
+  text-align: center;
+  border-right: 1px solid;
+  border-left: 1px solid;
+}
+.menu-modal {
+  min-height: 50vh;
+  background-color: #fefefe;
+
+  padding: 20px;
+  border: 1px solid #888;
+}
+.menu-text {
+  width: 80%;
+  height: 40vh;
 }

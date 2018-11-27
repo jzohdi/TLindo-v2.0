@@ -266,7 +266,7 @@ function showSelection1(itemName, num) {
   let itemSelection = getSelection(num);
 
   let modalDiv =
-    '<div id="myModal" class="modal question-titles"><div id="add-modal-content" class="modal-content">' +
+    '<div id="myModal" class="modal question-titles"><div id="add-modal-content" class="main-card">' +
     '<span class="close">X</span>' +
     itemSelection +
     "</div></div>";

@@ -1,0 +1,99 @@
+{% extends "layout.html" %} {% block title %} Set Menu{% endblock %} {% block
+head %}
+<script>
+  Flask.url_for("menusetter");
+</script>
+<style></style> {{ super() }} {% endblock %} {% block main %}
+<div style="margin-top: 15vh;" class="container">
+  <p class="question-titles">{{ error }}</p>
+  <div id="modal-holder"></div>
+  <div class="row">
+    <div class="main-card question-titels col-lg-10 col-lg-offset-1">
+      <h3>Entrees included here will be included in menu options</h3>
+      <form action="{{ url_for('menusetter') }}" method="post">
+        <fieldset>
+          <table id="menu-setter-table">
+            <tr>
+              <th>Entree Item</th>
+              <th>Flavors</th>
+              <th>Portions</th>
+              <th>Description</th>
+            </tr>
+            {% for menuItem in range( menu | length + 1) %}
+            <tr>
+              <div class="textarea-container">
+                <td>
+                  <input
+                    type="text"
+                    name="{{ menuItem }}"
+                    autocomplete="off"
+                    class="form-input-box textarea-size"
+                  />
+                </td>
+                <td>
+                  <input
+                    autocomplete="off"
+                    class="form-input-box"
+                    name="{{ menuItem }}flavor"
+                    type="text"
+                  />
+                </td>
+                <td>
+                  <input
+                    autocomplete="off"
+                    class="form-input-box"
+                    name="{{ menuItem }}portion"
+                    type="text"
+                  />
+                </td>
+                <td>
+                  <input
+                    id="{{ menuItem }}"
+                    autocomplete="off"
+                    onclick="showModal('#modal-holder', '{{ menuItem }}')"
+                    class="form-input-box description"
+                    name="{{ menuItem }}des"
+                    type="text"
+                  />
+                </td>
+              </div>
+            </tr>
+            {% endfor %}
+          </table>
+
+          <div class="form-group">
+            <button class="button button1" type="submit">Submit Changes</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  function showModal(tempId, idNum) {
+    let modalDiv =
+      '<div id="myModal" class="modal"><div id="add-modal-content" class="menu-modal ' +
+      'col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">' +
+      '<span class="close">X</span><textarea name="descript-text" class="menu-text"></textarea></div></div>';
+    $(tempId).append(modalDiv);
+
+    let modal = document.getElementById("myModal");
+
+    let span = document.getElementsByClassName("close")[0];
+    let done = document.getElementById("done");
+
+    modal.style.display = "block";
+
+    span.onclick = function() {
+      modal.style.display = "none";
+      $(tempId).empty();
+    };
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+        $(tempId).empty();
+      }
+    };
+  }
+</script>
+{% endblock %}
