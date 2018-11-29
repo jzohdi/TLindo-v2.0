@@ -3,6 +3,7 @@ head %}
 <script>
   Flask.url_for("menusetter");
 </script>
+<script type="text/javascript"></script>
 <style></style> {{ super() }} {% endblock %} {% block main %}
 <div style="margin-top: 15vh;" class="container">
   <p class="question-titles">{{ error }}</p>
@@ -16,55 +17,60 @@ head %}
         <fieldset>
           <table id="menu-setter-table" class="menu-table">
             <tr>
-              <th>Entree Item</th>
+              <th>Item</th>
               <th>Flavors</th>
               <th>Sizes</th>
               <th>Description</th>
             </tr>
-            {% for menuItem in range( menu | length + 1) %}
+            {% for menuItem in entreeMenu %}
+          
             <tr>
               <td>
                 <input
                   type="text"
-                  name="{{ menuItem }}"
+                  name="{{ loop.index - 1 }}"
                   autocomplete="off"
                   class="form-input-box"
+                  value="{{ menuItem.item }}"
                 />
               </td>
               <td>
                 <input
                   autocomplete="off"
                   class="form-input-box"
-                  name="{{ menuItem }}flavor"
+                  name="{{ loop.index - 1 }}"
                   type="text"
+                  value="{{ menuItem.flavors }}"
                 />
               </td>
               <td>
                 <input
                   autocomplete="off"
                   class="form-input-box"
-                  name="{{ menuItem }}portion"
+                  name="{{ loop.index - 1}}"
                   type="text"
+                  value="{{ menuItem.sizes }}"
                 />
               </td>
               <td>
                 <input
-                  id="{{ menuItem }}"
+                  id="{{ loop.index - 1}}"
                   autocomplete="off"
-                  onclick="showModal('#modal-holder', '{{ menuItem }}')"
+                  onclick="showModal('#modal-holder', '{{ loop.index - 1}}')"
                   class="form-input-box description"
-                  name="{{ menuItem }}des"
+                  name="{{ loop.index - 1 }}"
                   type="text"
+                  value="{{ menuItem.description }}"
                 />
               </td>
-            </tr>
+            </tr> 
             {% endfor %}
           </table>
 
           <div class="row">
             <div class="col-xs-2">
               <div
-                onclick="addRow('#menu-setter-table', '')"
+                onclick="addRow('#menu-setter-table', '', 'entree-submit')"
                 class="button button1 question-titles add-row-button"
               >
                 Add Row
@@ -81,6 +87,7 @@ head %}
           </div>
           <div class="form-group">
             <button
+              id="entree-submit"
               name="submit-entrees"
               class="submit-button button button1"
               type="submit"
@@ -101,21 +108,22 @@ head %}
         <fieldset>
           <table id="menu-setter-table2" class="menu-table">
             <tr>
-              <th>Sides Item</th>
+              <th>Item</th>
               {#<!--
                 <th>Flavors</th>
               -->#}
               <th>Sizes</th>
               <th>Description</th>
             </tr>
-            {% for sidesItem in range( sides | length + 1) %}
+            {% for sidesItem in sidesMenu %}
             <tr>
               <td>
                 <input
                   type="text"
-                  name="sides{{ sidesItem }}"
+                  name="sides{{ loop.index }}"
                   autocomplete="off"
                   class="form-input-box textarea-size"
+                  value = "{{ sidesItem.item }}"
                 />
               </td>
               {#<!--
@@ -123,7 +131,7 @@ head %}
                   <input
                     autocomplete="off"
                     class="form-input-box"
-                    name="sides{{ sidesItem }}flavor"
+                    name="sides{{ loop.index }}flavor"
                     type="text"
                   />
                 </td>
@@ -133,18 +141,20 @@ head %}
                 <input
                   autocomplete="off"
                   class="form-input-box"
-                  name="sides{{ sidesItem }}portion"
+                  name="sides{{ loop.index }}"
                   type="text"
+                  value="{{ sidesItem.sizes }}"
                 />
               </td>
               <td>
                 <input
-                  id="{{ sidesItem }}s"
+                  id="{{ loop.index }}s"
                   autocomplete="off"
-                  onclick="showModal('#modal-holder', '{{ sidesItem }}s')"
+                  onclick="showModal('#modal-holder', '{{ loop.index }}s')"
                   class="form-input-box description"
-                  name="sides{{ sidesItem }}des"
+                  name="sides{{ loop.index }}"
                   type="text"
+                  value="{{ sidesItem.description }}"
                 />
               </td>
             </tr>
@@ -154,7 +164,7 @@ head %}
           <div class="row">
             <div class="col-xs-2">
               <div
-                onclick="addRow('#menu-setter-table2', 'sides')"
+                onclick="addRow('#menu-setter-table2', 'sides', 'sides-submit')"
                 class="button button1 question-titles add-row-button"
               >
                 Add Row
@@ -171,6 +181,7 @@ head %}
           </div>
           <div class="form-group">
             <button
+              id="sides-submit"
               name="submit-sides"
               class="submit-button button button1"
               type="submit"
@@ -222,19 +233,20 @@ head %}
       }
     };
   }
-  function addRow(idOfTable, name_prefix) {
+  function addRow(idOfTable, name_prefix, submit_id) {
     let count = $(idOfTable + " tr").length - 1;
 
     count = count.toString();
     let table_row_div =
       "<tr>" +
-      getColumnString(name_prefix, count, "") +
+      getColumnString(name_prefix, count, "item") +
       getColumn2String(name_prefix, count) +
-      getColumnString(name_prefix, count, "portion") +
+      getColumnString(name_prefix, count, "sizes") +
       getDescriptColString(name_prefix, count) +
       "</tr>";
 
     $(idOfTable).append(table_row_div);
+    getTitlesToValues(idOfTable, submit_id);
   }
   function deleteRow(idOfTable) {
     let count = $(idOfTable + " tr").length - 1;
@@ -249,7 +261,7 @@ head %}
         '<td> <input autocomplete="off" class="form-input-box" name="' +
         prefix +
         row_num +
-        'flavor" type="text" /> </td>'
+        '" type="text" /> </td>'
       );
     }
     return "";
@@ -261,7 +273,6 @@ head %}
         '<td><input type="text" name="' +
         prefix +
         row_num +
-        identifier +
         '" autocomplete="off" class="form-input-box textarea-size" /> </td>'
       );
     }
@@ -280,8 +291,42 @@ head %}
       'class="form-input-box description" name="' +
       prefix +
       row_num +
-      'des" type="text"/> </td>'
+      '" type="text"/> </td>'
     );
   }
+
+  function setColumnInputNames(idOfTable, listOfColumns) {
+    let name;
+    let $rows = $(idOfTable + " tbody tr td");
+    for (let index = 0; index < $rows.length; index++) {
+      name = $($rows[index])
+        .find("input")
+        .attr("name");
+      if (!name.includes(listOfColumns[index % listOfColumns.length])) {
+        $($rows[index])
+          .find("input")
+          .attr("name", name + listOfColumns[index % listOfColumns.length]);
+      }
+    }
+  }
+
+  function getTitlesToValues(idOfTable, idOfSubmit) {
+    let text = "";
+    let titles = $(idOfTable + " tbody tr th");
+    let menuList = [];
+
+    $.each(titles, function(element) {
+      value = titles[element].innerHTML.toLocaleLowerCase();
+      text += value + ",";
+      menuList.push(value);
+    });
+    // console.log(menuList);
+
+    $(idOfSubmit).attr("value", text.substring(0, text.length - 1));
+
+    setColumnInputNames(idOfTable, menuList);
+  }
+  getTitlesToValues("#menu-setter-table", "#entree-submit");
+  getTitlesToValues("#menu-setter-table2", "#sides-submit");
 </script>
 {% endblock %}

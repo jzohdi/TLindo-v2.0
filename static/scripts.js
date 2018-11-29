@@ -1,5 +1,5 @@
 var eventVariables = {};
-var device;
+window.device;
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent

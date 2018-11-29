@@ -79,7 +79,7 @@ def execute(statement, values):
             res = cur.statusmessage
         return res
     except:
-        print("connot select users")
+        print("database action failed")
     finally:
         if conn:
             if cur:
@@ -352,40 +352,81 @@ def menusetter():
     
     if "admin" not in session:
         return redirect(url_for('login'))
-    
-    menu_items = []
-    
+#############################################################################
     if request.method == "POST":
         
         set_menu = []
         
         if 'submit-entrees' in request.form:
             
+            columns = request.form.get("submit-entrees").split(",")
+            print(columns)
             # we know that since there are 4 columns : this will iterate each
             # entree set as each entree's input fields only differ by index num
             # also ( -1 ) due to the submit button being part of form
             
-            for entree in range(int( ( len(request.form) - 1 ) / 4 ) ):
+            for entree in range( int( len(request.form)/len(columns) ) ):
                 
                 item_num = str(entree)
+                item_dict = {}
+                for column in columns:
+                    item_dict[column] = request.form.get(item_num + column)
+                    
+                set_menu.append(item_dict)
                 
-                item_dict = {'item' : request.form.get(item_num), 
-                             'flavors': request.form.get(item_num + 'flavor'),
-                             'sizes': request.form.get(item_num + 'portion'),
-                             'description' : request.form.get(item_num + 'des')}
+                """item_dict = {'item' : request.form.get(item_num + 'item'), 
+                             'flavors': request.form.get(item_num + 'flavors'),
+                             'sizes': request.form.get(item_num + 'sizes'),
+                             'description' : request.form.get(item_num + 'description')} """
+                
+            insert_menu = json.dumps(set_menu)    
+            
+            execute("""
+                    UPDATE menu SET entree = %s WHERE row = 1
+                    """,(insert_menu, ))
+            
+        elif 'submit-sides' in request.form:
+            
+            columns = request.form.get("submit-sides").split(",")
+            
+            for side in range( int( len(request.form)/len(columns) ) ):
+                
+                item_num = str(side)
+                item_dict = {}
+                for column in columns:
+                    item_dict[column] = request.form.get("sides" + item_num + column)
                 
                 set_menu.append(item_dict)
                 
-            execute("""
-                    UPDATE menu SET entree = %s WHERE row = 1
-                    """,(set_menu, ))
+            insert_menu = json.dumps(set_menu)
             
-        elif 'submit-sides' in request.form:
-            print(request.form.length)
+            execute("""
+                    UPDATE menu SET sides = %s WHERE row = 1
+                    """, (insert_menu,) )
             
         return redirect(url_for('menusetter'))
+#############################################################################
+    full_menu = execute("""
+                        SELECT * FROM menu WHERE row = 1
+                        """,("NA",))[0]
     
-    return render_template("menusetter.html", admin=True, menu= menu_items)
+    entree_items = full_menu.get("entree")
+    
+    if entree_items != None:
+        entree_items = json.loads(entree_items)
+    else:
+        entree_items = []
+
+    side_items = full_menu.get("sides")
+    
+    if side_items != None:
+        side_items = json.loads(side_items)
+    else:
+        side_items = []
+    
+    return render_template("menusetter.html", admin=True, 
+                                           entreeMenu = entree_items,
+                                           sidesMenu = side_items)
 
 # define route for flask to get favicon in static folder 
 # will not work during development
