@@ -19,11 +19,12 @@ import json
 from helpers import get_salt, parse_dictionary
 from tempfile import mkdtemp
 
+MENU_VERSION = '1'
 ##############################################################################
 ###################### function that sorts managedates table by date  ######## 
 def sort_managedates():
     
-    dates_json = execute("""SELECT * FROM managedates WHERE row = 1""",("NA",))[0].get("dates")
+    dates_json = execute("""SELECT * FROM managedates WHERE row = %s""",(MENU_VERSION,))[0].get("dates")
     dates = json.loads(dates_json)
  
     all_dates = [date.get('day') for date in dates]
@@ -39,7 +40,7 @@ def sort_managedates():
     final_sorted = json.dumps(final_sorted)
     
     if dates_json != final_sorted:
-        execute("""UPDATE managedates SET dates = %s WHERE row = 1""",(final_sorted,))
+        execute("""UPDATE managedates SET dates = %s WHERE row = %s""",(final_sorted, MENU_VERSION,))
     else:
         print("already sorted")
 
@@ -197,8 +198,8 @@ def index():
     if 'admin' in session:
         return redirect(url_for('managedates'))
     dates = execute("""
-                    SELECT * FROM managedates WHERE row = 1
-                    """,("NA",))
+                    SELECT * FROM managedates WHERE row = %s
+                    """,( MENU_VERSION,))
     max_val = dates[0].get("max")
     calender = json.loads(dates[0]["dates"])
 #    print(calender)
@@ -337,8 +338,8 @@ def managedates():
         dates_to_add = json.dumps(dates)
         
         execute("""
-                UPDATE managedates SET dates = %s WHERE row = 1
-                """,(dates_to_add, ))
+                UPDATE managedates SET dates = %s WHERE row = %s
+                """,(dates_to_add, MENU_VERSION,))
         
         return redirect(url_for("managedates"))
     
@@ -382,8 +383,8 @@ def menusetter():
             insert_menu = json.dumps(set_menu)    
             
             execute("""
-                    UPDATE menu SET entree = %s WHERE row = 1
-                    """,(insert_menu, ))
+                    UPDATE menu SET entree = %s WHERE row = %s
+                    """,(insert_menu, MENU_VERSION, ))
             
         elif 'submit-sides' in request.form:
             
@@ -401,14 +402,20 @@ def menusetter():
             insert_menu = json.dumps(set_menu)
             
             execute("""
-                    UPDATE menu SET sides = %s WHERE row = 1
-                    """, (insert_menu,) )
+                    UPDATE menu SET sides = %s WHERE row = %s
+                    """, (insert_menu, MENU_VERSION, ) )
+        elif 'submit-min' in request.form:
+            minimum = int(request.form.get("set_min"))
+            execute("""
+                    UPDATE menu SET minsize = %s WHERE row = %s
+                    """,(minimum, MENU_VERSION,))
             
         return redirect(url_for('menusetter'))
+    
 #############################################################################
     full_menu = execute("""
-                        SELECT * FROM menu WHERE row = 1
-                        """,("NA",))[0]
+                        SELECT * FROM menu WHERE row = %s
+                        """,(MENU_VERSION,))[0]
     
     entree_items = full_menu.get("entree")
     
@@ -424,10 +431,19 @@ def menusetter():
     else:
         side_items = []
     
+    min_size = full_menu.get("minsize")
+    
     return render_template("menusetter.html", admin=True, 
                                            entreeMenu = entree_items,
-                                           sidesMenu = side_items)
+                                           sidesMenu = side_items, min_size = min_size)
 
+@app.route('/_get_menu')
+def get_menu():
+    menu = execute("""
+                   SELECT * FROM menu WHERE row = %s
+                   """,(MENU_VERSION,))[0]
+    
+    return jsonify(menu)
 # define route for flask to get favicon in static folder 
 # will not work during development
 @app.route('/favicon.ico')

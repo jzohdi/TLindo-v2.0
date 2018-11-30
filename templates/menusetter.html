@@ -9,7 +9,7 @@ head %}
   <p class="question-titles">{{ error }}</p>
   <div id="modal-holder"></div>
   <div class="row">
-    <div class="main-card question-titels col-lg-10 col-lg-offset-1">
+    <div class="main-card question-titles col-lg-10 col-lg-offset-1">
       <div class="header-size question-titles">
         Entrees included here will be included in menu options
       </div>
@@ -23,7 +23,7 @@ head %}
               <th>Description</th>
             </tr>
             {% for menuItem in entreeMenu %}
-          
+
             <tr>
               <td>
                 <input
@@ -63,7 +63,7 @@ head %}
                   value="{{ menuItem.description }}"
                 />
               </td>
-            </tr> 
+            </tr>
             {% endfor %}
           </table>
 
@@ -100,7 +100,7 @@ head %}
     </div>
   </div>
   <div class="row">
-    <div class="main-card question-titels col-lg-10 col-lg-offset-1">
+    <div class="main-card question-titles col-lg-10 col-lg-offset-1">
       <div class="header-size question-titles">
         Sides included here will be included in menu options
       </div>
@@ -123,7 +123,7 @@ head %}
                   name="sides{{ loop.index - 1 }}"
                   autocomplete="off"
                   class="form-input-box textarea-size"
-                  value = "{{ sidesItem.item }}"
+                  value="{{ sidesItem.item }}"
                 />
               </td>
               {#<!--
@@ -190,6 +190,27 @@ head %}
             </button>
           </div>
         </fieldset>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="question-titles col-xs-2 col-md-offset-1 main-card">
+      <form action="{{ url_for('menusetter') }}" method="post">
+        <p style="font-size: 80%;">Minimum #</p>
+        <input
+          value="{{ min_size }}"
+          style="width: 50%; min-width: 30px; text-align: center;"
+          type="text"
+          name="set_min"
+        />
+        <button
+          name="submit-min"
+          style="margin-top:2px; margin-left: -3px;"
+          class="submit-button button button1"
+          type="submit"
+        >
+          Submit
+        </button>
       </form>
     </div>
   </div>
@@ -296,37 +317,38 @@ head %}
   }
 
   function setColumnInputNames(idOfTable, listOfColumns) {
-
     let column_name;
     let name;
     let $rows = $(idOfTable + " tbody tr td");
     for (let index = 0; index < $rows.length; index++) {
-      column_name = listOfColumns[index % listOfColumns.length]
+      column_name = listOfColumns[index % listOfColumns.length];
       name = $($rows[index])
         .find("input")
         .attr("name");
       if (!name.includes(column_name)) {
-        name = name + column_name
+        name = name + column_name;
         $($rows[index])
           .find("input")
           .attr("name", name);
       }
-     
-      if ( window.device == "mobile"){
-        
+
+      if (window.device == "mobile") {
         setIdsAndShowModal(idOfTable, column_name, index, $rows, name);
       }
     }
   }
-  function setIdsAndShowModal(idOfTable, colName, index, rows, name){
-
-    if ( colName != "description"){
-      let $id = $(rows[index]).find("input").attr("id");
-      if ( $id == undefined ){
-
-          $(rows[index]).find("input").attr("id", name);
-          $(rows[index]).find("input").attr("onclick", 'showModal("#modal-holder","' + name +'")');
-        
+  function setIdsAndShowModal(idOfTable, colName, index, rows, name) {
+    if (colName != "description") {
+      let $id = $(rows[index])
+        .find("input")
+        .attr("id");
+      if ($id == undefined) {
+        $(rows[index])
+          .find("input")
+          .attr("id", name);
+        $(rows[index])
+          .find("input")
+          .attr("onclick", 'showModal("#modal-holder","' + name + '")');
       }
     }
   }

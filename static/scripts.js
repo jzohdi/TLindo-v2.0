@@ -251,13 +251,15 @@ function startHelpScreen() {
 }
 
 function getFoodOptionsDivs() {
+  let params;
+  $.getJSON($SCRIPT_ROOT + "/_get_menu", {
+
+  }, function(data){
+    console.log(data);
+  })
   let divs = [
-    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-lg-6 col-xs-6 col-xs-offset-3 entree-item">Burrito Tray</div></div>',
-    '<div id="item2" class="entree-options row"><div onclick="showSelection1(\'Chicken\', 2)" class="col-lg-12 col-xs-6 col-xs-offset-3 entree-item">Chicken Tray</div></div>',
-    '<div id="item3" class="entree-options row"><div onclick="showSelection1(\'Taco\', 3)" class="col-lg-12 entree-item">Taco Tray</div></div>',
-    '<div id="item4" class="entree-options row"><div onclick="showSelection1(\'Nacho\', 4)" class="col-lg-12 entree-item">Nacho Bar</div></div>',
-    '<div id="item5" class="entree-options row"><div onclick="showSelection1(\'Chili\', 5)" class="col-lg-12 entree-item">Chili</div></div>',
-    '<div id="item6" class="entree-options row"><div onclick="showSelection1(\'Sides\', 6)" class="col-lg-12 entree-item">Sides</div></div>'
+    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-xs-6 col-xs-offset-3 entree-item">Burrito Tray</div></div>',
+   
   ];
   return divs;
 }
