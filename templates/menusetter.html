@@ -54,9 +54,9 @@ head %}
               </td>
               <td>
                 <input
-                  id="{{ loop.index - 1}}"
+                  id="{{ loop.index - 1}}description"
                   autocomplete="off"
-                  onclick="showModal('#modal-holder', '{{ loop.index - 1}}')"
+                  onclick="showModal('#modal-holder', '{{ loop.index - 1}}description')"
                   class="form-input-box description"
                   name="{{ loop.index - 1 }}"
                   type="text"
@@ -120,7 +120,7 @@ head %}
               <td>
                 <input
                   type="text"
-                  name="sides{{ loop.index }}"
+                  name="sides{{ loop.index - 1 }}"
                   autocomplete="off"
                   class="form-input-box textarea-size"
                   value = "{{ sidesItem.item }}"
@@ -141,18 +141,18 @@ head %}
                 <input
                   autocomplete="off"
                   class="form-input-box"
-                  name="sides{{ loop.index }}"
+                  name="sides{{ loop.index - 1 }}"
                   type="text"
                   value="{{ sidesItem.sizes }}"
                 />
               </td>
               <td>
                 <input
-                  id="{{ loop.index }}s"
+                  id="sides{{ loop.index - 1 }}description"
                   autocomplete="off"
-                  onclick="showModal('#modal-holder', '{{ loop.index }}s')"
+                  onclick="showModal('#modal-holder', 'sides{{ loop.index - 1 }}description')"
                   class="form-input-box description"
-                  name="sides{{ loop.index }}"
+                  name="sides{{ loop.index - 1 }}"
                   type="text"
                   value="{{ sidesItem.description }}"
                 />
@@ -284,10 +284,10 @@ head %}
       '<input id="' +
       prefix +
       row_num +
-      '" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
+      'description" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
       prefix +
       row_num +
-      "')\" " +
+      "description')\" " +
       'class="form-input-box description" name="' +
       prefix +
       row_num +
@@ -296,20 +296,40 @@ head %}
   }
 
   function setColumnInputNames(idOfTable, listOfColumns) {
+
+    let column_name;
     let name;
     let $rows = $(idOfTable + " tbody tr td");
     for (let index = 0; index < $rows.length; index++) {
+      column_name = listOfColumns[index % listOfColumns.length]
       name = $($rows[index])
         .find("input")
         .attr("name");
-      if (!name.includes(listOfColumns[index % listOfColumns.length])) {
+      if (!name.includes(column_name)) {
+        name = name + column_name
         $($rows[index])
           .find("input")
-          .attr("name", name + listOfColumns[index % listOfColumns.length]);
+          .attr("name", name);
+      }
+     
+      if ( window.device == "mobile"){
+        
+        setIdsAndShowModal(idOfTable, column_name, index, $rows, name);
       }
     }
   }
+  function setIdsAndShowModal(idOfTable, colName, index, rows, name){
 
+    if ( colName != "description"){
+      let $id = $(rows[index]).find("input").attr("id");
+      if ( $id == undefined ){
+
+          $(rows[index]).find("input").attr("id", name);
+          $(rows[index]).find("input").attr("onclick", 'showModal("#modal-holder","' + name +'")');
+        
+      }
+    }
+  }
   function getTitlesToValues(idOfTable, idOfSubmit) {
     let text = "";
     let titles = $(idOfTable + " tbody tr th");
