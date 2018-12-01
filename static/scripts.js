@@ -96,7 +96,12 @@ function initSettings(idOfMin) {
     $(idOfMin).append(data.minsize);
   });
 }
-
+/*
+ SHUTDOWN OVER RIDE FOR DEVELOPMENT ONLY TAKE OUT BEFORE DEPOLOYMENT
+*/
+function shutDown() {
+  $.post($SCRIPT_ROOT + "/shutdown", {}, function(data, textStatus) {});
+}
 /*
  * here we simiply show the message on first screen that tells customer
  * to call if date not available or party is too small.
@@ -232,7 +237,9 @@ function setStep3() {
     "</h4></div>";
   $("#event-planner").append(newDiv2);
 }
-
+/* Start the help screen for selecting the items
+   or menu seletion without help.
+   If no help then call function startSelectionScreen */
 function setUpHelpScreen(needHelp) {
   fadeOutMain();
 
@@ -242,34 +249,46 @@ function setUpHelpScreen(needHelp) {
     if (needHelp === "nohelp") startSelectionScreen();
   }, 1000);
 }
+/* 
+   start menu selection screen 
+   window.selectedFoodOptions will keep track of the items chosen
+*/
 function startSelectionScreen() {
   /* Return an array of the div elements representing food options*/
 
   window.selectedFoodOptions = {};
+
   let helperScreenDiv =
-    '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen">' +
+    '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
     "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 style='border-bottom: 1px solid;'>Entree Options</h3></div>" +
     "<div id='selected-food' class='col-md-6'><h3 style='border-bottom: 1px solid;' >Selected Items</h3> </div></div></div>";
 
   $("#top-message").append(helperScreenDiv);
+
+  // need to pass in the id of the entree div
+  showEntreeOptions("#food-options");
+}
+function showEntreeOptions(idOfEntreeDiv) {
+  let entreeItems = window.PageSettings["entree"];
+  console.log(entreeItems);
 }
 function startHelpScreen() {
   console.log("Help");
   let maxItems = Math.floor(
     (eventVariables.numberOfPeople.adults +
       eventVariables.numberOfPeople.kids) /
-      8
+      window.PageSettings.minsize
   );
   let maxFlavors = Math.min([maxItems, 4]);
   let itemsGrammer = maxItems > 1 ? " items" : " item";
 }
 
 // let divs = [
-//   '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-xs-6 col-xs-offset-3 entree-item">Burrito Tray</div></div>'
+//   '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-xs-6 entree-item">Burrito Tray</div></div>'
 // ];
 
 function showSelection1(itemName, num) {
-  let itemSelection = getSelection(num);
+  let itemSelection = getSelectionForItem(num);
 
   let modalDiv =
     '<div id="myModal" class="modal question-titles"><div id="add-modal-content" class="main-card">' +
@@ -298,7 +317,7 @@ function showSelection1(itemName, num) {
   };
 }
 
-function getSelection(itemNum) {
+function getSelectionForItem(itemNum) {
   let divToAppendInModal;
   let entreeType = getEntreeType(itemNum);
   let meatChoices = "";

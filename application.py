@@ -379,7 +379,7 @@ def menusetter():
                              'flavors': request.form.get(item_num + 'flavors'),
                              'sizes': request.form.get(item_num + 'sizes'),
                              'description' : request.form.get(item_num + 'description')} """
-                
+            set_menu.append({ 'categories' : [item.capitalize() for item in columns ]})
             insert_menu = json.dumps(set_menu)    
             
             execute("""
@@ -433,9 +433,11 @@ def menusetter():
     
     min_size = full_menu.get("minsize")
     
+    headers = entree_items.pop().get("categories")
+    
     return render_template("menusetter.html", admin=True, 
                                            entreeMenu = entree_items,
-                                           sidesMenu = side_items, min_size = min_size)
+                                           sidesMenu = side_items, min_size = min_size, headers = headers)
 
 @app.route('/_get_menu')
 def get_menu():
@@ -454,6 +456,17 @@ def get_menu():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/png')
+    
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
 
 if __name__ == '__main__':
 

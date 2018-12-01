@@ -17,60 +17,76 @@ head %}
         <fieldset>
           <table id="menu-setter-table" class="menu-table">
             <tr>
-              <th>Item</th>
-              <th>Flavors</th>
-              <th>Sizes</th>
-              <th>Description</th>
+              {% for header in headers %}
+              <th>{{ header }}</th>
+              {% endfor %} {#
+              <!--
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+              -->#}
             </tr>
-            {% for menuItem in entreeMenu %}
+            {% for menuItem in entreeMenu %} {% set outer_loop = loop %} {% for
+            key, value in menuItem.items() %}
+            <td>
+              <input
+                id="{{ outer_loop.index - 1 }}{{ key }}"
+                type="text"
+                name="{{ outer_loop.index - 1 }}"
+                autocomplete="off"
+                class="form-input-box"
+                value="{{ value }}"
+              />
+            </td>
+            {% endfor %} {#<!--
+              <tr>
+                  <td>
+                    <input
+                      type="text"
+                      name="{{ loop.index - 1 }}"
+                      autocomplete="off"
+                      class="form-input-box"
+                      value="{{ menuItem.item }}"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      autocomplete="off"
+                      class="form-input-box"
+                      name="{{ loop.index - 1 }}"
+                      type="text"
+                      value="{{ menuItem.flavors }}"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      autocomplete="off"
+                      class="form-input-box"
+                      name="{{ loop.index - 1}}"
+                      type="text"
+                      value="{{ menuItem.sizes }}"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      id="{{ loop.index - 1}}description"
+                      autocomplete="off"
+                      onclick="showModal('#modal-holder', '{{ loop.index - 1}}description')"
+                      class="form-input-box"
+                      name="{{ loop.index - 1 }}"
+                      type="text"
+                      value="{{ menuItem.description }}"
+                    />
+                  </td>
 
-            <tr>
-              <td>
-                <input
-                  type="text"
-                  name="{{ loop.index - 1 }}"
-                  autocomplete="off"
-                  class="form-input-box"
-                  value="{{ menuItem.item }}"
-                />
-              </td>
-              <td>
-                <input
-                  autocomplete="off"
-                  class="form-input-box"
-                  name="{{ loop.index - 1 }}"
-                  type="text"
-                  value="{{ menuItem.flavors }}"
-                />
-              </td>
-              <td>
-                <input
-                  autocomplete="off"
-                  class="form-input-box"
-                  name="{{ loop.index - 1}}"
-                  type="text"
-                  value="{{ menuItem.sizes }}"
-                />
-              </td>
-              <td>
-                <input
-                  id="{{ loop.index - 1}}description"
-                  autocomplete="off"
-                  onclick="showModal('#modal-holder', '{{ loop.index - 1}}description')"
-                  class="form-input-box description"
-                  name="{{ loop.index - 1 }}"
-                  type="text"
-                  value="{{ menuItem.description }}"
-                />
-              </td>
-            </tr>
-            {% endfor %}
+              </tr>
+            -->#} {% endfor %}
           </table>
 
           <div class="row">
             <div class="col-xs-2">
               <div
-                onclick="addRow('#menu-setter-table', '', 'entree-submit')"
+                onclick="addRow('#menu-setter-table', '', '#entree-submit')"
                 class="button button1 question-titles add-row-button"
               >
                 Add Row
@@ -83,6 +99,33 @@ head %}
               >
                 Delete Row
               </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-2">
+              <div
+                onclick="addCol('#menu-setter-table', '', '#entree-submit', '#newCol1')"
+                class="button button1 question-titles add-row-button"
+              >
+                Add Col
+              </div>
+            </div>
+            <div class="col-xs-2 col-xs-offset-8">
+              <div
+                onclick="deleteCol('#menu-setter-table', '')"
+                class="button button1 question-titles delete-row-button"
+              >
+                Delete Col
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-2">
+              <input
+                style="width: 100%;"
+                id="newCol1"
+                placeholder="new column name"
+              />
             </div>
           </div>
           <div class="form-group">
@@ -151,7 +194,7 @@ head %}
                   id="sides{{ loop.index - 1 }}description"
                   autocomplete="off"
                   onclick="showModal('#modal-holder', 'sides{{ loop.index - 1 }}description')"
-                  class="form-input-box description"
+                  class="form-input-box"
                   name="sides{{ loop.index - 1 }}"
                   type="text"
                   value="{{ sidesItem.description }}"
@@ -164,7 +207,7 @@ head %}
           <div class="row">
             <div class="col-xs-2">
               <div
-                onclick="addRow('#menu-setter-table2', 'sides', 'sides-submit')"
+                onclick="addRow('#menu-setter-table2', 'sides', '#sides-submit')"
                 class="button button1 question-titles add-row-button"
               >
                 Add Row
@@ -216,6 +259,15 @@ head %}
   </div>
 </div>
 <script type="text/javascript">
+  function addModalTo(elementID) {
+    $("*[id*=" + elementID + "]:visible").each(function() {
+      let $id = $(this).attr("id");
+      // console.log($id);
+      $(this).attr("onclick", "showModal('#modal-holder', '" + $id + "')");
+    });
+  }
+  addModalTo("description");
+
   function showModal(tempId, idNum) {
     let id_of_element = idNum;
     if (typeof id_of_element === "number") {
@@ -254,20 +306,69 @@ head %}
       }
     };
   }
-  function addRow(idOfTable, name_prefix, submit_id) {
-    let count = $(idOfTable + " tr").length - 1;
+  function addCol(idOfTable, name_prefix, submit_id, inputIdForColName) {
+    inputIdForColName = inputIdForColName.replace("#", "");
+    let new_col_name = document.getElementById(inputIdForColName).value;
 
+    let $rows_count = $(idOfTable + " tr").length;
+    let headerElement = "<th>" + new_col_name + "</th>";
+
+    let headerRow = $(idOfTable + " tr:first");
+    headerRow.append(headerElement);
+
+    let lowerCaseName = new_col_name.toLocaleLowerCase();
+    let x = 0;
+    let inputDiv;
+    let $rows = $(idOfTable + " tbody tr")
+      .not(":first")
+      .each(function(index) {
+        inputDiv =
+          '<input style = "width: 100%;" type="text" name = "' +
+          name_prefix +
+          index.toString() +
+          lowerCaseName +
+          '" autocomplete="off" class="form-input-box">';
+        $(this).append(inputDiv);
+      });
+    getTitlesToValues(idOfTable, submit_id);
+  }
+  function addRow(idOfTable, name_prefix, submit_id) {
+    let titles = $(idOfTable + " tbody tr th");
+    let menuList = [];
+
+    $.each(titles, function(element) {
+      value = titles[element].innerHTML.toLocaleLowerCase();
+      menuList.push(value);
+    });
+
+    let count = $(idOfTable + " tr").length - 1;
     count = count.toString();
-    let table_row_div =
-      "<tr>" +
-      getColumnString(name_prefix, count, "item") +
-      getColumn2String(name_prefix, count) +
-      getColumnString(name_prefix, count, "sizes") +
-      getDescriptColString(name_prefix, count) +
-      "</tr>";
+    let table_row_div = "<tr>";
+    $.each(menuList, function(element) {
+      table_row_div += getColumnStringForRow(
+        name_prefix,
+        count,
+        menuList[element]
+      );
+    });
+    table_row_div += "</tr>";
 
     $(idOfTable).append(table_row_div);
+    addModalTo("description");
     getTitlesToValues(idOfTable, submit_id);
+  }
+  function getColumnStringForRow(prefix, count, column_name) {
+    return (
+      '<td><input id="' +
+      prefix +
+      count +
+      column_name +
+      '" type="text" name="' +
+      prefix +
+      count +
+      column_name +
+      '" autocomplete="off" class="form-input-box"/></td>'
+    );
   }
   function deleteRow(idOfTable) {
     let count = $(idOfTable + " tr").length - 1;
@@ -276,45 +377,45 @@ head %}
     }
   }
 
-  function getColumn2String(prefix, row_num) {
-    if (prefix == "") {
-      return (
-        '<td> <input autocomplete="off" class="form-input-box" name="' +
-        prefix +
-        row_num +
-        '" type="text" /> </td>'
-      );
-    }
-    return "";
-  }
+  // function getColumn2String(prefix, row_num) {
+  //   if (prefix == "") {
+  //     return (
+  //       '<td> <input autocomplete="off" class="form-input-box" name="' +
+  //       prefix +
+  //       row_num +
+  //       '" type="text" /> </td>'
+  //     );
+  //   }
+  //   return "";
+  // }
 
-  function getColumnString(prefix, row_num, identifier) {
-    if (prefix == "" || prefix == "sides") {
-      return (
-        '<td><input type="text" name="' +
-        prefix +
-        row_num +
-        '" autocomplete="off" class="form-input-box textarea-size" /> </td>'
-      );
-    }
-    return "";
-  }
-  function getDescriptColString(prefix, row_num) {
-    return (
-      "<td>" +
-      '<input id="' +
-      prefix +
-      row_num +
-      'description" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
-      prefix +
-      row_num +
-      "description')\" " +
-      'class="form-input-box description" name="' +
-      prefix +
-      row_num +
-      '" type="text"/> </td>'
-    );
-  }
+  // function getColumnString(prefix, row_num, identifier) {
+  //   if (prefix == "" || prefix == "sides") {
+  //     return (
+  //       '<td><input type="text" name="' +
+  //       prefix +
+  //       row_num +
+  //       '" autocomplete="off" class="form-input-box textarea-size" /> </td>'
+  //     );
+  //   }
+  //   return "";
+  // }
+  // function getDescriptColString(prefix, row_num) {
+  //   return (
+  //     "<td>" +
+  //     '<input id="' +
+  //     prefix +
+  //     row_num +
+  //     'description" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
+  //     prefix +
+  //     row_num +
+  //     "description')\" " +
+  //     'class="form-input-box" name="' +
+  //     prefix +
+  //     row_num +
+  //     '" type="text"/> </td>'
+  //   );
+  // }
 
   function setColumnInputNames(idOfTable, listOfColumns) {
     let column_name;
@@ -331,8 +432,8 @@ head %}
           .find("input")
           .attr("name", name);
       }
-
       if (window.device == "mobile") {
+        // TODO change this to addModalTO
         setIdsAndShowModal(idOfTable, column_name, index, $rows, name);
       }
     }
