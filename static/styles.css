@@ -30,6 +30,8 @@ body,
 }
 @media (min-width: 886px) {
   #nav-list {
+    -webkit-transform: translate(-96px, 0px);
+    -ms-transform: translate(-96px, 0px);
     transform: translate(-96px, 0px);
   }
 }
@@ -77,9 +79,18 @@ body,
   font-size: 12px;
   color: white;
 }
-
+/* https://autoprefixer.github.io/ ----- auto prefixer to use if problems with brower css */
 /*color for layout background*/
 .feather {
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right bottom,
+    from(white),
+    to(#fdce55)
+  );
+  background-image: -webkit-linear-gradient(top left, white, #fdce55);
+  background-image: -o-linear-gradient(top left, white, #fdce55);
   background-image: linear-gradient(to bottom right, white, #fdce55);
 }
 .question-titles {
@@ -90,7 +101,8 @@ body,
   font-family: LTPro, Arial, Helvetica, sans-serif;
   font-size: 20px;
   color: #0d034c;
-  -webkit-transition: background-color 1s; /* Safari */
+  -webkit-transition: background-color 1s; /*Safari*/
+  -o-transition: background-color 1s;
   transition: background-color 1s;
 }
 .register-pass-requirements {
@@ -166,6 +178,11 @@ footer {
   }
 }
 /* for index page / main page */
+
+/* most of this content is setting the styling for the site wide styling
+  Inclduing the main-card which represents the white box with shadow on hover
+  styling. Below are also custom and other fade animations, including specification 
+  for cross browser support **** IE excluded?? ****/
 .main-card {
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   background-color: rgba(255, 255, 255, 1);
@@ -299,6 +316,10 @@ footer {
   -o-animation-name: fade-in-left;
   animation-name: fade-in-left;
 }
+/* normalize height makes all the elements 
+  in a bootstrap row of equal height 
+  add the width setting since it will break bootstrap, 
+  once it tries to stack elements */
 @media (min-width: 992px) {
   .normalize-height {
     display: flex;
@@ -429,12 +450,14 @@ footer {
   color: white;
   background-color: #0d034c;
 }
-.entree-item {
+/* .entree-item {
   -webkit-transition: all 1s;
   -moz-transition: all 1s;
   -o-transition: all 1s;
   transition: all 1s;
-}
+} */
+/* These are the stylings that use the modal pop up functionality 
+  Important for creating pop up window info and input types */
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
@@ -515,7 +538,9 @@ footer {
 .custom-select select option:hover {
   color: #0d034c;
 }
-/* include admin menu setter styling here */
+/**************************************************************/
+/* include admin menu setter styling 
+  This is only styling for admin page : menusetter  */
 .menu-table {
   margin-top: 40px;
   width: 100%;
@@ -588,3 +613,4 @@ footer {
   height: 2.8vmin;
   padding: 0.1vmin;
 }
+/* * * * * * * * * * * * * * * * * * * */

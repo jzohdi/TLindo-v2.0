@@ -1,3 +1,5 @@
+// set up the window variables that can be used later. including
+// getting whether the user is on a phone device or desktop.
 var eventVariables = {};
 window.device;
 if (
@@ -9,22 +11,17 @@ if (
 } else {
   device = "desk";
 }
+// get variable to use later about the size of the users screen.
 var windowWidth = window.innerWidth;
-// Element.prototype.remove = function() {
-//   this.parentElement.removeChild(this);
-// };
-// NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
-//   for (var i = this.length - 1; i >= 0; i--) {
-//     if (this[i] && this[i].parentElement) {
-//       this[i].parentElement.removeChild(this[i]);
-//     }
-//   }
-// };
 
 function setPicker() {
   // collect dates to disable for picker + check to see if element exists on page.
   let finalArrayOfDates = [];
+  // earlier the list of dates to exclude are set in the element that is hidden with id of dates-to-hide
+  // here we get those dates, and convert them with new Date() to raw datetime data which
+  // can be used by the date picker in the form of an array of dates to disable
   let disableDates = document.getElementById("dates-to-hide");
+
   if (typeof disableDates !== "undefined" && disableDates !== null) {
     disableDates = disableDates.innerHTML;
     disableDates = eval(disableDates);
@@ -33,6 +30,9 @@ function setPicker() {
       finalArrayOfDates.push(formatDate);
     }
   }
+  // make sure that the element with id datepicker is available,
+  // TODO // ? pass ID in as parameter
+
   let ele = document.getElementById("datepicker");
   if (ele) {
     var $input = $("#datepicker").pickadate({
@@ -78,11 +78,29 @@ function copyToClipBoard(textValue) {
 /*
 Functions below are functions used to javascript page interaction for setting a new
 */
+
+/*
+ * plan event is an event listener that fires when the user selects in the date picker box
+ *
+ */
 function planEvent() {
   let dateSelector = $("#datepicker");
-  // console.log(dateSelector);
+
   document.querySelector('input[name="date"]').onchange = changeEventHandler;
 }
+// calling this function will get JSON data about the menu and other settings for building page
+function initSettings(idOfMin) {
+  let params;
+  $.getJSON($SCRIPT_ROOT + "/_get_menu", {}, function(data) {
+    window.PageSettings = data;
+    $(idOfMin).append(data.minsize);
+  });
+}
+
+/*
+ * here we simiply show the message on first screen that tells customer
+ * to call if date not available or party is too small.
+ */
 function changeEventHandler(event) {
   if (!event.target.value) console.log("nothing here");
   else {
@@ -99,16 +117,18 @@ function changeEventHandler(event) {
     nextButton.removeClass("hidden").addClass("fade-in-left");
   }
 }
-
-function arrowMove() {
-  let next_Arrow = $("#next-arrow");
+// this function is called by the button an adds css stlying to give the animation
+// effect on hovering over the next button
+function arrowMove(idOfElement) {
+  let next_Arrow = $(idOfElement);
   next_Arrow.css("padding-left", "14px");
 }
-function arrowMoveBack() {
-  let next_Arrow = $("#next-arrow");
+function arrowMoveBack(idOfElement) {
+  let next_Arrow = $(idOfElement);
   next_Arrow.css("padding-left", "0px");
 }
 function nextWindow() {
+  // get the date value input from the calender and set it inside window, so can be called later.
   let eventDate = document.getElementById("datepicker").value;
   eventVariables.date = eventDate;
 
@@ -119,7 +139,6 @@ function nextWindow() {
       div.empty()
     );
     let howManyPeopleDiv =
-      // '<div class="row normalize-height">' +
       '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
       ' <h4 class="question-titles">How many people will be at your event?</h4>' +
       '<div class="form-group">' +
@@ -138,7 +157,7 @@ function nextWindow() {
     // '</div>';
     let buttonDiv =
       '<div id="button1" style="-webkit-animation-duration: 1s; animation-duration: 1s;" class="col-md-6 col-md-offset-3 fade-in-left">' +
-      '<button onclick="nextWindow2()" onmouseout="arrowMoveBack()" onmouseover="arrowMove()" class="button button1">' +
+      '<button onclick="nextWindow2()" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" class="button button1">' +
       'Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span> </button> </div>';
     $("#next-button").append(buttonDiv);
   }, 1000);
@@ -155,11 +174,13 @@ function nextWindow2() {
 
   let totalPeople = parseInt(adultsNum) + parseInt(kidsNum);
 
-  if (totalPeople < 8) {
+  if (totalPeople < window.PageSettings.minsize) {
     if (document.getElementById("card3") === null) {
       let lessThanMin =
         '<div id="card3" class="col-md-6 col-md-offset-3 main-card fade-in-right"> <h4 class="question-titles">' +
-        "The minimum number of people to reserve a catering event is 8, <br>" +
+        "The minimum number of people to reserve a catering event is " +
+        window.PageSettings.minsize +
+        ", <br>" +
         "but let's see if we can help out. Give us a call </h4>" +
         '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a> </div>';
       $("#need-phone").append(lessThanMin);
@@ -199,8 +220,9 @@ function fadeOutMain() {
 
 function setStep3() {
   let newDiv =
-    '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right"> <h4 class="question-titles">' +
-    'Almost there! </h4><h4 class="question-titles">We\'d love to help you decide <br>how much food to get for your gathering </h4>' +
+    '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right question-titles">' +
+    "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>" +
+    "<h4>Based on the number of people, we can recommend <br>how much food to get for your gathering.</h4>" +
     "</div>";
   $("#top-message").append(newDiv);
   let newDiv2 =
@@ -222,7 +244,7 @@ function setUpHelpScreen(needHelp) {
 }
 function startSelectionScreen() {
   /* Return an array of the div elements representing food options*/
-  const setFoodOptions = getFoodOptionsDivs();
+
   window.selectedFoodOptions = {};
   let helperScreenDiv =
     '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen">' +
@@ -230,14 +252,6 @@ function startSelectionScreen() {
     "<div id='selected-food' class='col-md-6'><h3 style='border-bottom: 1px solid;' >Selected Items</h3> </div></div></div>";
 
   $("#top-message").append(helperScreenDiv);
-
-  setFoodOptions.forEach(function(element) {
-    $("#food-options").append(element);
-  });
-
-  // entree_Items.forEach(function(element) {
-  //   element.addEventListener("click", showSelection1(element.innerText));
-  // });
 }
 function startHelpScreen() {
   console.log("Help");
@@ -250,19 +264,9 @@ function startHelpScreen() {
   let itemsGrammer = maxItems > 1 ? " items" : " item";
 }
 
-function getFoodOptionsDivs() {
-  let params;
-  $.getJSON($SCRIPT_ROOT + "/_get_menu", {
-
-  }, function(data){
-    console.log(data);
-  })
-  let divs = [
-    '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-xs-6 col-xs-offset-3 entree-item">Burrito Tray</div></div>',
-   
-  ];
-  return divs;
-}
+// let divs = [
+//   '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-xs-6 col-xs-offset-3 entree-item">Burrito Tray</div></div>'
+// ];
 
 function showSelection1(itemName, num) {
   let itemSelection = getSelection(num);
@@ -350,75 +354,4 @@ function addToSelection(meatSelection) {
 
     selectedFoodOptions[meatSelection] = [portion_size, food_type];
   }
-}
-
-function getFlavorOptions(item) {
-  if (item == 1)
-    return [
-      "Ground Beef",
-      "Marinated Steak",
-      "Carnitas",
-      "Shredded Chicken",
-      "Fish",
-      "Grilled Shrimp",
-      "Veggie"
-    ];
-  if (item == 2) return ["Rotissererie Chicken"];
-  if (item == 3)
-    return [
-      "Ground Beef",
-      "Marinated Steak",
-      "Carnitas",
-      "Shredded Chicken",
-      "Fish",
-      "Grilled Shrimp",
-      "Veggie"
-    ];
-  if (item == 4) return [];
-}
-function getPortionOptions(item) {
-  console.log(item);
-  if (item == 1) {
-    return ["None", "Full Pan"];
-  }
-  if (item == 2) return ["None", "Half Pan", "Full Pan"];
-  if (item == 3) return ["None", "Half Pan", "Full Pan"];
-  if (item == 4) return;
-}
-function getEntreeType(item) {
-  if (item == 1) return "Burrito Tray";
-
-  if (item == 2) return "Chicken Tray";
-  if (item == 3) return "Taco Tray";
-  if (item == 4) return "Nacho Bar";
-  if (item == 5) return "Chili";
-  if (item == 6) return "Sides";
-}
-
-function enterOptionsOntoSelection() {
-  let select_Food = $("#selected-food");
-  let index = 1;
-  let divToAdd = "<div class='row'>";
-  for (var flavor in selectedFoodOptions) {
-    if (selectedFoodOptions.hasOwnProperty(flavor)) {
-      divToAdd +=
-        '<div style="font-size: 12px;"class="col-lg-12 question-titles"><input style="width:25px"type="text" value = "' +
-        index.toString() +
-        '"> ' +
-        selectedFoodOptions[flavor][1] +
-        ", " +
-        flavor +
-        ", " +
-        selectedFoodOptions[flavor][0] +
-        "</div>";
-      delete selectedFoodOptions[flavor];
-    }
-  }
-  divToAdd += "</div>";
-  select_Food.append(divToAdd);
-
-  let modal = document.getElementById("myModal");
-
-  modal.style.display = "none";
-  $("#event-planner").empty();
 }

@@ -443,6 +443,10 @@ def get_menu():
                    SELECT * FROM menu WHERE row = %s
                    """,(MENU_VERSION,))[0]
     
+    menu["entree"] = json.loads(menu.get("entree"))
+    menu["sides"] = json.loads(menu.get("sides"))
+    menu["minsize"] = str(menu.get("minsize"))
+    
     return jsonify(menu)
 # define route for flask to get favicon in static folder 
 # will not work during development

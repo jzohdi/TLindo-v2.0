@@ -46,7 +46,7 @@ head %}
   <div id="need-phone" class="row normalize-height">
     <div id="card3" class="col-md-6 col-md-offset-3 main-card fade-in-right">
       <h4 class="question-titles">
-        If planning an event for less than 8 people or
+        If planning an event for less than <span id="min1"></span> people or
       </h4>
       <h4 class="question-titles">
         If your date is unavailable, give us a call:
@@ -58,8 +58,8 @@ head %}
     <div id="button1" class="col-md-6 col-md-offset-3">
       <button
         onclick="nextWindow()"
-        onmouseout="arrowMoveBack()"
-        onmouseover="arrowMove()"
+        onmouseout="arrowMoveBack('#next-arrow')"
+        onmouseover="arrowMove('#next-arrow')"
         class="button button1"
       >
         Next
@@ -78,6 +78,7 @@ head %}
   window.onload = function() {
     setPicker();
     planEvent();
+    initSettings("#min1");
   };
 </script>
 {% endblock %}
