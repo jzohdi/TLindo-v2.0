@@ -398,7 +398,9 @@ def menusetter():
                     item_dict[column] = request.form.get("sides" + item_num + column)
                 
                 set_menu.append(item_dict)
-                
+            
+            set_menu.append({ 'categories' : [item.capitalize() for item in columns ]})
+            
             insert_menu = json.dumps(set_menu)
             
             execute("""
@@ -433,11 +435,15 @@ def menusetter():
     
     min_size = full_menu.get("minsize")
     
+    side_headers = side_items.pop().get("categories")
     headers = entree_items.pop().get("categories")
     
     return render_template("menusetter.html", admin=True, 
                                            entreeMenu = entree_items,
-                                           sidesMenu = side_items, min_size = min_size, headers = headers)
+                                           sidesMenu = side_items, 
+                                           min_size = min_size, 
+                                           headers = headers,
+                                           sideHeaders = side_headers)
 
 @app.route('/_get_menu')
 def get_menu():

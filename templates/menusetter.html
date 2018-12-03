@@ -26,61 +26,22 @@ head %}
                 {% endfor %}
               -->#}
             </tr>
-            {% for menuItem in entreeMenu %} {% set outer_loop = loop %} {% for
-            key, value in menuItem.items() %}
-            <td>
-              <input
-                id="{{ outer_loop.index - 1 }}{{ key }}"
-                type="text"
-                name="{{ outer_loop.index - 1 }}"
-                autocomplete="off"
-                class="form-input-box"
-                value="{{ value }}"
-              />
-            </td>
-            {% endfor %} {#<!--
-              <tr>
-                  <td>
-                    <input
-                      type="text"
-                      name="{{ loop.index - 1 }}"
-                      autocomplete="off"
-                      class="form-input-box"
-                      value="{{ menuItem.item }}"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      autocomplete="off"
-                      class="form-input-box"
-                      name="{{ loop.index - 1 }}"
-                      type="text"
-                      value="{{ menuItem.flavors }}"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      autocomplete="off"
-                      class="form-input-box"
-                      name="{{ loop.index - 1}}"
-                      type="text"
-                      value="{{ menuItem.sizes }}"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      id="{{ loop.index - 1}}description"
-                      autocomplete="off"
-                      onclick="showModal('#modal-holder', '{{ loop.index - 1}}description')"
-                      class="form-input-box"
-                      name="{{ loop.index - 1 }}"
-                      type="text"
-                      value="{{ menuItem.description }}"
-                    />
-                  </td>
-
-              </tr>
-            -->#} {% endfor %}
+            {% for menuItem in entreeMenu %} {% set outer_loop = loop %}
+            <tr>
+              {% for key, value in menuItem.items() %}
+              <td>
+                <input
+                  id="{{ outer_loop.index - 1 }}{{ key }}"
+                  type="text"
+                  name="{{ outer_loop.index - 1 }}"
+                  autocomplete="off"
+                  class="form-input-box"
+                  value="{{ value }}"
+                />
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
           </table>
 
           <div class="row">
@@ -112,7 +73,7 @@ head %}
             </div>
             <div class="col-xs-2 col-xs-offset-8">
               <div
-                onclick="deleteCol('#menu-setter-table', '')"
+                onclick="deleteCol('#menu-setter-table', '', '#entree-submit')"
                 class="button button1 question-titles delete-row-button"
               >
                 Delete Col
@@ -151,55 +112,24 @@ head %}
         <fieldset>
           <table id="menu-setter-table2" class="menu-table">
             <tr>
-              <th>Item</th>
-              {#<!--
-                <th>Flavors</th>
-              -->#}
-              <th>Sizes</th>
-              <th>Description</th>
+              {% for sHeader in sideHeaders %}
+              <th>{{ sHeader }}</th>
+              {% endfor %}
             </tr>
-            {% for sidesItem in sidesMenu %}
+            {% for sidesItem in sidesMenu %} {% set outer_loop = loop %}
             <tr>
+              {% for key, value in sidesItem.items() %}
               <td>
                 <input
+                  id="sides{{ outer_loop.index - 1 }}{{ key }}"
                   type="text"
-                  name="sides{{ loop.index - 1 }}"
-                  autocomplete="off"
-                  class="form-input-box textarea-size"
-                  value="{{ sidesItem.item }}"
-                />
-              </td>
-              {#<!--
-                <td>
-                  <input
-                    autocomplete="off"
-                    class="form-input-box"
-                    name="sides{{ loop.index }}flavor"
-                    type="text"
-                  />
-                </td>
-              -->
-              #}
-              <td>
-                <input
+                  name="sides{{ outer_loop.index - 1 }}"
                   autocomplete="off"
                   class="form-input-box"
-                  name="sides{{ loop.index - 1 }}"
-                  type="text"
-                  value="{{ sidesItem.sizes }}"
+                  value="{{ value }}"
                 />
               </td>
-              <td>
-                <input
-                  id="sides{{ loop.index - 1 }}description"
-                  autocomplete="off"
-                  onclick="showModal('#modal-holder', 'sides{{ loop.index - 1 }}description')"
-                  class="form-input-box"
-                  name="sides{{ loop.index - 1 }}"
-                  type="text"
-                  value="{{ sidesItem.description }}"
-                />
-              </td>
+              {% endfor %}
             </tr>
             {% endfor %}
           </table>
@@ -220,6 +150,33 @@ head %}
               >
                 Delete Row
               </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-2">
+              <div
+                onclick="addCol('#menu-setter-table2', 'sides', '#sides-submit', '#newCol2')"
+                class="button button1 question-titles add-row-button"
+              >
+                Add Col
+              </div>
+            </div>
+            <div class="col-xs-2 col-xs-offset-8">
+              <div
+                onclick="deleteCol('#menu-setter-table2', 'sides', '#sides-submit')"
+                class="button button1 question-titles delete-row-button"
+              >
+                Delete Col
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-2">
+              <input
+                style="width: 100%;"
+                id="newCol2"
+                placeholder="new column name"
+              />
             </div>
           </div>
           <div class="form-group">
@@ -266,6 +223,7 @@ head %}
       $(this).attr("onclick", "showModal('#modal-holder', '" + $id + "')");
     });
   }
+
   addModalTo("description");
 
   function showModal(tempId, idNum) {
@@ -332,6 +290,13 @@ head %}
       });
     getTitlesToValues(idOfTable, submit_id);
   }
+
+  function deleteCol(idOfTable, prefix, submit_Id) {
+    $(idOfTable + " th:last-child, " + idOfTable + " td:last-child").remove();
+
+    getTitlesToValues(idOfTable, submit_Id);
+  }
+
   function addRow(idOfTable, name_prefix, submit_id) {
     let titles = $(idOfTable + " tbody tr th");
     let menuList = [];
@@ -357,6 +322,7 @@ head %}
     addModalTo("description");
     getTitlesToValues(idOfTable, submit_id);
   }
+
   function getColumnStringForRow(prefix, count, column_name) {
     return (
       '<td><input id="' +
@@ -376,46 +342,6 @@ head %}
       $(idOfTable + " tr:last").remove();
     }
   }
-
-  // function getColumn2String(prefix, row_num) {
-  //   if (prefix == "") {
-  //     return (
-  //       '<td> <input autocomplete="off" class="form-input-box" name="' +
-  //       prefix +
-  //       row_num +
-  //       '" type="text" /> </td>'
-  //     );
-  //   }
-  //   return "";
-  // }
-
-  // function getColumnString(prefix, row_num, identifier) {
-  //   if (prefix == "" || prefix == "sides") {
-  //     return (
-  //       '<td><input type="text" name="' +
-  //       prefix +
-  //       row_num +
-  //       '" autocomplete="off" class="form-input-box textarea-size" /> </td>'
-  //     );
-  //   }
-  //   return "";
-  // }
-  // function getDescriptColString(prefix, row_num) {
-  //   return (
-  //     "<td>" +
-  //     '<input id="' +
-  //     prefix +
-  //     row_num +
-  //     'description" autocomplete="off" onclick="showModal(\'#modal-holder\', \'' +
-  //     prefix +
-  //     row_num +
-  //     "description')\" " +
-  //     'class="form-input-box" name="' +
-  //     prefix +
-  //     row_num +
-  //     '" type="text"/> </td>'
-  //   );
-  // }
 
   function setColumnInputNames(idOfTable, listOfColumns) {
     let column_name;
