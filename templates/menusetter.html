@@ -19,12 +19,7 @@ head %}
             <tr>
               {% for header in headers %}
               <th>{{ header }}</th>
-              {% endfor %} {#
-              <!--
-                {% for header in headers %}
-                <th>{{ header }}</th>
-                {% endfor %}
-              -->#}
+              {% endfor %}
             </tr>
             {% for menuItem in entreeMenu %} {% set outer_loop = loop %}
             <tr>
@@ -216,6 +211,16 @@ head %}
   </div>
 </div>
 <script type="text/javascript">
+  if (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  ) {
+    window.device = "mobile";
+  } else {
+    window.device = "desk";
+  }
+
   function addModalTo(elementID) {
     $("*[id*=" + elementID + "]:visible").each(function() {
       let $id = $(this).attr("id");
@@ -281,18 +286,20 @@ head %}
       .not(":first")
       .each(function(index) {
         inputDiv =
-          '<input style = "width: 100%;" type="text" name = "' +
+          '<td><input style = "width: 100%;" type="text" name = "' +
           name_prefix +
           index.toString() +
           lowerCaseName +
-          '" autocomplete="off" class="form-input-box">';
+          '" autocomplete="off" class="form-input-box"></td>';
         $(this).append(inputDiv);
       });
     getTitlesToValues(idOfTable, submit_id);
   }
 
   function deleteCol(idOfTable, prefix, submit_Id) {
-    $(idOfTable + " th:last-child, " + idOfTable + " td:last-child").remove();
+    $(idOfTable + " th:last-child, " + idOfTable + " td:last-child")
+      .empty()
+      .remove();
 
     getTitlesToValues(idOfTable, submit_Id);
   }
@@ -359,26 +366,11 @@ head %}
           .attr("name", name);
       }
       if (window.device == "mobile") {
-        // TODO change this to addModalTO
-        setIdsAndShowModal(idOfTable, column_name, index, $rows, name);
+        if (column_name != "description") addModalTo(column_name);
       }
     }
   }
-  function setIdsAndShowModal(idOfTable, colName, index, rows, name) {
-    if (colName != "description") {
-      let $id = $(rows[index])
-        .find("input")
-        .attr("id");
-      if ($id == undefined) {
-        $(rows[index])
-          .find("input")
-          .attr("id", name);
-        $(rows[index])
-          .find("input")
-          .attr("onclick", 'showModal("#modal-holder","' + name + '")');
-      }
-    }
-  }
+
   function getTitlesToValues(idOfTable, idOfSubmit) {
     let text = "";
     let titles = $(idOfTable + " tbody tr th");

@@ -2,14 +2,16 @@
 // getting whether the user is on a phone device or desktop.
 var eventVariables = {};
 window.device;
-if (
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  )
-) {
-  device = "mobile";
-} else {
-  device = "desk";
+function getDevice() {
+  if (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  ) {
+    window.device = "mobile";
+  } else {
+    window.device = "desk";
+  }
 }
 // get variable to use later about the size of the users screen.
 var windowWidth = window.innerWidth;
@@ -269,36 +271,42 @@ function startSelectionScreen() {
   showEntreeOptions("#food-options");
 }
 function showEntreeOptions(idOfEntreeDiv) {
+  window.itemDictionary = {};
+
   let entreeItems = window.PageSettings["entree"];
-  console.log(entreeItems);
-}
-function startHelpScreen() {
-  console.log("Help");
-  let maxItems = Math.floor(
-    (eventVariables.numberOfPeople.adults +
-      eventVariables.numberOfPeople.kids) /
-      window.PageSettings.minsize
-  );
-  let maxFlavors = Math.min([maxItems, 4]);
-  let itemsGrammer = maxItems > 1 ? " items" : " item";
+  let categories = entreeItems.splice(-1);
+
+  $.each(entreeItems, function(index, value) {
+    insertDivToOptions(idOfEntreeDiv, index, value.item);
+    window.itemDictionary[index] = value;
+  });
 }
 
-// let divs = [
-//   '<div id="item1" class="entree-options row"><div onclick="showSelection1(\'Burrito\', 1)" class="col-xs-6 entree-item">Burrito Tray</div></div>'
-// ];
+function insertDivToOptions(idOfElement, index, item_name) {
+  let divToAppend =
+    '<div id="' +
+    index +
+    '" class="entree-options row"><div class="entree-item col-xs-6" onclick="showSelection(' +
+    index +
+    ')">' +
+    item_name +
+    "</div></div>";
+  $(idOfElement).append(divToAppend);
+}
 
-function showSelection1(itemName, num) {
-  let itemSelection = getSelectionForItem(num);
+function showSelection(itemDictIndex) {
+  let itemSelection = window.itemDictionary[itemDictIndex];
 
+  let description = itemSelection.description;
   let modalDiv =
-    '<div id="myModal" class="modal question-titles"><div id="add-modal-content" class="main-card">' +
+    '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
     '<span class="close">X</span>' +
-    itemSelection +
+    description +
     "</div></div>";
   $("#event-planner").append(modalDiv);
 
   let modal = document.getElementById("myModal");
-  let openButton = document.getElementById("item" + num.toString());
+  let openButton = document.getElementById(itemDictIndex.toString());
   let span = document.getElementsByClassName("close")[0];
   let done = document.getElementById("done");
 
@@ -315,6 +323,17 @@ function showSelection1(itemName, num) {
       $("#event-planner").empty();
     }
   };
+}
+
+function startHelpScreen() {
+  console.log("Help");
+  let maxItems = Math.floor(
+    (eventVariables.numberOfPeople.adults +
+      eventVariables.numberOfPeople.kids) /
+      window.PageSettings.minsize
+  );
+  let maxFlavors = Math.min([maxItems, 4]);
+  let itemsGrammer = maxItems > 1 ? " items" : " item";
 }
 
 function getSelectionForItem(itemNum) {
