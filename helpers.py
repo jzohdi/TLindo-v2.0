@@ -13,9 +13,8 @@ def get_salt(N):
                    string.ascii_uppercase + string.digits) for _ in range(N))
 
 def parse_dictionary(dictionaries):
-    final = []
     for item in dictionaries:
-        item["sum"] = int(item["sum"])
-        final.append(item)
-    return final
+        dictionaries[item]['sum'] = int(dictionaries[item]['sum'])
+        #final.append(item)
+    return dictionaries
     

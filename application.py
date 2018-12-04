@@ -43,7 +43,29 @@ def sort_managedates():
         execute("""UPDATE managedates SET dates = %s WHERE row = %s""",(final_sorted, MENU_VERSION,))
     else:
         print("already sorted")
-
+def get_sorted_dates( dictionary_in ):
+    
+    dates_list = [key for key in dictionary_in]
+    sort_dates = list(sorted(dates_list, key=lambda x: datetime.datetime.strptime(x, '%d %B, %Y')))
+ #   print(sort_dates)
+    return sort_dates
+    
+def move_disabled_dates():
+    result = execute("""
+                     SELECT * FROM managedates WHERE row = %s
+                     """,(MENU_VERSION,))[0]
+    max_val = result.get("max")
+    new_array = []
+    dates = json.loads(result.get("dates"))
+    #print(dates)
+    for key, value in dates.items():
+        if int(value.get('sum')) >= max_val or value["disabled"] == 'true':
+            new_array.append(key)
+    new_array = json.dumps(new_array)
+    execute("""
+            UPDATE managedates SET disabled = %s WHERE row = %s
+            """, (new_array, MENU_VERSION,) )
+    
 ###################################################################################
 settings = {}
 
@@ -314,36 +336,54 @@ def managedates():
     if "admin" not in session:
         return redirect(url_for('login'))
     
-    sort_managedates()
+    #sort_managedates()
+    move_disabled_dates()
     
     dates = execute("""
-                    SELECT * FROM managedates
-                    """, "NA")
+                    SELECT * FROM managedates WHERE row = %s
+                    """, (MENU_VERSION,))
     
     all_dates = json.loads(dates[0].get("dates"))
+    
+    sorted_dates = get_sorted_dates(all_dates)
     
     max_val = dates[0].get("max")
     
     # must convert sum - string to sum - integer for each date
-    dates = parse_dictionary(all_dates)
- 
+    #dates = parse_dictionary(all_dates)
+    #print(all_dates)
+    
     if request.method == "POST":
-        
+        print(request.form)
         data = request.form.get("data")
         data = data.split("/")
-        
-        for date in data:
-            dates.append({ "day": str(date), "sum": "0"})
+        if data[0] != '':
+            if 'disable' in request.form:
+                for date in data:
+                    if date not in all_dates:
+                        all_dates[date] = {'sum' : '0', 'disabled' : 'true' }
+                    else:
+                        all_dates[date]['disabled'] = 'true'
             
-        dates_to_add = json.dumps(dates)
+            if 'enable' in request.form:
+                for date in data:
+                    if date in all_dates:
+                        if all_dates[date]['sum'] == '0':
+                            all_dates.pop(date, None)
+                        else:
+                            all_dates[date]['disabled'] = 'false'
         
-        execute("""
+            dates_to_add = json.dumps(all_dates)
+            
+            execute("""
                 UPDATE managedates SET dates = %s WHERE row = %s
                 """,(dates_to_add, MENU_VERSION,))
-        
+                
         return redirect(url_for("managedates"))
     
-    return render_template("managedates.html", dates = dates, admin=True, maximum = max_val)
+    return render_template("managedates.html", dates = all_dates, admin=True, 
+                                               maximum = max_val, 
+                                               sorted_dates = sorted_dates)
 
 @app.route('/menusetter', methods=["GET", "POST"])
 def menusetter():
@@ -475,8 +515,10 @@ def shutdown():
     return 'Server shutting down...'
 
 if __name__ == '__main__':
-
-        #print(all_dates)
+    
+        
+    #set_disabled_dates()
+    #print(all_dates)
     app.run(debug=False)
     #app.add_url_rule('/favicon.ico',
     #            redirect_to=url_for('static', filename='favicon.ico'))
