@@ -219,17 +219,18 @@ def dated_url_for(endpoint, **values):
 def index():
     if 'admin' in session:
         return redirect(url_for('managedates'))
+    
+    move_disabled_dates()
+    
     dates = execute("""
                     SELECT * FROM managedates WHERE row = %s
                     """,( MENU_VERSION,))
-    max_val = dates[0].get("max")
-    calender = json.loads(dates[0]["dates"])
+    disabled = dates[0].get("disabled")
+#    max_val = dates[0].get("max")
+#    calender = json.loads(dates[0]["dates"])
 #    print(calender)
-    final = []
-    for date in calender:
-        if int(date.get("sum")) == 0 or int(date.get("sum")) >= max_val:
-            final.append(date.get("day"))
-    return render_template('index.html', dates=final)
+
+    return render_template('index.html', dates=disabled)
 
 @app.route('/login', methods=["GET", "POST"])
 def login():

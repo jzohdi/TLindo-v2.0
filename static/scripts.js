@@ -27,6 +27,7 @@ function setPicker() {
   if (typeof disableDates !== "undefined" && disableDates !== null) {
     disableDates = disableDates.innerHTML;
     disableDates = eval(disableDates);
+
     for (let y = 0; y < disableDates.length; y++) {
       let formatDate = new Date(disableDates[y]);
       finalArrayOfDates.push(formatDate);
