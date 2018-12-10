@@ -260,17 +260,24 @@ function startSelectionScreen() {
   /* Return an array of the div elements representing food options*/
 
   window.selectedFoodOptions = {};
-
+  window.selectedFoodOptions["Id"] = "my-cart";
+  window.selectedFoodOptions["cart"] = [];
   let helperScreenDiv =
     '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
-    "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 style='border-bottom: 1px solid;'>Entree Options</h3></div>" +
-    "<div id='selected-food' class='col-md-6'><h3 style='border-bottom: 1px solid;' >Selected Items</h3> </div></div></div>";
+    "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 class='main-menu-headers' >Entree Options</h3></div>" +
+    "<div id='selected-food' class='col-md-6'><h3 class='main-menu-headers' >Selected Items</h3><div id='my-cart' class='row'></div></div></div></div>";
 
   $("#top-message").append(helperScreenDiv);
 
   // need to pass in the id of the entree div
   showEntreeOptions("#food-options");
 }
+/*
+ To avoid mutating the pageSettings dictionary of the menu, create new window dictionary to hold the details 
+ for the entree items; 
+ iterate throught entreeItems, holding these values and assign the values to the key value of index.
+ if itemDictionary index is called, it will return the details for that item.
+*/
 function showEntreeOptions(idOfEntreeDiv) {
   window.itemDictionary = {};
 
@@ -282,7 +289,8 @@ function showEntreeOptions(idOfEntreeDiv) {
     window.itemDictionary[index] = value;
   });
 }
-
+// each of the entree items gets created on the page with this div element, show selection
+// is called with the index of the item which can be used to get the key value pair of itemDictionary
 function insertDivToOptions(idOfElement, index, item_name) {
   let divToAppend =
     '<div id="' +
@@ -294,15 +302,19 @@ function insertDivToOptions(idOfElement, index, item_name) {
     "</div></div>";
   $(idOfElement).append(divToAppend);
 }
-
+// Show slection parameter is the key for the value pair of itemdictionary. which was set as the index
+// of the item.
 function showSelection(itemDictIndex) {
   let itemSelection = window.itemDictionary[itemDictIndex];
 
-  let description = itemSelection.description;
+  window.allSelected = {};
+  allSelected[itemSelection.item] = [];
+  allSelected["Id"] = "modal-selection";
+
   let modalDiv =
     '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
     '<span class="close">X</span>' +
-    description +
+    getModalContent("allSelected", itemSelection.item, itemSelection) +
     "</div></div>";
   $("#event-planner").append(modalDiv);
 
@@ -326,6 +338,133 @@ function showSelection(itemDictIndex) {
   };
 }
 
+function getModalContent(windowArray, itemName, itemSettings) {
+  let content =
+    "<h4>" +
+    itemSettings.item +
+    ": </h4>" +
+    "<h4>" +
+    getHeaderForModal(itemSettings) +
+    "</h4>";
+  content +=
+    "<div class='selection row'>" +
+    getSelectionForItem(itemSettings) +
+    "<div onclick='getWantedItem(\"" +
+    itemSettings.item +
+    "\")'class='col-xs-2 col-xs-offset-8 add-select'>Select</div></div>";
+  content +=
+    '<div class="row modal-add-to-order">Items to Add to Order</div><div id="' +
+    allSelected.Id +
+    '"class="row"></div><div class="row"><div onclick="addSelectionToCart(\'' +
+    windowArray +
+    "','" +
+    itemName +
+    '\')" class="col-xs-2 col-xs-offset-3 add-select">Add Items</div></div>';
+  return content;
+}
+
+function getHeaderForModal(itemSettings) {
+  return itemSettings.description;
+}
+
+function getSelectionForItem(itemSettings) {
+  let content =
+    '<div class="col-md-2">Please Select From Options:</div>' +
+    "<div class='col-sm-6 col-md-4'>Choose protein : ";
+  content += getSelectDiv(itemSettings.flavors.split(","));
+  content += "</div><div class='col-sm-6 col-md-4'>Choose size : ";
+  content += getSelectDiv(itemSettings.sizes.split(",")) + "</div>";
+  return content;
+}
+
+function getSelectDiv(array) {
+  let content = "<select class='select-setting'>";
+  $.each(array, function(index, value) {
+    // value = value.replace(" ", "");
+    content += "<option value='" + value + "'>" + value + "</option>";
+  });
+  content += "</select>";
+  return content;
+}
+
+function getWantedItem(nameOfItem) {
+  let $selected = $(".select-setting");
+  let thisItem = [1];
+  $.each($selected, function(index, value) {
+    thisItem.push(
+      $(value)
+        .find("option:selected")
+        .text()
+    );
+  });
+  let alreadyAdd = false;
+  $.each(window.allSelected[nameOfItem], function(index, value) {
+    if (value[1] == thisItem[1] && value[2] == thisItem[2]) {
+      value[0] += 1;
+      alreadyAdd = true;
+    }
+  });
+  if (!alreadyAdd) window.allSelected[nameOfItem].push(thisItem);
+
+  drawToSelection("allSelected", nameOfItem);
+}
+
+function drawToSelection(itemObject, key) {
+  // console.log(itemObject);
+  let itemsArray = window[itemObject][key];
+
+  let $id = window[itemObject].Id;
+  // console.log(itemsArray);
+  $("#" + $id).empty();
+  let itemsDiv = "";
+  $.each(itemsArray, function(index, value) {
+    itemsDiv +=
+      '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span onclick="appendValue(\'' +
+      itemObject +
+      "', '" +
+      index +
+      "', '" +
+      "1', '" +
+      key +
+      "')\"> + </span>" +
+      value[0] +
+      " <span onclick=\"appendValue('" +
+      itemObject +
+      "', '" +
+      index +
+      "', '" +
+      "-1', '" +
+      key +
+      "')\"> - </span>" +
+      value[2] +
+      " " +
+      value[1] +
+      "</div>";
+  });
+
+  $("#" + $id).append(itemsDiv);
+  // console.log(itemsArray);
+}
+function appendValue(itemObject, index, value, key) {
+  index = parseInt(index);
+  value = parseInt(value);
+  window[itemObject][key][index][0] += value;
+  if (window[itemObject][key][index][0] == 0) {
+    window[itemObject][key].splice(index, 1);
+  }
+  drawToSelection(itemObject, key);
+}
+
+function addSelectionToCart(windowArray, itemName) {
+  // console.log(windowArray, itemName);
+  // let array = window[windowArray][itemName];
+  $.each(window[windowArray][itemName], function(index, value) {
+    window.selectedFoodOptions["cart"].push(value);
+  });
+  drawToSelection("selectedFoodOptions", "cart");
+  document.getElementsByClassName("close")[0].click();
+}
+
 function startHelpScreen() {
   console.log("Help");
   let maxItems = Math.floor(
@@ -335,62 +474,4 @@ function startHelpScreen() {
   );
   let maxFlavors = Math.min([maxItems, 4]);
   let itemsGrammer = maxItems > 1 ? " items" : " item";
-}
-
-function getSelectionForItem(itemNum) {
-  let divToAppendInModal;
-  let entreeType = getEntreeType(itemNum);
-  let meatChoices = "";
-  let AllChoices = getFlavorOptions(itemNum);
-  let portions = getPortionOptions(itemNum);
-
-  /* get flavor optiosn for that option, and iterate through, creating div elements to match */
-
-  for (let meatChoice = 0; meatChoice < AllChoices.length; meatChoice++) {
-    let selectionPortion = "";
-    for (
-      let portionChoice = 0;
-      portionChoice < portions.length;
-      portionChoice++
-    ) {
-      selectionPortion +=
-        "<option value='" +
-        portions[portionChoice] +
-        "'>" +
-        portions[portionChoice] +
-        "</option>";
-    }
-    let meatChoiceDiv =
-      "<div class='col-md-12 entree-item'><div class='row'><div class='col-sm-6'>" +
-      AllChoices[meatChoice] +
-      "</div><div class='col-sm-6'><div class='custom-select'><select id='" +
-      AllChoices[meatChoice] +
-      "' " +
-      "onchange='addToSelection(\"" +
-      AllChoices[meatChoice] +
-      "\")'>" +
-      selectionPortion +
-      "</select></div></div></div></div>";
-    meatChoices += meatChoiceDiv;
-  }
-
-  meatChoices +=
-    "<div id='done' onclick='enterOptionsOntoSelection()' class='col-sm-4 col-sm-offset-4 button button1'> Done! </div>";
-  divToAppendInModal =
-    "<div style='padding-top: 10vh'><h4 style='border-bottom: 2px solid;' >Choose meat and portion options for <span id='food-type'>" +
-    entreeType +
-    "</span>:</h4>" +
-    meatChoices;
-  return divToAppendInModal;
-}
-
-function addToSelection(meatSelection) {
-  let portion_size = document.getElementById(meatSelection).value;
-  if (portion_size === "None") {
-    delete selectedFoodOptions[meatSelection];
-  } else {
-    let food_type = document.getElementById("food-type").innerHTML;
-
-    selectedFoodOptions[meatSelection] = [portion_size, food_type];
-  }
 }

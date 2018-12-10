@@ -478,7 +478,7 @@ footer {
   background-color: #fefefe;
   margin: auto;
   padding: 20px;
-  border: 1px solid #888;
+  border: 2px solid #0d034c;
 }
 @media (min-width: 900px) {
   .modal-content {
@@ -614,3 +614,127 @@ footer {
   padding: 0.1vmin;
 }
 /* * * * * * * * * * * * * * * * * * * */
+
+/* * * * * * * * * * * * * * * END OF MENUSETTER 
+
+************
+
+START OF MENU SELECTION FOR USER
+
+*****************
+
+*/
+.main-menu-headers {
+  border-bottom: 3px solid;
+}
+.selection {
+  border: 1px solid;
+  padding: 10px;
+  border-radius: 5px;
+}
+.selection div {
+  padding: 4px;
+}
+.selection select {
+  text-align: center;
+  border-radius: 5px;
+  min-width: 120px;
+}
+.add-select {
+  border-radius: 5px;
+  background-color: #0d034c;
+  color: white;
+  transition: color 1s, background-color 1s;
+  font-size: 12px;
+  height: auto;
+  display: block;
+  padding: 5px 20px !important;
+  width: auto;
+  /* padding: 2px !important; */
+}
+.add-select:hover {
+  color: #fbbb13;
+  cursor: pointer;
+}
+.modal-add-to-order {
+  font-size: 20px;
+  border-bottom: 2px solid;
+  width: 80%;
+  margin-left: 10%;
+  margin-top: 5%;
+  margin-bottom: 3%;
+  text-align: left;
+}
+
+#modal-selection {
+  text-align: left;
+  font-size: 14px;
+  padding-left: 5%;
+}
+@media (max-width: 376px) {
+  #modal-selection {
+    margin-left: -45px;
+  }
+  #modal-selection div span {
+    width: 20px;
+  }
+}
+@media (min-width: 377px) {
+  #modal-selection div span {
+    width: 40px;
+  }
+}
+#modal-selection div {
+  margin-bottom: 8px;
+}
+#modal-selection div span {
+  display: inline-block;
+  cursor: pointer;
+  margin: 0px 5px;
+  text-align: center;
+  border-radius: 4px;
+}
+#modal-selection div span:hover {
+  background-color: #0d034c;
+  color: white;
+}
+#my-cart {
+  text-align: left;
+  font-size: 14px;
+}
+@media (max-width: 376px) {
+  #my-cart div span {
+    width: 20px;
+  }
+}
+@media (min-width: 377px) {
+  #my-cart div span {
+    width: 40px;
+  }
+}
+@media (min-width: 992px) {
+  #my-cart {
+    margin-left: -40px;
+  }
+}
+@media (max-width: 991px) and (min-width: 460px) {
+  #my-cart {
+    margin-left: 10%;
+  }
+}
+
+#my-cart div {
+  margin-bottom: 8px;
+  border-bottom: 1px solid;
+}
+#my-cart div span {
+  display: inline-block;
+  cursor: pointer;
+  margin: 0px 5px;
+  text-align: center;
+  border-radius: 4px;
+}
+#my-cart div span:hover {
+  background-color: #0d034c;
+  color: white;
+}
