@@ -624,6 +624,12 @@ START OF MENU SELECTION FOR USER
 *****************
 
 */
+.checkout-button {
+  border: 2px solid;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
 .main-menu-headers {
   border-bottom: 3px solid;
 }
@@ -714,7 +720,7 @@ START OF MENU SELECTION FOR USER
 }
 @media (min-width: 992px) {
   #my-cart {
-    margin-left: -40px;
+    margin-left: -20px;
   }
 }
 @media (max-width: 991px) and (min-width: 460px) {

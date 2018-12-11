@@ -232,12 +232,17 @@ function setStep3() {
     "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>" +
     "<h4>Based on the number of people, we can recommend <br>how much food to get for your gathering.</h4>" +
     "</div>";
+
   $("#top-message").append(newDiv);
+
   let newDiv2 =
-    '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left"><h4 class="question-titles">No Thanks, I know how much I want' +
+    '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">' +
+    '<h4 class="question-titles">No Thanks, I know how much I want' +
     "</h4></div>" +
-    '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="card-margin2 col-md-4 main-card fade-in-right"><h4 class="question-titles">I could use some help!' +
+    '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="card-margin2 col-md-4 main-card fade-in-right">' +
+    '<h4 class="question-titles">I could use some help!' +
     "</h4></div>";
+
   $("#event-planner").append(newDiv2);
 }
 /* Start the help screen for selecting the items
@@ -249,23 +254,26 @@ function setUpHelpScreen(needHelp) {
   setTimeout(function() {
     [$("#top-message"), $("#event-planner")].map(div => div.empty());
     if (needHelp === "help") startHelpScreen();
-    if (needHelp === "nohelp") startSelectionScreen();
+    if (needHelp === "nohelp") startSelectionScreen(null, null, false);
   }, 1000);
 }
-/* 
+/* *************************************************************************
    start menu selection screen 
    window.selectedFoodOptions will keep track of the items chosen
-*/
-function startSelectionScreen() {
-  /* Return an array of the div elements representing food options*/
 
+*/
+function startSelectionScreen(max_Items, max_Flavors, help = false) {
   window.selectedFoodOptions = {};
   window.selectedFoodOptions["Id"] = "my-cart";
   window.selectedFoodOptions["cart"] = [];
+  window.selectedFoodOptions.help = help;
+
   let helperScreenDiv =
     '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
-    "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 class='main-menu-headers' >Entree Options</h3></div>" +
-    "<div id='selected-food' class='col-md-6'><h3 class='main-menu-headers' >Selected Items</h3><div id='my-cart' class='row'></div></div></div></div>";
+    "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 class='main-menu-headers' >" +
+    "Entree Options</h3></div>" +
+    "<div id='selected-food' class='col-md-6'><h3 class='main-menu-headers' >Selected Items</h3>" +
+    "<div id='my-cart' class='row'></div></div></div><div class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
 
   $("#top-message").append(helperScreenDiv);
 
@@ -307,10 +315,12 @@ function insertDivToOptions(idOfElement, index, item_name) {
 function showSelection(itemDictIndex) {
   let itemSelection = window.itemDictionary[itemDictIndex];
 
+  // all selected will hold the item values for this item on the current modal
   window.allSelected = {};
   allSelected[itemSelection.item] = [];
   allSelected["Id"] = "modal-selection";
 
+  // the main modal screen with div class='modal-content' holding the content and data
   let modalDiv =
     '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
     '<span class="close">X</span>' +
@@ -323,6 +333,7 @@ function showSelection(itemDictIndex) {
   let span = document.getElementsByClassName("close")[0];
   let done = document.getElementById("done");
 
+  // these define clicking actions for opening and closing the modal
   openButton.onclick = function() {
     modal.style.display = "block";
   };
@@ -338,16 +349,20 @@ function showSelection(itemDictIndex) {
   };
 }
 
+// getModalContent returns the content to appear inside the modal pop up
 function getModalContent(windowArray, itemName, itemSettings) {
   let content =
+    // the item selected name
     "<h4>" +
     itemSettings.item +
     ": </h4>" +
     "<h4>" +
+    // the top section of the modal
     getHeaderForModal(itemSettings) +
     "</h4>";
   content +=
     "<div class='selection row'>" +
+    // creates the selection with options for flavor and sizes
     getSelectionForItem(itemSettings) +
     "<div onclick='getWantedItem(\"" +
     itemSettings.item +
@@ -362,7 +377,7 @@ function getModalContent(windowArray, itemName, itemSettings) {
     '\')" class="col-xs-2 col-xs-offset-3 add-select">Add Items</div></div>';
   return content;
 }
-
+// the top section of the modal
 function getHeaderForModal(itemSettings) {
   return itemSettings.description;
 }
@@ -376,7 +391,7 @@ function getSelectionForItem(itemSettings) {
   content += getSelectDiv(itemSettings.sizes.split(",")) + "</div>";
   return content;
 }
-
+// iterate throguth the values of the array and returns select, option element
 function getSelectDiv(array) {
   let content = "<select class='select-setting'>";
   $.each(array, function(index, value) {
@@ -390,6 +405,7 @@ function getSelectDiv(array) {
 function getWantedItem(nameOfItem) {
   let $selected = $(".select-setting");
   let thisItem = [1];
+  // create array holding [1, flavor, size] for the item selected after clicking add.
   $.each($selected, function(index, value) {
     thisItem.push(
       $(value)
@@ -398,16 +414,24 @@ function getWantedItem(nameOfItem) {
     );
   });
   let alreadyAdd = false;
+  // iterate through items already stored as data, if same item already added, increase number by 1.
   $.each(window.allSelected[nameOfItem], function(index, value) {
     if (value[1] == thisItem[1] && value[2] == thisItem[2]) {
       value[0] += 1;
       alreadyAdd = true;
     }
   });
+  // if wasn't found in order already, add this item to the array of items ( a 2D array )
   if (!alreadyAdd) window.allSelected[nameOfItem].push(thisItem);
 
   drawToSelection("allSelected", nameOfItem);
 }
+/**
+ * @ params the name of the window global object, and the key of that object.
+ * iterate through the object at this key, getting the 2D array of the full order
+ * create the list div with +  - option for the number of each item. uses the id stored in the
+ * object as id of element to insert into.
+ */
 
 function drawToSelection(itemObject, key) {
   // console.log(itemObject);
@@ -445,6 +469,9 @@ function drawToSelection(itemObject, key) {
   $("#" + $id).append(itemsDiv);
   // console.log(itemsArray);
 }
+
+// appends the value for the item, which is held in [0] place of each item array eg ( [[value, flavor, size],
+//                                                                                      value, flavor, size]] )
 function appendValue(itemObject, index, value, key) {
   index = parseInt(index);
   value = parseInt(value);
@@ -470,8 +497,8 @@ function startHelpScreen() {
   let maxItems = Math.floor(
     (eventVariables.numberOfPeople.adults +
       eventVariables.numberOfPeople.kids) /
-      window.PageSettings.minsize
+      parseInt(window.PageSettings.minsize)
   );
-  let maxFlavors = Math.min([maxItems, 4]);
-  let itemsGrammer = maxItems > 1 ? " items" : " item";
+  let maxFlavors = Math.min(maxItems, 4);
+  startSelectionScreen(maxItems, maxFlavors, true);
 }
