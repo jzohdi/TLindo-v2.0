@@ -1,5 +1,6 @@
 // set up the window variables that can be used later. including
 // getting whether the user is on a phone device or desktop.
+var defaultMaxFlavors = 4;
 var eventVariables = {};
 window.device;
 function getDevice() {
@@ -254,7 +255,7 @@ function setUpHelpScreen(needHelp) {
   setTimeout(function() {
     [$("#top-message"), $("#event-planner")].map(div => div.empty());
     if (needHelp === "help") startHelpScreen();
-    if (needHelp === "nohelp") startSelectionScreen(null, null, false);
+    if (needHelp === "nohelp") startSelectionScreen();
   }, 1000);
 }
 /* *************************************************************************
@@ -262,14 +263,31 @@ function setUpHelpScreen(needHelp) {
    window.selectedFoodOptions will keep track of the items chosen
 
 */
-function startSelectionScreen(max_Items, max_Flavors, help = false) {
+function startSelectionScreen(
+  max_Items = 100,
+  max_Flavors = defaultMaxFlavors,
+  help = false
+) {
   window.selectedFoodOptions = {};
   window.selectedFoodOptions["Id"] = "my-cart";
   window.selectedFoodOptions["cart"] = [];
   window.selectedFoodOptions.help = help;
+  window.selectedFoodOptions["max_Items"] = max_Items;
+  window.selectedFoodOptions["max_Flavors"] = max_Flavors;
 
+  window.foodCounter = {};
+  foodCounter["total"] = 0;
+
+  let helpDiv = "";
+  if (help) {
+    helpDiv +=
+      "<h4>Based on your party size, please select a total of " +
+      max_Items +
+      " items</h4>";
+  }
   let helperScreenDiv =
     '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
+    helpDiv +
     "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 class='main-menu-headers' >" +
     "Entree Options</h3></div>" +
     "<div id='selected-food' class='col-md-6'><h3 class='main-menu-headers' >Selected Items</h3>" +
@@ -280,6 +298,7 @@ function startSelectionScreen(max_Items, max_Flavors, help = false) {
   // need to pass in the id of the entree div
   showEntreeOptions("#food-options");
 }
+
 /*
  To avoid mutating the pageSettings dictionary of the menu, create new window dictionary to hold the details 
  for the entree items; 
@@ -297,6 +316,7 @@ function showEntreeOptions(idOfEntreeDiv) {
     window.itemDictionary[index] = value;
   });
 }
+
 // each of the entree items gets created on the page with this div element, show selection
 // is called with the index of the item which can be used to get the key value pair of itemDictionary
 function insertDivToOptions(idOfElement, index, item_name) {
@@ -310,6 +330,7 @@ function insertDivToOptions(idOfElement, index, item_name) {
     "</div></div>";
   $(idOfElement).append(divToAppend);
 }
+
 // Show slection parameter is the key for the value pair of itemdictionary. which was set as the index
 // of the item.
 function showSelection(itemDictIndex) {
@@ -319,7 +340,19 @@ function showSelection(itemDictIndex) {
   window.allSelected = {};
   allSelected[itemSelection.item] = [];
   allSelected["Id"] = "modal-selection";
+  let item_Name = itemSelection.item;
+  let need_to_draw = false;
 
+  if (Object.keys(window.foodCounter).indexOf(item_Name) >= 0) {
+    let my_Cart = window.selectedFoodOptions["cart"];
+    $.each(my_Cart, function(index, value) {
+      if (value.slice(-1)[0] == item_Name) {
+        allSelected[item_Name].push(value);
+        // window.selectedFoodOptions["cart"].splice(index, 1);
+        need_to_draw = true;
+      }
+    });
+  }
   // the main modal screen with div class='modal-content' holding the content and data
   let modalDiv =
     '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
@@ -327,7 +360,9 @@ function showSelection(itemDictIndex) {
     getModalContent("allSelected", itemSelection.item, itemSelection) +
     "</div></div>";
   $("#event-planner").append(modalDiv);
-
+  if (need_to_draw) {
+    drawToSelection("allSelected", item_Name, "");
+  }
   let modal = document.getElementById("myModal");
   let openButton = document.getElementById(itemDictIndex.toString());
   let span = document.getElementsByClassName("close")[0];
@@ -377,6 +412,7 @@ function getModalContent(windowArray, itemName, itemSettings) {
     '\')" class="col-xs-2 col-xs-offset-3 add-select">Add Items</div></div>';
   return content;
 }
+
 // the top section of the modal
 function getHeaderForModal(itemSettings) {
   return itemSettings.description;
@@ -391,6 +427,7 @@ function getSelectionForItem(itemSettings) {
   content += getSelectDiv(itemSettings.sizes.split(",")) + "</div>";
   return content;
 }
+
 // iterate throguth the values of the array and returns select, option element
 function getSelectDiv(array) {
   let content = "<select class='select-setting'>";
@@ -413,18 +450,62 @@ function getWantedItem(nameOfItem) {
         .text()
     );
   });
+  thisItem.push(nameOfItem);
   let alreadyAdd = false;
-  // iterate through items already stored as data, if same item already added, increase number by 1.
-  $.each(window.allSelected[nameOfItem], function(index, value) {
-    if (value[1] == thisItem[1] && value[2] == thisItem[2]) {
-      value[0] += 1;
-      alreadyAdd = true;
-    }
-  });
-  // if wasn't found in order already, add this item to the array of items ( a 2D array )
-  if (!alreadyAdd) window.allSelected[nameOfItem].push(thisItem);
+  let message = keepCountOfItemsAndFlavors(nameOfItem, thisItem[1], 1);
+  if (message == "") {
+    // iterate through items already stored as data, if same item already added, increase number by 1.
+    // this works as long as the flavor and size remain as the first two selections.
+    $.each(window.allSelected[nameOfItem], function(index, value) {
+      if (value[1] == thisItem[1] && value[2] == thisItem[2]) {
+        value[0] += 1;
+        alreadyAdd = true;
+      }
+    });
 
-  drawToSelection("allSelected", nameOfItem);
+    // if wasn't found in order already, add this item to the array of items ( a 2D array )
+    if (!alreadyAdd) window.allSelected[nameOfItem].push(thisItem);
+  }
+  drawToSelection("allSelected", nameOfItem, message);
+}
+
+function keepCountOfItemsAndFlavors(key, flavor, action) {
+  // console.log(key, flavor, action);
+  if (window.foodCounter["total"] + action > selectedFoodOptions["max_Items"]) {
+    return '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Currently at order limit</div>';
+  }
+  let keys = Object.keys(foodCounter);
+  // console.log(keys);
+  if (keys.indexOf(key) >= 0) {
+    var flavorKeysForItem = Object.keys(foodCounter[key]);
+  } else {
+    // come here if the item does not exist in counter yet, in this case, we will always be adding a new Dish/Flavor
+    foodCounter[key] = {};
+    foodCounter[key][flavor] = 1;
+    foodCounter["total"] += 1;
+    return "";
+  }
+  if (flavorKeysForItem.indexOf(flavor) >= 0) {
+    // if the flavor exists in the key list.
+    foodCounter[key][flavor] += action;
+    foodCounter["total"] += action;
+    if (foodCounter[key][flavor] == 0) {
+      delete foodCounter[key][flavor];
+      // if (Object.keys(foodCounter[key]).length == 1) {
+      //   delete foodCounter[key];
+      // }
+    }
+    return "";
+  } else {
+    // always gets here only if adding new flavor to item, since the key[flavor] will exist if trying to subtract
+    if (flavorKeysForItem.length == 4) {
+      return '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Already at Max unique flavors for item</div>';
+    } else {
+      foodCounter[key][flavor] = 1;
+      foodCounter["total"] += action;
+      return "";
+    }
+  }
 }
 /**
  * @ params the name of the window global object, and the key of that object.
@@ -433,14 +514,14 @@ function getWantedItem(nameOfItem) {
  * object as id of element to insert into.
  */
 
-function drawToSelection(itemObject, key) {
+function drawToSelection(itemObject, key, message) {
   // console.log(itemObject);
   let itemsArray = window[itemObject][key];
 
   let $id = window[itemObject].Id;
   // console.log(itemsArray);
   $("#" + $id).empty();
-  let itemsDiv = "";
+  let itemsDiv = message;
   $.each(itemsArray, function(index, value) {
     itemsDiv +=
       '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span onclick="appendValue(\'' +
@@ -459,11 +540,11 @@ function drawToSelection(itemObject, key) {
       "', '" +
       "-1', '" +
       key +
-      "')\"> - </span>" +
-      value[2] +
-      " " +
-      value[1] +
-      "</div>";
+      "')\"> - </span>";
+    $.each(value.slice(1), function(index, value) {
+      itemsDiv += " " + value + ",";
+    });
+    itemsDiv = itemsDiv.slice(0, itemsDiv.length - 1) + "</div>";
   });
 
   $("#" + $id).append(itemsDiv);
@@ -475,20 +556,44 @@ function drawToSelection(itemObject, key) {
 function appendValue(itemObject, index, value, key) {
   index = parseInt(index);
   value = parseInt(value);
-  window[itemObject][key][index][0] += value;
-  if (window[itemObject][key][index][0] == 0) {
-    window[itemObject][key].splice(index, 1);
+  console.log(itemObject, index, value, key);
+  let item_name = window[itemObject][key][index][1];
+  let key2;
+  if (key == "cart") {
+    // return the last item in the array, which should always be the entree item name;
+    key2 = window[itemObject][key][index].slice(-1)[0];
+  } else {
+    key2 = key;
   }
-  drawToSelection(itemObject, key);
+  // console.log(key2);
+  let message = keepCountOfItemsAndFlavors(key2, item_name, value);
+  if (message == "") {
+    window[itemObject][key][index][0] += value;
+    if (window[itemObject][key][index][0] <= 0) {
+      window[itemObject][key].splice(index, 1);
+    }
+  }
+  drawToSelection(itemObject, key, message);
 }
 
 function addSelectionToCart(windowArray, itemName) {
   // console.log(windowArray, itemName);
   // let array = window[windowArray][itemName];
+
   $.each(window[windowArray][itemName], function(index, value) {
-    window.selectedFoodOptions["cart"].push(value);
+    let replaced_in_cart = false;
+    $.each(window.selectedFoodOptions["cart"], function(
+      cart_index,
+      cart_value
+    ) {
+      if (value.slice(1).toString() == cart_value.slice(1).toString()) {
+        window.selectedFoodOptions["cart"].splice(cart_index, 1, value);
+        replaced_in_cart = true;
+      }
+    });
+    if (!replaced_in_cart) window.selectedFoodOptions["cart"].push(value);
   });
-  drawToSelection("selectedFoodOptions", "cart");
+  drawToSelection("selectedFoodOptions", "cart", "");
   document.getElementsByClassName("close")[0].click();
 }
 
@@ -500,5 +605,7 @@ function startHelpScreen() {
       parseInt(window.PageSettings.minsize)
   );
   let maxFlavors = Math.min(maxItems, 4);
+  // window.selectedFoodOptions["max_Items"] = maxItems;
+  // window.selectedFoodOptions["max_Flavors"] = maxFlavors;
   startSelectionScreen(maxItems, maxFlavors, true);
 }

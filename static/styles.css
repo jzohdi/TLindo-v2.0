@@ -720,7 +720,7 @@ START OF MENU SELECTION FOR USER
 }
 @media (min-width: 992px) {
   #my-cart {
-    margin-left: -20px;
+    margin-left: -50px;
   }
 }
 @media (max-width: 991px) and (min-width: 460px) {
