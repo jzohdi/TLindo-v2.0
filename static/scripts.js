@@ -400,7 +400,7 @@ function getModalContent(windowArray, itemName, itemSettings) {
     '<div class="row modal-add-to-order">Items to Add to Order</div><div id="' +
     idForSelectedList +
     '"class="row"></div><div class="row"><div onclick="addSelectionToCart(\'' +
-    windowArray +
+    "selectedFoodOptions" +
     "','" +
     itemName +
     '\')" class="col-xs-2 col-xs-offset-3 add-select">Add Items</div></div>';
@@ -460,15 +460,15 @@ function getWantedItem(nameOfItem, cartId) {
       .text();
   });
 
-  let alreadyAdd = appendSelection("allSelected", thisItem);
   // need to make deep copy;
   let new_Object = JSON.parse(JSON.stringify(thisItem));
 
   let message = keepCountOfItemsAndFlavors(new_Object, 1);
 
-  //   // if wasn't found in order already, add this item to the array of items ( an array of objects )
-  if (!alreadyAdd) window.allSelected.push(thisItem);
-  // }
+  if (message == "") {
+    let alreadyAdd = appendSelection("allSelected", thisItem);
+    if (!alreadyAdd) window.allSelected.push(thisItem);
+  }
   drawToSelection("allSelected", cartId, message);
 }
 
@@ -548,7 +548,7 @@ function appendOrAddItem(item_Object, action) {
       foodCounter[item_Object.name]["items"][x].count += action;
       foodCounter["total"] += action;
       // added = true;
-      console.log("got here");
+      // console.log("got here");
       if (foodCounter[item_Object.name]["items"][x].count <= 0) {
         foodCounter[item_Object.name]["items"].splice(x, 1);
       }
@@ -557,10 +557,12 @@ function appendOrAddItem(item_Object, action) {
     }
   }
   // if ( !added ){
-  foodCounter[item_Object.name].flavors.push(item_Object.flavor);
+  if (!foodCounter[item_Object.name].flavors.includes(item_Object.flavor)) {
+    foodCounter[item_Object.name].flavors.push(item_Object.flavor);
+  }
   foodCounter[item_Object.name]["items"].push(item_Object);
   foodCounter["total"] += action;
-  console.log("got there");
+  // console.log("got there");
   // }
 }
 
@@ -645,10 +647,11 @@ function appendValue(array_name, index, value, cartId) {
 }
 
 function addSelectionToCart(windowArray, itemName) {
-  $.each(window[windowArray], function(index, value) {
-    window["my_cart"].push(value);
+  let $id = window[windowArray]["Id"];
+  $.each(window["allSelected"], function(index, value) {
+    window[$id].push(value);
   });
-  drawToSelection("my_cart", "my_cart", "");
+  drawToSelection($id, $id, "");
   window.addItems = true;
   document.getElementsByClassName("close")[0].click();
 }
