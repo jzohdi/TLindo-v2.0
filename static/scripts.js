@@ -269,11 +269,12 @@ function startSelectionScreen(
   help = false
 ) {
   window.selectedFoodOptions = {};
-  window.selectedFoodOptions["Id"] = "my-cart";
-  window.selectedFoodOptions["cart"] = [];
+  window.selectedFoodOptions["Id"] = "my_cart";
   window.selectedFoodOptions.help = help;
   window.selectedFoodOptions["max_Items"] = max_Items;
   window.selectedFoodOptions["max_Flavors"] = max_Flavors;
+
+  window.my_cart = [];
 
   window.foodCounter = {};
   foodCounter["total"] = 0;
@@ -291,7 +292,9 @@ function startSelectionScreen(
     "<div class='row normalize-height'><div id='food-options' class='col-md-6'><h3 class='main-menu-headers' >" +
     "Entree Options</h3></div>" +
     "<div id='selected-food' class='col-md-6'><h3 class='main-menu-headers' >Selected Items</h3>" +
-    "<div id='my-cart' class='row'></div></div></div><div class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
+    "<div id=" +
+    selectedFoodOptions["Id"] +
+    " class='row'></div></div></div><div class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
 
   $("#top-message").append(helperScreenDiv);
 
@@ -337,22 +340,10 @@ function showSelection(itemDictIndex) {
   let itemSelection = window.itemDictionary[itemDictIndex];
 
   // all selected will hold the item values for this item on the current modal
-  window.allSelected = {};
-  allSelected[itemSelection.item] = [];
-  allSelected["Id"] = "modal-selection";
-  let item_Name = itemSelection.item;
-  let need_to_draw = false;
+  window.addItems = false;
+  window.allSelected = [];
+  var temp_food_count = JSON.parse(JSON.stringify(foodCounter));
 
-  if (Object.keys(window.foodCounter).indexOf(item_Name) >= 0) {
-    let my_Cart = window.selectedFoodOptions["cart"];
-    $.each(my_Cart, function(index, value) {
-      if (value.slice(-1)[0] == item_Name) {
-        allSelected[item_Name].push(value);
-        // window.selectedFoodOptions["cart"].splice(index, 1);
-        need_to_draw = true;
-      }
-    });
-  }
   // the main modal screen with div class='modal-content' holding the content and data
   let modalDiv =
     '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
@@ -360,9 +351,7 @@ function showSelection(itemDictIndex) {
     getModalContent("allSelected", itemSelection.item, itemSelection) +
     "</div></div>";
   $("#event-planner").append(modalDiv);
-  if (need_to_draw) {
-    drawToSelection("allSelected", item_Name, "");
-  }
+
   let modal = document.getElementById("myModal");
   let openButton = document.getElementById(itemDictIndex.toString());
   let span = document.getElementsByClassName("close")[0];
@@ -373,11 +362,13 @@ function showSelection(itemDictIndex) {
     modal.style.display = "block";
   };
   span.onclick = function() {
+    if (window.addItems == false) foodCounter = temp_food_count;
     modal.style.display = "none";
     $("#event-planner").empty();
   };
   window.onclick = function(event) {
     if (event.target == modal) {
+      if (window.addItems == false) foodCounter = temp_food_count;
       modal.style.display = "none";
       $("#event-planner").empty();
     }
@@ -386,6 +377,7 @@ function showSelection(itemDictIndex) {
 
 // getModalContent returns the content to appear inside the modal pop up
 function getModalContent(windowArray, itemName, itemSettings) {
+  let idForSelectedList = "modal-selection";
   let content =
     // the item selected name
     "<h4>" +
@@ -401,10 +393,12 @@ function getModalContent(windowArray, itemName, itemSettings) {
     getSelectionForItem(itemSettings) +
     "<div onclick='getWantedItem(\"" +
     itemSettings.item +
+    '", "' +
+    idForSelectedList +
     "\")'class='col-xs-2 col-xs-offset-8 add-select'>Select</div></div>";
   content +=
     '<div class="row modal-add-to-order">Items to Add to Order</div><div id="' +
-    allSelected.Id +
+    idForSelectedList +
     '"class="row"></div><div class="row"><div onclick="addSelectionToCart(\'' +
     windowArray +
     "','" +
@@ -419,93 +413,164 @@ function getHeaderForModal(itemSettings) {
 }
 
 function getSelectionForItem(itemSettings) {
-  let content =
-    '<div class="col-md-2">Please Select From Options:</div>' +
-    "<div class='col-sm-6 col-md-4'>Choose protein : ";
-  content += getSelectDiv(itemSettings.flavors.split(","));
-  content += "</div><div class='col-sm-6 col-md-4'>Choose size : ";
-  content += getSelectDiv(itemSettings.sizes.split(",")) + "</div>";
+  let temp_Dictionary = JSON.parse(JSON.stringify(itemSettings));
+  delete temp_Dictionary["description"];
+  delete temp_Dictionary["item"];
+  //
+  let content = '<div class="col-md-2">Please Select From Options:</div>';
+
+  for (var key in temp_Dictionary) {
+    if (temp_Dictionary.hasOwnProperty(key)) {
+      content += getSelectDiv(key, temp_Dictionary[key].split(","));
+    }
+  }
+
   return content;
 }
 
 // iterate throguth the values of the array and returns select, option element
-function getSelectDiv(array) {
-  let content = "<select class='select-setting'>";
+function getSelectDiv(key, array) {
+  if (key.slice(-1) == "s") {
+    key = key.slice(0, -1);
+  }
+  let content =
+    "<div class='col-sm-6 col-md-4'> Choose " +
+    key +
+    " : <select class='select-setting'>";
   $.each(array, function(index, value) {
     // value = value.replace(" ", "");
-    content += "<option value='" + value + "'>" + value + "</option>";
+    content += "<option value='" + key + "'>" + value + "</option>";
   });
-  content += "</select>";
+  content += "</select></div>";
   return content;
 }
 
-function getWantedItem(nameOfItem) {
+function getWantedItem(nameOfItem, cartId) {
+  // console.log(nameOfItem);
   let $selected = $(".select-setting");
-  let thisItem = [1];
+  let thisItem = { count: 1, name: nameOfItem };
   // create array holding [1, flavor, size] for the item selected after clicking add.
   $.each($selected, function(index, value) {
-    thisItem.push(
+    thisItem[
       $(value)
         .find("option:selected")
-        .text()
-    );
+        .val()
+    ] = $(value)
+      .find("option:selected")
+      .text();
   });
-  thisItem.push(nameOfItem);
-  let alreadyAdd = false;
-  let message = keepCountOfItemsAndFlavors(nameOfItem, thisItem[1], 1);
-  if (message == "") {
-    // iterate through items already stored as data, if same item already added, increase number by 1.
-    // this works as long as the flavor and size remain as the first two selections.
-    $.each(window.allSelected[nameOfItem], function(index, value) {
-      if (value[1] == thisItem[1] && value[2] == thisItem[2]) {
-        value[0] += 1;
-        alreadyAdd = true;
-      }
-    });
 
-    // if wasn't found in order already, add this item to the array of items ( a 2D array )
-    if (!alreadyAdd) window.allSelected[nameOfItem].push(thisItem);
-  }
-  drawToSelection("allSelected", nameOfItem, message);
+  let alreadyAdd = appendSelection("allSelected", thisItem);
+  // need to make deep copy;
+  let new_Object = JSON.parse(JSON.stringify(thisItem));
+
+  let message = keepCountOfItemsAndFlavors(new_Object, 1);
+
+  //   // if wasn't found in order already, add this item to the array of items ( an array of objects )
+  if (!alreadyAdd) window.allSelected.push(thisItem);
+  // }
+  drawToSelection("allSelected", cartId, message);
 }
 
-function keepCountOfItemsAndFlavors(key, flavor, action) {
-  // console.log(key, flavor, action);
+function appendSelection(array_of_items, item_Object) {
+  let temp_object = Object.assign({}, item_Object);
+  delete temp_object.count;
+
+  let added_to_list = false;
+
+  window[array_of_items].forEach(function(element) {
+    let temp_Other = Object.assign({}, element);
+    delete temp_Other.count;
+
+    if (JSON.stringify(temp_object) === JSON.stringify(temp_Other)) {
+      element.count += 1;
+
+      added_to_list = true;
+    }
+  });
+
+  return added_to_list;
+}
+
+function keepCountOfItemsAndFlavors(item_Object, action) {
+  // console.log("keep-count", item_Object, action);
   if (window.foodCounter["total"] + action > selectedFoodOptions["max_Items"]) {
     return '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Currently at order limit</div>';
   }
   let keys = Object.keys(foodCounter);
-  // console.log(keys);
-  if (keys.indexOf(key) >= 0) {
-    var flavorKeysForItem = Object.keys(foodCounter[key]);
+  if (keys.indexOf(item_Object.name) >= 0) {
+    // console.log(foodCounter[item_Object.name]);
+    var objectsListForName = foodCounter[item_Object.name];
   } else {
     // come here if the item does not exist in counter yet, in this case, we will always be adding a new Dish/Flavor
-    foodCounter[key] = {};
-    foodCounter[key][flavor] = 1;
+    foodCounter[item_Object.name] = {
+      flavors: [item_Object.flavor],
+      items: []
+    };
+    let new_item = {};
+    for (key in item_Object) {
+      new_item[key] = item_Object[key];
+    }
+    foodCounter[item_Object.name]["items"].push(new_item);
     foodCounter["total"] += 1;
     return "";
   }
-  if (flavorKeysForItem.indexOf(flavor) >= 0) {
-    // if the flavor exists in the key list.
-    foodCounter[key][flavor] += action;
-    foodCounter["total"] += action;
-    if (foodCounter[key][flavor] == 0) {
-      delete foodCounter[key][flavor];
-      // if (Object.keys(foodCounter[key]).length == 1) {
-      //   delete foodCounter[key];
-      // }
-    }
+  // console.log(objectsListForName);
+  // check to see if the flavor for this item would be a new flavor, so we can stop from exceding flavor limit
+
+  // if it is a new flavor, and adding a new flavor excedes limit, return error message;
+  if (foodCounter[item_Object.name].flavors.includes(item_Object.flavor)) {
+    appendOrAddItem(item_Object, action);
     return "";
   } else {
-    // always gets here only if adding new flavor to item, since the key[flavor] will exist if trying to subtract
-    if (flavorKeysForItem.length == 4) {
+    if (foodCounter[item_Object.name].flavors.length == 4) {
       return '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Already at Max unique flavors for item</div>';
     } else {
-      foodCounter[key][flavor] = 1;
-      foodCounter["total"] += action;
+      appendOrAddItem(item_Object, action);
       return "";
     }
   }
+}
+
+function appendOrAddItem(item_Object, action) {
+  let temp_object = Object.assign({}, item_Object);
+  delete temp_object.count;
+
+  // let added = false;
+
+  for (let x = 0; x < foodCounter[item_Object.name]["items"].length; x++) {
+    let temp_other = Object.assign(
+      {},
+      foodCounter[item_Object.name]["items"][x]
+    );
+    delete temp_other.count;
+    if (JSON.stringify(temp_object) === JSON.stringify(temp_other)) {
+      foodCounter[item_Object.name]["items"][x].count += action;
+      foodCounter["total"] += action;
+      // added = true;
+      console.log("got here");
+      if (foodCounter[item_Object.name]["items"][x].count <= 0) {
+        foodCounter[item_Object.name]["items"].splice(x, 1);
+      }
+      reconcileFlavors(item_Object.name);
+      return;
+    }
+  }
+  // if ( !added ){
+  foodCounter[item_Object.name].flavors.push(item_Object.flavor);
+  foodCounter[item_Object.name]["items"].push(item_Object);
+  foodCounter["total"] += action;
+  console.log("got there");
+  // }
+}
+
+function reconcileFlavors(item_name) {
+  let temp_flavor_array = [];
+  foodCounter[item_name].items.forEach(function(element) {
+    if (!temp_flavor_array.includes(element.flavor))
+      temp_flavor_array.push(element.flavor);
+  });
+  foodCounter[item_name].flavors = temp_flavor_array;
 }
 /**
  * @ params the name of the window global object, and the key of that object.
@@ -514,36 +579,43 @@ function keepCountOfItemsAndFlavors(key, flavor, action) {
  * object as id of element to insert into.
  */
 
-function drawToSelection(itemObject, key, message) {
-  // console.log(itemObject);
-  let itemsArray = window[itemObject][key];
+function drawToSelection(array_name, cartId, message) {
+  // console.log(array_name);
 
-  let $id = window[itemObject].Id;
+  let itemsArray = window[array_name];
+
+  let $id = cartId;
   // console.log(itemsArray);
   $("#" + $id).empty();
   let itemsDiv = message;
   $.each(itemsArray, function(index, value) {
     itemsDiv +=
       '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span onclick="appendValue(\'' +
-      itemObject +
+      array_name +
       "', '" +
       index +
       "', '" +
       "1', '" +
-      key +
+      // key +
+      // ", "
+      //  +
+      cartId +
       "')\"> + </span>" +
-      value[0] +
+      value.count +
       " <span onclick=\"appendValue('" +
-      itemObject +
+      array_name +
       "', '" +
       index +
       "', '" +
       "-1', '" +
-      key +
+      // key +
+      // ", " +
+      cartId +
       "')\"> - </span>";
-    $.each(value.slice(1), function(index, value) {
-      itemsDiv += " " + value + ",";
-    });
+    for (key in value) {
+      if (key != "count") itemsDiv += " " + value[key] + ",";
+    }
+
     itemsDiv = itemsDiv.slice(0, itemsDiv.length - 1) + "</div>";
   });
 
@@ -551,49 +623,33 @@ function drawToSelection(itemObject, key, message) {
   // console.log(itemsArray);
 }
 
-// appends the value for the item, which is held in [0] place of each item array eg ( [[value, flavor, size],
-//                                                                                      value, flavor, size]] )
-function appendValue(itemObject, index, value, key) {
+function appendValue(array_name, index, value, cartId) {
+  // console.log(" appending", array_name, index, value, cartId);
   index = parseInt(index);
   value = parseInt(value);
-  console.log(itemObject, index, value, key);
-  let item_name = window[itemObject][key][index][1];
-  let key2;
-  if (key == "cart") {
-    // return the last item in the array, which should always be the entree item name;
-    key2 = window[itemObject][key][index].slice(-1)[0];
-  } else {
-    key2 = key;
-  }
-  // console.log(key2);
-  let message = keepCountOfItemsAndFlavors(key2, item_name, value);
+
+  // console.log(array_name, index, value, key);
+  let item_name = window[array_name][index].name;
+
+  let new_Object = JSON.parse(JSON.stringify(window[array_name][index]));
+
+  let message = keepCountOfItemsAndFlavors(new_Object, value);
+
   if (message == "") {
-    window[itemObject][key][index][0] += value;
-    if (window[itemObject][key][index][0] <= 0) {
-      window[itemObject][key].splice(index, 1);
-    }
+    window[array_name][index].count += value;
   }
-  drawToSelection(itemObject, key, message);
+  window[array_name] = window[array_name].filter(function(element) {
+    return element.count > 0;
+  });
+  drawToSelection(array_name, cartId, message);
 }
 
 function addSelectionToCart(windowArray, itemName) {
-  // console.log(windowArray, itemName);
-  // let array = window[windowArray][itemName];
-
-  $.each(window[windowArray][itemName], function(index, value) {
-    let replaced_in_cart = false;
-    $.each(window.selectedFoodOptions["cart"], function(
-      cart_index,
-      cart_value
-    ) {
-      if (value.slice(1).toString() == cart_value.slice(1).toString()) {
-        window.selectedFoodOptions["cart"].splice(cart_index, 1, value);
-        replaced_in_cart = true;
-      }
-    });
-    if (!replaced_in_cart) window.selectedFoodOptions["cart"].push(value);
+  $.each(window[windowArray], function(index, value) {
+    window["my_cart"].push(value);
   });
-  drawToSelection("selectedFoodOptions", "cart", "");
+  drawToSelection("my_cart", "my_cart", "");
+  window.addItems = true;
   document.getElementsByClassName("close")[0].click();
 }
 
