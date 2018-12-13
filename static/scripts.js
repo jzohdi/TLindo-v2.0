@@ -339,9 +339,26 @@ function insertDivToOptions(idOfElement, index, item_name) {
 function showSelection(itemDictIndex) {
   let itemSelection = window.itemDictionary[itemDictIndex];
 
+  // keep a tempory copy of the cart array to revert back to.
+  var temp_cart_array = JSON.parse(
+    JSON.stringify(window[selectedFoodOptions["Id"]])
+  );
+  // console.log(temp_cart_array);
   // all selected will hold the item values for this item on the current modal
   window.addItems = false;
+
   window.allSelected = [];
+
+  // for items that have previously been added to the cart, show them on the modal,
+  //  pop them out of the cart and they will be added back at the end
+  window[selectedFoodOptions["Id"]].forEach(function(element, index) {
+    if (element.name == itemSelection.item) {
+      allSelected.push(element);
+      window[window.selectedFoodOptions["Id"]].splice(index, 1);
+    }
+  });
+
+  // keep a temporary copy of the foodCounter to revert back to if the modal is closed without confirming add items
   var temp_food_count = JSON.parse(JSON.stringify(foodCounter));
 
   // the main modal screen with div class='modal-content' holding the content and data
@@ -360,15 +377,26 @@ function showSelection(itemDictIndex) {
   // these define clicking actions for opening and closing the modal
   openButton.onclick = function() {
     modal.style.display = "block";
+    if (allSelected.length > 0) {
+      drawToSelection("allSelected", "modal-selection", "");
+    }
   };
   span.onclick = function() {
-    if (window.addItems == false) foodCounter = temp_food_count;
+    // if closed window without adding items, revert back to original cart.
+    if (window.addItems == false) {
+      foodCounter = temp_food_count;
+      window[window.selectedFoodOptions["Id"]] = temp_cart_array;
+    }
     modal.style.display = "none";
     $("#event-planner").empty();
   };
   window.onclick = function(event) {
     if (event.target == modal) {
-      if (window.addItems == false) foodCounter = temp_food_count;
+      // if closing without adding items, revert cart.
+      if (window.addItems == false) {
+        foodCounter = temp_food_count;
+        window[window.selectedFoodOptions["Id"]] = temp_cart_array;
+      }
       modal.style.display = "none";
       $("#event-planner").empty();
     }
@@ -411,7 +439,7 @@ function getModalContent(windowArray, itemName, itemSettings) {
 function getHeaderForModal(itemSettings) {
   return itemSettings.description;
 }
-
+// creates a selection div with all the key value properties available for that food item.
 function getSelectionForItem(itemSettings) {
   let temp_Dictionary = JSON.parse(JSON.stringify(itemSettings));
   delete temp_Dictionary["description"];
@@ -444,12 +472,11 @@ function getSelectDiv(key, array) {
   content += "</select></div>";
   return content;
 }
-
+// when Select item presed, get the key, value pairings for each of the selection options.
 function getWantedItem(nameOfItem, cartId) {
-  // console.log(nameOfItem);
   let $selected = $(".select-setting");
   let thisItem = { count: 1, name: nameOfItem };
-  // create array holding [1, flavor, size] for the item selected after clicking add.
+  // create object with key value pairs
   $.each($selected, function(index, value) {
     thisItem[
       $(value)
@@ -464,14 +491,18 @@ function getWantedItem(nameOfItem, cartId) {
   let new_Object = JSON.parse(JSON.stringify(thisItem));
 
   let message = keepCountOfItemsAndFlavors(new_Object, 1);
-
+  // if there was not error message and if append returns false, push to end of item_object array.
   if (message == "") {
     let alreadyAdd = appendSelection("allSelected", thisItem);
     if (!alreadyAdd) window.allSelected.push(thisItem);
   }
   drawToSelection("allSelected", cartId, message);
 }
-
+/*
+  @ params the key for window that is an array of menu objects, and the item object updating the list with
+  returns true if the item was already in the list, and the count was appened,
+  returns false if the item was not in the array.
+*/
 function appendSelection(array_of_items, item_Object) {
   let temp_object = Object.assign({}, item_Object);
   delete temp_object.count;
@@ -536,8 +567,6 @@ function appendOrAddItem(item_Object, action) {
   let temp_object = Object.assign({}, item_Object);
   delete temp_object.count;
 
-  // let added = false;
-
   for (let x = 0; x < foodCounter[item_Object.name]["items"].length; x++) {
     let temp_other = Object.assign(
       {},
@@ -566,6 +595,8 @@ function appendOrAddItem(item_Object, action) {
   // }
 }
 
+// create a new flavor, array and add all the flavors found in the cart,
+// so the flavors array consistently contains only the flavors and all of the flavors
 function reconcileFlavors(item_name) {
   let temp_flavor_array = [];
   foodCounter[item_name].items.forEach(function(element) {
@@ -645,7 +676,7 @@ function appendValue(array_name, index, value, cartId) {
   });
   drawToSelection(array_name, cartId, message);
 }
-
+// if addSelection to cart, push everything in allselected cart to main card, and set addItems ot true.
 function addSelectionToCart(windowArray, itemName) {
   let $id = window[windowArray]["Id"];
   $.each(window["allSelected"], function(index, value) {
@@ -664,7 +695,6 @@ function startHelpScreen() {
       parseInt(window.PageSettings.minsize)
   );
   let maxFlavors = Math.min(maxItems, 4);
-  // window.selectedFoodOptions["max_Items"] = maxItems;
-  // window.selectedFoodOptions["max_Flavors"] = maxFlavors;
+
   startSelectionScreen(maxItems, maxFlavors, true);
 }
