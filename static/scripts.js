@@ -351,12 +351,15 @@ function showSelection(itemDictIndex) {
 
   // for items that have previously been added to the cart, show them on the modal,
   //  pop them out of the cart and they will be added back at the end
+  let temp_array_other = [];
   window[selectedFoodOptions["Id"]].forEach(function(element, index) {
     if (element.name == itemSelection.item) {
       allSelected.push(element);
-      window[window.selectedFoodOptions["Id"]].splice(index, 1);
+    } else {
+      temp_array_other.push(element);
     }
   });
+  window[selectedFoodOptions["Id"]] = temp_array_other;
 
   // keep a temporary copy of the foodCounter to revert back to if the modal is closed without confirming add items
   var temp_food_count = JSON.parse(JSON.stringify(foodCounter));
