@@ -231,6 +231,10 @@ def index():
 #    print(calender)
 
     return render_template('index.html', dates=disabled)
+@app.route('/confirmCart', methods=["POST", "GET"])
+def confirmCart():
+    
+    return render_template("confirmCart.html")
 
 @app.route('/login', methods=["GET", "POST"])
 def login():

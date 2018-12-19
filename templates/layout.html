@@ -94,7 +94,7 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id %} {% if admin %}
+            {% if session.user_id %} <script type='text/javascript'>sessionStorage.setItem("logged_in", "true")</script>{% if admin %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li><a href="#" class="titles main-nav-item">Past Orders</a></li>
               <li>
@@ -179,7 +179,7 @@
               }}
               #}
             </ul>
-            {% endif %} {% else %}
+            {% endif %} {% else %}<script type='text/javascript'>sessionStorage.removeItem("logged_in")</script>
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a class="titles main-nav-item" href="{{ url_for('index') }}"
@@ -192,21 +192,12 @@
                   >Register</a
                 >
               </li>
-              {#
-              {{
-                url_for("register")
-              }}
-              #}
               <li>
                 <a class="titles main-nav-item" href="{{ url_for('login') }}"
                   >Log In</a
                 >
               </li>
-              {#
-              {{
-                url_for("login")
-              }}
-              #}
+
             </ul>
             {% endif %}
           </div>

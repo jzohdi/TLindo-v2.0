@@ -1,3 +1,7 @@
+const print = x => {
+  console.log(x);
+};
+
 // set up the window variables that can be used later. including
 // getting whether the user is on a phone device or desktop.
 var defaultMaxFlavors = 4;
@@ -294,7 +298,8 @@ function startSelectionScreen(
     "<div id='selected-food' class='col-md-6'><h3 class='main-menu-headers' >Selected Items</h3>" +
     "<div id=" +
     selectedFoodOptions["Id"] +
-    " class='row'></div></div></div><div class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
+    " class='row'></div></div></div><div onclick='proceedToCheckout(\"my_cart\")'" +
+    " class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
 
   $("#top-message").append(helperScreenDiv);
 
@@ -352,6 +357,7 @@ function showSelection(itemDictIndex) {
   // for items that have previously been added to the cart, show them on the modal,
   //  pop them out of the cart and they will be added back at the end
   let temp_array_other = [];
+
   window[selectedFoodOptions["Id"]].forEach(function(element, index) {
     if (element.name == itemSelection.item) {
       allSelected.push(element);
@@ -359,6 +365,7 @@ function showSelection(itemDictIndex) {
       temp_array_other.push(element);
     }
   });
+
   window[selectedFoodOptions["Id"]] = temp_array_other;
 
   // keep a temporary copy of the foodCounter to revert back to if the modal is closed without confirming add items
@@ -426,7 +433,7 @@ function getModalContent(windowArray, itemName, itemSettings) {
     itemSettings.item +
     '", "' +
     idForSelectedList +
-    "\")'class='col-xs-2 col-xs-offset-8 add-select'>Select</div></div>";
+    "\")'class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>";
   content +=
     '<div class="row modal-add-to-order">Items to Add to Order</div><div id="' +
     idForSelectedList +
@@ -434,7 +441,7 @@ function getModalContent(windowArray, itemName, itemSettings) {
     "selectedFoodOptions" +
     "','" +
     itemName +
-    '\')" class="col-xs-2 col-xs-offset-3 add-select">Add Items</div></div>';
+    '\')" class="col-xs-2 col-xs-offset-3 add-select">Confirm Items</div></div>';
   return content;
 }
 
@@ -700,4 +707,15 @@ function startHelpScreen() {
   let maxFlavors = Math.min(maxItems, 4);
 
   startSelectionScreen(maxItems, maxFlavors, true);
+}
+
+function proceedToCheckout(myCart) {
+  let cart = JSON.stringify(window[myCart]);
+  sessionStorage.setItem("my_cart", cart);
+
+  if (sessionStorage.getItem("logged_in") == null) {
+    location.href = "/confirmCart";
+  } else {
+    location.href = "";
+  }
 }

@@ -1,0 +1,27 @@
+{% extends "layout.html" %} {% block title %} Home Page {% endblock %} {% block
+head %}
+<script>
+  Flask.url_for("confirmCart");
+</script>
+
+{% endblock %} {% block main %}
+<div style="padding-top: 10vh;" class="container-fluid">
+  <div class="row">
+    <div class="col-sm-5 sm-offset-1 main-card question-titles">
+      <h4>Order</h4>
+      <div id="my_cart"></div>
+    </div>
+    <div class="col-sm-5 main-card question-titles two-panel-spacing">
+      <h4>Please Register or Log In to Continue</h4>
+    </div>
+    <script type="text/javascript">
+      let cart = sessionStorage.getItem("my_cart");
+      cart = JSON.parse(cart);
+      window["confirmCart"] = cart;
+      window.onload = function() {
+        drawToSelection("confirmCart", "my_cart", "");
+      };
+    </script>
+  </div>
+</div>
+{% endblock %}

@@ -744,3 +744,13 @@ START OF MENU SELECTION FOR USER
   background-color: #0d034c;
   color: white;
 }
+@media (min-width: 786px) {
+  .two-panel-spacing {
+    margin-left: 5px;
+  }
+}
+@media (min-width: 768px) {
+  .sm-offset-1 {
+    margin-left: 8.33333333% !important;
+  }
+}
