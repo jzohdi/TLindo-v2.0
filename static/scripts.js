@@ -148,10 +148,12 @@ function nextWindow() {
   fadeOutMain();
 
   setTimeout(function() {
-    [$("#event-planner"), $("#need-phone"), $("#next-button")].map(div =>
-      div.empty()
-    );
-    let howManyPeopleDiv =
+    [$("#event-planner"), $("#need-phone"), $("#next-button")].forEach(function(
+      div
+    ) {
+      div.empty();
+    });
+    const howManyPeopleDiv =
       '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
       ' <h4 class="question-titles">How many people will be at your event?</h4>' +
       '<div class="form-group">' +
@@ -168,10 +170,10 @@ function nextWindow() {
     // '<div id="card3 class="col-md-6 col-md-offset-3 main-card fade-in-left">'+
     // '<h4 class="question-title"> If planning an event for less than 8 people,<br>Give us a call'
     // '</div>';
-    let buttonDiv =
+    const buttonDiv =
       '<div id="button1" style="-webkit-animation-duration: 1s; animation-duration: 1s;" class="col-md-6 col-md-offset-3 fade-in-left">' +
       '<button onclick="nextWindow2()" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" class="button button1">' +
-      'Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span> </button> </div>';
+      'Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
     $("#next-button").append(buttonDiv);
   }, 1000);
 }
@@ -208,7 +210,7 @@ function nextWindow2() {
         $("#event-planner"),
         $("#need-phone"),
         $("#next-button")
-      ].map(div => div.empty());
+      ].forEach(div => div.empty());
       /* Javascrip the third page into screen */
       setStep3();
     }, 1000);
@@ -257,7 +259,7 @@ function setUpHelpScreen(needHelp) {
   fadeOutMain();
 
   setTimeout(function() {
-    [$("#top-message"), $("#event-planner")].map(div => div.empty());
+    [$("#top-message"), $("#event-planner")].forEach(div => div.empty());
     if (needHelp === "help") startHelpScreen();
     if (needHelp === "nohelp") startSelectionScreen();
   }, 1000);
@@ -451,7 +453,9 @@ function getHeaderForModal(itemSettings) {
 }
 // creates a selection div with all the key value properties available for that food item.
 function getSelectionForItem(itemSettings) {
+  
   let temp_Dictionary = JSON.parse(JSON.stringify(itemSettings));
+
   delete temp_Dictionary["description"];
   delete temp_Dictionary["item"];
   //

@@ -231,11 +231,30 @@ def index():
 #    print(calender)
 
     return render_template('index.html', dates=disabled)
+
 @app.route('/confirmCart', methods=["POST", "GET"])
 def confirmCart():
-    
+
     return render_template("confirmCart.html")
 
+@app.route('/request_login/', methods=["GET"])
+def request_login():
+    username = request.args.get('username', '')
+    password = request.args.get('pass', '')
+    if username == ''  or password == '':
+        return "error logging in"
+    else:
+        users = execute("""
+                        SELECT * FROM users WHERE username = %s
+                        """, (username,))
+        if len(users) != 1:
+            return "error logging in"
+        if not pwd_context.verify(password + users[0]['salt'], users[0]['password']):
+            return "error loggin in"
+        
+        session["user_id"] = users[0]["id"]
+        
+        return "succesful login"
 @app.route('/login', methods=["GET", "POST"])
 def login():
     

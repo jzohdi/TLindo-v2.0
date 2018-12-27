@@ -1,5 +1,5 @@
-{% extends "layout.html" %} {% block title %} Home Page {% endblock %} {% block
-head %}
+{% extends "layout.html" %} {% block title %} Confirm Cart {% endblock %} {%
+block head %}
 <script>
   Flask.url_for("confirmCart");
 </script>
@@ -13,15 +13,67 @@ head %}
     </div>
     <div class="col-sm-5 main-card question-titles two-panel-spacing">
       <h4>Please Register or Log In to Continue</h4>
+      <fieldset>
+        <div id='login_error'></div>
+        <div class="form-group">
+          <input
+            autocomplete="off"
+            autofocus
+            class="form-control"
+            name="login_username"
+            placeholder="Username"
+            type="text"
+          />
+        </div>
+        <div class="form-group">
+          <input
+            class="form-control"
+            name="login_password"
+            placeholder="Password"
+            type="password"
+          />
+        </div>
+        <div class="form-group">
+          <div onclick="request_login()" class="button button1 col-xs-4">Log In</button>
+        </div>
+      </fieldset>
     </div>
-    <script type="text/javascript">
-      let cart = sessionStorage.getItem("my_cart");
-      cart = JSON.parse(cart);
-      window["confirmCart"] = cart;
-      window.onload = function() {
-        drawToSelection("confirmCart", "my_cart", "");
-      };
-    </script>
   </div>
 </div>
+<script type="text/javascript">
+  let cart = sessionStorage.getItem("my_cart");
+  cart = JSON.parse(cart);
+  window["confirmCart"] = cart;
+  window.onload = function() {
+    drawToSelection("confirmCart", "my_cart", "");
+  };
+  function request_login() {
+    let required_fields = true;
+    let username = $('input[name="login_username"]')[0].value;
+    if( username === ""){
+      $('#login_error').html("Username required to log in")
+      required_fields = false;
+    }
+    if ( $('input[name="login_password"]')[0].value == "" && required_fields){
+       $('#login_error').html("Password required to log in")
+       required_fields = false;
+    }
+    if ( required_fields ){
+      $.ajax({
+        type: "GET",
+        url: $SCRIPT_ROOT + "/request_login/",
+        contentType: "application/json; charset=utf-8",
+        data: {
+          "username" : username, "pass": $('input[name="login_password"]')[0].value 
+        },
+        success: function(data) {
+          $('#login_error').html(data)
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert(errorThrown);
+        }
+      });
+    }
+  }
+</script>
 {% endblock %}
