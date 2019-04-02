@@ -543,12 +543,30 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
   }
 
 
-  const backToMenu = () => {
+  const backToMenu = function(){
     sessionStorage.setItem("backFromCart", true);
-    const foodCount = JSON.stringify(foodCounter);
+    const foodCount = removeCostAndStringify(window.foodCounter);
     sessionStorage.setItem("foodCounter", foodCount);
     document.location.href = "/";
   };
+
+  const removeCostAndStringify = function(foodCounter){
+    const copy = JSON.parse(JSON.stringify(foodCounter));
+    const keys = Object.keys(copy);
+    for (const key of keys ){
+      if( !copy.hasOwnProperty(key) ) continue;
+      if (!copy[key].hasOwnProperty('items') ) continue;
+
+      const items = copy[key]['items'];
+
+      for ( let index = 0; index < items.length; index++ ){
+        if ( copy[key]['items'][index].hasOwnProperty('cost')){
+          delete copy[key]['items'][index].cost;
+        }
+      }
+    }
+    return JSON.stringify(copy);
+  }
 
   const PROCESSING_BUTTON ="<button class='button processing-button place-order-button'><span class='glyphicon glyphicon-repeat'></span></button>";
   const placeOrder = function(){
