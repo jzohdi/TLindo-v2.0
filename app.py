@@ -629,8 +629,8 @@ app.config.update({
 })
 #app.secret_key = secret_Key
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-%(pw)s@%(host)s:%(port)s/%(db)s' % os.environ.get('DATABASE_URL', POSTGRES)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://%(user)s:\
+%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
