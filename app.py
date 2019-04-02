@@ -613,7 +613,7 @@ params = {
                 'password' : POSTGRES['pw']
                     }
 
-app = Flask(__name__)
+app = Flask(__name__, static_path='/static')
 #app.static_folder = 'static'
 
 jsglue = JSGlue(app)
