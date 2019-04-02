@@ -653,7 +653,7 @@ sess.init_app(app)
     to append ?q= + dateTime hash.
     This allows for cache busting of static files
  """
-
+"""
 @app.context_processor
 def override_url_for():
     return dict(url_for=dated_url_for)
@@ -665,7 +665,7 @@ def dated_url_for(endpoint, **values):
             file_path = os.path.join(endpoint, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
     return url_for(endpoint, **values)
-
+"""
 """"""
 @app.route('/')
 def index():
