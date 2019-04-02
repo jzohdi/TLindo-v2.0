@@ -662,9 +662,9 @@ def dated_url_for(endpoint, **values):
     if endpoint == 'static':
         filename = values.get('filename', None)
         if filename:
-            file_path = os.path.join(endpoint, filename)
+            file_path = os.path.join(app.root_path, app.static_path, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
-    return url_for('/'+endpoint, **values)
+    return url_for(endpoint, **values)
 
 """"""
 @app.route('/')
