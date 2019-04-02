@@ -555,11 +555,9 @@ def commit_settings(params):
 params = getKeys()
 
 settings = commit_settings(params)
-print(settings)
-if os.environ.get('SECRET_KEY'):
-    settings['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-else:
-    settings["SECRET_KEY"] = str(get_salt(25))
+
+settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', str(get_salt(25)))
+
 
 def execute(statement, values = ("NA",), close = True):
     conn = False
@@ -626,20 +624,17 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-secret_Key = settings.get("SECRET_KEY")
-#app.config.update({
-#    'SECRET_KEY': os.environ['SECRET_KEY']
-#})
-app.secret_key = secret_Key
+app.config.update({
+    'SECRET_KEY': os.environ.get('SECRET_KEY', settings.get('SECRET_KEY'))
+})
+#app.secret_key = secret_Key
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+%(pw)s@%(host)s:%(port)s/%(db)s' % os.environ.get('DATABASE_URL', POSTGRES)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
-
 
 if app.config["DEBUG"]:
     @app.after_request
@@ -652,37 +647,6 @@ if app.config["DEBUG"]:
 
 sess = Session()
 sess.init_app(app)
-
-"""
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.jinja_env.globals.update(classForButton=classForButton)
-app.jinja_env.globals.update(isfree=isfree)
-app.jinja_env.add_extension('jinja2.ext.loopcontrols')
-"""
-#print(settings)
-
-"""
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-
-app.config["SESSION_PERMANENT"] = False
-
-app.secret_key = os.environ.get("SECRET_KEY", None)
-app.config["SESSION_TYPE"] = "filesystem"
-
-sess = Session()
-sess.init_app(app)
-"""
-
-#print( POSTGRES )
-#print( params )
-
 
 """
     app.context_processor modifies the *url_for* flask static file server
