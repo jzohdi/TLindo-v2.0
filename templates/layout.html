@@ -21,11 +21,11 @@
       integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
       crossorigin="anonymous"
     />
-    <!-- required for fa fa-gear -->
-    <link
+    <!-- required for fa fa-gear TODO LOCAL-->
+    {#<!-- <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
+    /> -->#}
 
     <link
       rel="stylesheet"
@@ -34,7 +34,7 @@
     />
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-
+      <!-- Handlres bars expressions js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <!-- JQuery CDN -->
     <script
@@ -69,20 +69,17 @@
   <body class="feather">
     <div id="bootstrapCssTest" class="hidden"></div>
     <div id="layout-page" class="container-fullwidth">
-      <nav class="navbar" style="background-color: rgb(13, 3, 76, 0)">
+      <nav class="navbar">
         <div id="all-nav-bar" class="nav-pad container-fluid">
           <div class="navbar-header menu" style="margin-right: 0px;">
             <button
               aria-expanded="false"
-              class="navbar-toggle collapsed"
+              class="navbar-toggle collapsed gear"
               data-target="#navbar"
               data-toggle="collapse"
               type="button"
-            >
-              <span class="titles"
-                ><i class="fa fa-gear gear" style="font-size:24px"></i
-              ></span>
-            </button>
+            ><span class="question-titles"
+                ><span class="glyphicon glyphicon-cog"></span></span></button>
             <a
               class="main-nav-item titles navbar-brand"
               href="{{ url_for('index') }}"
@@ -94,14 +91,34 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id %} <script type='text/javascript'>sessionStorage.setItem("logged_in", "true")</script>{% if admin %}
+            {% if session.user_id %} <script type='text/javascript'>sessionStorage.setItem("logged_in", "true");window.id='{{session.user_id}}'</script>{% if admin %}
             <ul id="nav-list" class="nav navbar-nav menu">
-              <li><a href="#" class="titles main-nav-item">Past Orders</a></li>
+              {#<!-- <li><a href="#" class="titles main-nav-item">Past Orders</a></li> -->#}
               <li>
-                <a href="#" class="titles main-nav-item">Scheduled Orders</a>
+                <a href="{{ url_for('scheduled_orders') }}" class="titles main-nav-item">View Orders</a>
               </li>
-
-              <li class="dropdown">
+              <li>
+                <a
+                  href="{{ url_for('managedates') }}"
+                  class="titles main-nav-item"
+                  >Manage Dates</a
+                >
+              </li>
+              <li>
+                <a
+                  class="titles main-nav-item"
+                  href="{{ url_for('menusetter') }}"
+                  >View/Edit Menu</a
+                >
+              </li>
+              <li>
+                <a
+                  class="titles main-nav-item"
+                  href="{{ url_for('logout') }}"
+                  >Log Out</a
+                >
+              </li>
+              <!-- <li class="dropdown">
                 <a
                   class="dropdown-toggle titles main-nav-item"
                   data-toggle="dropdown"
@@ -123,28 +140,25 @@
                       >View/Edit Menu</a
                     >
                   </li>
-                  <li>
+                  {# <li>
                     <a class="titles main-nav-item" href="#">Change Password</a>
                   </li>
-                  <li>
-                    <a
-                      class="titles main-nav-item"
-                      href="{{ url_for('logout') }}"
-                      >Log Out</a
-                    >
-                  </li>
+                
                 </ul>
-              </li>
+              </li>#} -->
+        
             </ul>
             {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
-                <a id="user_logged_in" class="titles main-nav-item" href="#"
+                <a id="user_logged_in" class="titles main-nav-item" href="{{ url_for('index') }}"
                   >New Reservation</a
                 >
               </li>
-              <li><a class="titles main-nav-item" href="#">Prices</a></li>
-
+              {#<!-- <li><a class="titles main-nav-item" href="#">Gallery</a></li> -->#}
+              <li>
+                <a class="titles main-nav-item" href="{{ url_for('user_orders') }}">My Orders</a>
+              </li>
               <li class="dropdown">
                 <a
                   class="dropdown-toggle titles main-nav-item"
@@ -153,16 +167,13 @@
                   >Manage Account<span class="caret"></span
                 ></a>
                 <ul class="dropdown-menu">
-                  <li>
-                    <a class="titles main-nav-item" href="#">My Orders</a>
-                  </li>
-                  <li>
+                  {#<!-- <li>
                     <a class="titles main-nav-item" href="#"
                       >Incomplete Orders</a
                     >
-                  </li>
+                  </li> -->#}
                   <li>
-                    <a class="titles main-nav-item" href="#">Delete Account</a>
+                    <a class="titles main-nav-item" href="{{ url_for('user_settings') }}">Settings</a>
                   </li>
                   <li>
                     <a
@@ -173,12 +184,8 @@
                   </li>
                 </ul>
               </li>
-              {#
-              {{
-                url_for("newpass")
-              }}
-              #}
             </ul>
+    
             {% endif %} {% else %}<script type='text/javascript'>sessionStorage.removeItem("logged_in")</script>
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
@@ -186,13 +193,14 @@
                   >New Reservation</a
                 >
               </li>
-              <li><a class="titles main-nav-item" href="#">Prices</a></li>
-              <li>
+              {#<!-- <li><a class="titles main-nav-item" href="#">Gallery</a></li> -->#}
+              <li><a class="titles main-nav-item" href="{{ url_for('orderlookup') }}">Confirmation Code</a></li>
+              <li id ='nav-register'>
                 <a class="titles main-nav-item" href="{{ url_for('register') }}"
                   >Register</a
                 >
               </li>
-              <li>
+              <li id='nav-login'>
                 <a class="titles main-nav-item" href="{{ url_for('login') }}"
                   >Log In</a
                 >
@@ -238,12 +246,10 @@
               >525 Beckett Rd Logan Township, NJ 08085</a
             >
           </p>
-          <p
-            id="phone-number"
+          <p><a   id="phone-number"
             class="footer-link"
-            onclick="copyToClipBoard('phoneNumber')"
-          >
-            (856) 214-3413
+            onclick="copyToClipBoard('phoneNumber')">
+            (856) 214-3413</a>
           </p>
         </div>
         <!-- Grid column -->
@@ -255,8 +261,8 @@
             Resources
           </h5>
           <hr class="clearfix w-100 d-md-none pb-3" />
-          <p><a class="footer-link" href="#">Terms and Conditions</a></p>
-          <p><a class="footer-link" href="#">Privacy Policy</a></p>
+          <p><a class="footer-link" href="{{ url_for('terms_and_conditions') }}">Terms and Conditions</a></p>
+          <p><a class="footer-link" href="{{ url_for('privacy_policy') }}">Privacy Policy</a></p>
         </div>
         <!-- Grid column -->
       </div>
@@ -298,4 +304,11 @@
     });
   </script>
   <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+  <script type='text/javascript'>
+    getDevice();
+  </script>
+  <style>
+  .glyphicon-cog{
+    font-size: 25px;
+  }</style>
 </html>

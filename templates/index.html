@@ -6,7 +6,7 @@ head %}
 
 {% endblock %} {% block main %}
 
-<div id="main-planner-page" class="container" style="margin-top:10%;">
+<div id="main-planner-page" class="container">
   <div id="top-message" class="row normalize-height">
     <div id="card1" class="col-md-6 col-md-offset-3 main-card fade-in-right">
       <h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>
@@ -74,11 +74,5 @@ head %}
   type="text/css"
   href="{{ url_for('static', filename='defaultcompressed.css') }}"
 />
-<script type="text/javascript">
-  window.onload = function() {
-    setPicker();
-    planEvent();
-    initSettings("#min1");
-  };
-</script>
+<script type="text/javascript"></script>
 {% endblock %}

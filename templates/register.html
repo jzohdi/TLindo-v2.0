@@ -5,7 +5,7 @@ head %}
 </script>
 {% endblock %} {% block main %}
 <div class="container register-content">
-  <p class="question-titles">{{ error }}</p>
+  <p style="color:#de4621;" class="question-titles">{{ error }}</p>
   <div class="row">
     <div class="col-sm-4 col-sm-offset-3">
       <form action="{{ url_for('register') }}" method="post">
@@ -38,6 +38,7 @@ head %}
               />
             </div>
           -->#}
+
           <div class="form-group">
             <input
               class="form-control"
@@ -55,8 +56,12 @@ head %}
               type="password"
             />
           </div>
+          <small style="color: white;font-size: 10px;"
+            >By clicking Register, you agree to the <a href="#">Terms</a> and
+            that you have read our <a href="#">Data Use Policy.</a></small
+          >
           <div class="form-group">
-            <button id="register" class="btn btn-default" type="submit">
+            <button id="register" class="button button1" type="submit">
               Register
             </button>
           </div>
@@ -64,7 +69,7 @@ head %}
       </form>
     </div>
 
-    <div class="col-sm-2 pass-box" id="message">
+    <div class="col-sm-3 pass-box" id="message">
       <h4 class="register-pass-requirements">Password still needs:</h4>
       <p id="letter" class="register-pass-requirements invalid">
         A <b>lowercase</b> letter
@@ -141,5 +146,10 @@ head %}
     }
   };
 </script>
+<style>
+  .form-control {
+    width: 100%;
+  }
+</style>
 
 {% endblock %}

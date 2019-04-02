@@ -1,0 +1,182 @@
+{% extends "layout.html" %} {% block title %} Order Look Up {% endblock %} {%
+block head %}
+<script>
+  Flask.url_for("orderlookup");
+</script>
+
+{% endblock %} {% block main %}
+<div class="container-fluid">
+    <div id="modal-holder"></div>
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 main-card question-titles">
+      <h4>Enter Confirimation Code:</h4>
+      <form action="{{ url_for('orderlookup') }}" method="post">
+        <fieldset>
+          <div class="form-group">
+            <input
+              style="width:100%;"
+              autocomplete="off"
+              autofocus
+              class="form-control"
+              name="confirmationCode"
+              placeholder="Confirmation Code"
+              type="text"
+            />
+          </div>
+          <div class="form-group">
+            <button class="button button1" type="submit">Find Order</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div
+      style="min-height:20vh"
+      class="col-lg-10 col-lg-offset-1 main-card question-titles"
+    >
+      <h4>Order:</h4>
+      <h4>{{ error }}</h4>
+      <div id="insert-order" class="row">
+        {% for order in orders %}
+        <div class="col-sm-4">
+          <h4 class="confirm-cart-titles">Contact:</h4>
+          <!-- prettier-ignore -->
+          <div
+          id="{{ order['order_num'] }}EditContact"
+          onclick="editContact('#modal-holder', '{{ order.order_num }}')"
+          class="button button1 edit-order-button"
+        >
+          <span class="glyphicon glyphicon-pencil"></span>Edit Contact
+        </div>
+          <label for="">Name: </label>
+          <div><span id="{{ order['order_num'] }}name">{{ order.name }}</span></div>
+          <label for="">Date: </label>
+          <div><span id="{{ order['order_num'] }}date">{{ order.date }}</span></div>
+          <label for="">Phone: </label>
+          <div><span id="{{ order['order_num'] }}phone">{{ order.phone }}</span></div>
+          <label for="">Email: </label>
+          <div><span id="{{ order['order_num'] }}email">{{ order.email }}</span></div>
+          <label for="">Address: </label>
+          <div><span id="{{ order['order_num'] }}address">{{ order.address }}</span></div>
+          <label for="">Additional Comments: </label>
+          <div><span id="{{ order['order_num'] }}comments">{{ order.comments }}</span></div>
+        </div>
+            <div class="col-sm-8">
+              <h4 class="confirm-cart-titles">Order Summary:</h4>
+              {% for item in order.order %}
+              <p>
+                  {{ loop.index }}.
+                {% for key, value in item.items() %} 
+                {% if key == 'count' %}
+                  <strong>Quantity: </strong>{{ value }}
+                {% elif key == 'cost' %}
+                  <strong>Price: </strong>{{ value }}
+                {% else %}
+                <strong>{{ key }}: </strong> {{ value }} 
+                {% endif %}
+                {% endfor %}
+              </p>
+              {% endfor %}
+              <p>Total : {{ order.price }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  const CONTACT_MODAL_DIV =
+      '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
+      '<span class="close">X</span>' +
+      "contentPlaceHolder" +
+      "</div></div>";
+
+    function editContact(modalTagId, orderNum) {
+      const valuesDict = {};
+      const listOfKeys = ["Name", "Phone", "Address", "Email", "Comments"];
+      listOfKeys.forEach(function(value) {
+        valuesDict[value] = $("#" + orderNum + value.toLowerCase())
+          .html()
+          .trim();
+      });
+      // console.log(valuesDict);
+      let modalDiv = CONTACT_MODAL_DIV.replace(
+        "contentPlaceHolder",
+        getContactModal(orderNum, valuesDict, listOfKeys)
+      );
+
+      $(modalTagId).append(modalDiv);
+
+      const modal = document.getElementById("myModal");
+      // const openButton = document.getElementById(orderNum + "EditContact");
+      const span = document.getElementsByClassName("close")[0];
+      const done = document.getElementById("done");
+
+      // these define clicking actions for opening and closing the modal
+      // openButton.onclick = function() {
+      modal.style.display = "block";
+      // };
+      span.onclick = function() {
+        modal.style.display = "none";
+        $(modalTagId).html("");
+      };
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+          $(modalTagId).html("");
+        }
+      };
+
+      document
+        .getElementById("done-button")
+        .addEventListener("click", function() {
+          const build_contact_dict = { order_num: orderNum };
+          listOfKeys.forEach(function(value, index) {
+            const input_value = $("#" + value).val();
+        
+            build_contact_dict[value] = input_value;
+          });
+          // console.log(build_contact_dict);
+          $.post("/change_contact_info/", build_contact_dict).done(function(
+            data
+          ) {
+            if (data.error != "Contact Set!") {
+              alert("Something went wrong " + data.error);
+            } else {
+              location.reload();
+              span.click();
+            }
+          });
+        });
+    }
+
+    const CONTACT_MODAL_FORM =
+      '<div class="row edit-contact-div"><div class="col-xs-2"> labelPlaceholder:</div>' +
+      '<div class="col-xs-8 col-sm-9"><input id="key" class="edit-contact-input" value="valuePlaceholder"></div></div>';
+    const CONTACT_FORM_DONE_BUTTON =
+      '<div id="done-button" class="col-xs-12 col-sm-6 col-sm-offset-3 button button1">Done!</div>';
+
+    function getContactModal(orderNum, valuesDict, listOfLabels) {
+      let modalFormToReturn = "";
+      listOfLabels.forEach(function(value, index) {
+        modalFormToReturn += CONTACT_MODAL_FORM.replace(
+          "labelPlaceholder",
+          value
+        )
+          .replace("valuePlaceholder", valuesDict[value])
+          .replace("key", value);
+      });
+
+      return modalFormToReturn + CONTACT_FORM_DONE_BUTTON;
+    }
+</script>
+<style>
+  .glyphicon-pencil {
+    margin-right: 10px;
+  }
+  .modal-content {
+    min-height: 30vh;
+  }
+</style>
+{% endblock %}

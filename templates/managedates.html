@@ -11,7 +11,7 @@ block head %}
     <div class="col-lg-6">
       <div class="main-card question-titles">
         <form action="{{ url_for('managedates') }}" method="post">
-          <h4>Select dates here</h4>
+          <h3 class="red-title">Disable and Enable Dates Tool</h3>
           <fieldset>
             <div class="form-group">
               <input id="hidden-input" name="data" class="hidden" />
@@ -25,12 +25,12 @@ block head %}
               />
             </div>
             <div>
-              <h4>Dates Selected:</h4>
-              <p>( click on date to remove )</p>
+              <h4 class="red-title">Dates Selected:</h4>
+              <p>( click on date *if any listed* to remove )</p>
               <p id="dates-selected"></p>
             </div>
             <div class="form-group">
-              <h4>Choose method for selected dates</h4>
+              <h4 class="red-title">Choose method for selected dates</h4>
 
               <button name="disable" class="btn btn-default" type="submit">
                 Disable
@@ -45,21 +45,32 @@ block head %}
     </div>
     <div class="col-lg-6">
       <div class="main-card question-titles">
-        <h4 style="border-bottom: 1px #0d034c solid; padding: 5px 15px;">
-          All Dates - dates in red are currently unavailable
-        </h4>
+        <h3
+          class="red-title"
+          style="border-bottom: 1px #0d034c solid; padding: 5px 15px;"
+        >
+          List of All Future Dates
+        </h3>
+        <p>
+          *All future dates are listed here*: <br />*red indicates that the date
+          is unavailable for customers to place an order* <br />
+          (eg. holiday or this date is over the max limit of orders)
+        </p>
         <table class="manage-dates-table">
           <tr>
             <th>Date</th>
             <th>Order amount</th>
           </tr>
-          {% for date in sorted_dates %} {% if dates[date].disabled == 'true' %}
-          <tr style="font-weight: bold; color: #ff0202;">
+          {% for date in sorted_dates %} {% if dates[date].disabled == 'True' %}
+          <tr
+            onclick="goToScheduled('{{ date }}')"
+            style="cursor: pointer;font-weight: bold; color: #ff0202;"
+          >
             <td>{{ date }}</td>
             <td>{{ dates[date].sum }}</td>
           </tr>
           {% else %}
-          <tr syle="color: black;">
+          <tr onclick="goToScheduled('{{ date }}')" style="cursor: pointer;">
             <td>{{ date }}</td>
             <td>{{ dates[date].sum }}</td>
           </tr>
@@ -123,6 +134,11 @@ block head %}
 
     dateChangeHandler();
   };
+
+  function goToScheduled(date) {
+    const result = encodeURI("?s=" + date);
+    location.href = "/scheduled_orders" + result;
+  }
 </script>
 
 {% endblock %}

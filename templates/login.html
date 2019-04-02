@@ -16,7 +16,7 @@
               autofocus
               class="form-control"
               name="username"
-              placeholder="Username"
+              placeholder="Username or Email"
               type="text"
             />
           </div>
@@ -28,8 +28,15 @@
               type="password"
             />
           </div>
+          <p>
+            <a
+              class="forgot-password-link"
+              href="{{ url_for('forgotpassword') }}"
+              >* Forgot password? *</a
+            >
+          </p>
           <div class="form-group">
-            <button class="btn btn-default" type="submit">Log In</button>
+            <button class="button button1" type="submit">Log In</button>
           </div>
         </fieldset>
       </form>

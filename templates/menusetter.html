@@ -3,14 +3,14 @@ head %}
 <script>
   Flask.url_for("menusetter");
 </script>
-<script type="text/javascript"></script>
-<style></style> {{ super() }} {% endblock %} {% block main %}
+{{ super() }} {% endblock %} {% block main %}
 <div style="margin-top: 15vh;" class="container">
   <p class="question-titles">{{ error }}</p>
   <div id="modal-holder"></div>
+
   <div class="row">
-    <div class="main-card question-titles col-lg-10 col-lg-offset-1">
-      <div class="header-size question-titles">
+    <div class="main-card question-titles col-xs-12">
+      <div class="header-size question-titles order-keys">
         Entrees included here will be included in menu options
       </div>
       <form action="{{ url_for('menusetter') }}" method="post">
@@ -99,8 +99,8 @@ head %}
     </div>
   </div>
   <div class="row">
-    <div class="main-card question-titles col-lg-10 col-lg-offset-1">
-      <div class="header-size question-titles">
+    <div class="main-card question-titles col-xs-12">
+      <div class="header-size question-titles order-keys">
         Sides included here will be included in menu options
       </div>
       <form action="{{ url_for('menusetter') }}" method="post">
@@ -189,12 +189,12 @@ head %}
     </div>
   </div>
   <div class="row">
-    <div class="question-titles col-xs-2 col-md-offset-1 main-card">
+    <div class="question-titles col-xs-3 main-card">
       <form action="{{ url_for('menusetter') }}" method="post">
-        <p style="font-size: 80%;">Minimum #</p>
+        <p class='order-keys'style="font-size: 80%;">Minimum #</p>
         <input
           value="{{ min_size }}"
-          style="width: 50%; min-width: 30px; text-align: center;"
+          style="width: 60%; min-width: 30px; text-align: center;"
           type="text"
           name="set_min"
         />
@@ -207,6 +207,39 @@ head %}
           Submit
         </button>
       </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 main-card question-titles">
+      <h3 class="order-keys">Import/Export Menu</h3>
+      {#<!-- <input
+        class="button button1"
+        type="file"
+        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      /> -->#}
+      <div class="input-group">
+        <label class="input-group-btn">
+          <form
+            action="http://localhost:5000/upload_menu/"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+          <span style='float:left;'class="btn btn-primary">
+            Browse&hellip;
+            <input type="file" name="file" style="display: none;" multiple />
+          </span>
+        </label>
+        <input type="text" class="form-control" readonly />
+      </div>
+      <div class="submit-menu-div">
+          <button type="submit" class="button button1">Submit File</button>
+      </div>
+    </form>
+      <div class="download-menu-div">
+        <a href="/download_menu/" target="blank"
+          ><button class="button button1">Download Excel</button></a
+        >
+      </div>
     </div>
   </div>
 </div>
@@ -389,5 +422,60 @@ head %}
   }
   getTitlesToValues("#menu-setter-table", "#entree-submit");
   getTitlesToValues("#menu-setter-table2", "#sides-submit");
+
+  $(function() {
+    // We can attach the `fileselect` event to all file inputs on the page
+    $(document).on("change", ":file", function() {
+      var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input
+          .val()
+          .replace(/\\/g, "/")
+          .replace(/.*\//, "");
+      input.trigger("fileselect", [numFiles, label]);
+    });
+
+    // We can watch for our custom `fileselect` event like this
+    $(document).ready(function() {
+      $(":file").on("fileselect", function(event, numFiles, label) {
+        var input = $(this)
+            .parents(".input-group")
+            .find(":text"),
+          log = numFiles > 1 ? numFiles + " files selected" : label;
+
+        if (input.length) {
+          input.val(log);
+        } else {
+          if (log) alert(log);
+        }
+      });
+    });
+  });
 </script>
+<style>
+  /* input[type="file"] {
+    display: inline;
+    float: left;
+  } */
+  .btn-file {
+   
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-file input[type="file"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+  }
+</style>
 {% endblock %}

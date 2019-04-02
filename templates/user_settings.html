@@ -1,0 +1,99 @@
+{% extends "layout.html" %} {% block title %} Settings {% endblock %} {% block
+head %}
+<script>
+  Flask.url_for("user_settings");
+</script>
+
+{% endblock %} {% block main %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 main-card question-titles">
+      <h4 class="order-keys">Change Password:</h4>
+      <p>
+        *passwords must contain:<br />
+        at least 8 characters, one lowercase, one capital, and one number*
+      </p>
+      <p id="new_pass_error" class="question-titles">{{ error }}</p>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="row">
+            <form action="{{ url_for('change_password') }}" method="post">
+              <fieldset>
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <input
+                      style="width:100%"
+                      autocomplete="off"
+                      autofocus
+                      class="form-control"
+                      name="current-password"
+                      placeholder="Current Password"
+                      type="password"
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <input
+                      style="width:100%"
+                      class="form-control"
+                      name="new-password"
+                      placeholder="New Password"
+                      type="password"
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <input
+                      style="width:100%"
+                      class="form-control"
+                      name="confirm-new-passowrd"
+                      placeholder="Confirm New Password"
+                      type="password"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                  <div class="form-group">
+                    <div onclick="checkPassword()" class="button button1">
+                      Change Password
+                    </div>
+                    <button
+                      id="submit-new-pass"
+                      type="submit"
+                      class="hidden"
+                    ></button>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  function checkPassword() {
+    const password = $('input[name="new-password"]')[0].value;
+    const error_message = $("#new_pass_error");
+    if (!/[A-Z]/.test(password)) {
+      error_message.html("Password requires at least 1 uppercase letter");
+      return false;
+    } else if (!/[a-z]/.test(password)) {
+      error_message.html("Password requires at least 1 lowercase letter");
+      return false;
+    } else if (!/[0-9]/.test(password)) {
+      error_message.html("Password requires at least 1 number");
+      return false;
+    } else if (password.length < 8) {
+      error_message.html("Password must be at least 8 characters long");
+      return false;
+    } else {
+      $("#submit-new-pass").click();
+    }
+  }
+</script>
+{% endblock %}

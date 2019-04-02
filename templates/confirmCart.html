@@ -5,75 +5,669 @@ block head %}
 </script>
 
 {% endblock %} {% block main %}
-<div style="padding-top: 10vh;" class="container-fluid">
+<div id='set-prices' class="hidden">{{ session.entree_prices }}</div>
+<div class="container-fluid">
   <div class="row">
-    <div class="col-sm-5 sm-offset-1 main-card question-titles">
-      <h4>Order</h4>
-      <div id="my_cart"></div>
+    <div
+      id="button2"
+      style="-webkit-animation-duration: 1s; animation-duration: 1s;"
+      class="col-xs-6 col-xs-offset-2 fade-in-left"
+    >
+      <button
+        onclick="backToMenu()"
+        onmouseout="arrowMoveBack('#back-arrow')"
+        onmouseover="arrowMove('#back-arrow')"
+        class="button button1"
+      >
+        <span id="back-arrow" class="glyphicon glyphicon-menu-left"></span> Back
+        To Menu
+      </button>
     </div>
-    <div class="col-sm-5 main-card question-titles two-panel-spacing">
-      <h4>Please Register or Log In to Continue</h4>
-      <fieldset>
-        <div id='login_error'></div>
-        <div class="form-group">
-          <input
-            autocomplete="off"
-            autofocus
-            class="form-control"
-            name="login_username"
-            placeholder="Username"
-            type="text"
-          />
+  </div>
+  <div class="row">
+    <div class="col-sm-10 sm-offset-1 main-card question-titles">
+      <h4 class="confirm-cart-titles">Order Summary:</h4>
+      <div class="row" style="margin-left: 20px; margin-bottom: 30px;">
+        Date:   <input
+        class="form-control"
+        type="text"
+        name="date"
+        placeholder="None"
+        id="datepicker"
+      />
+      </div>
+      <div class="row" style="margin-left: 20px; margin-bottom: 30px;">
+        Order:
+        <div id="my_cart"></div>
+      </div>
+      <div class="row" style="margin-left: 20px; margin-bottom: 30px;">
+        Total: <strong id="cart-total"></strong>
+      </div>
+      <div style='padding:20px;'class="row">
+        <h4 class="confirm-cart-titles">Additional Information</h4>
+        <div class="row">
+          <div class="col-xs-12 col-lg-8">
+            <label for="additional-comments">Please leave any additional comments or requests:</label><br/>
+            <textarea style='width:100%'name="additional-comments" cols="10" rows="6"></textarea>
+          </div>
         </div>
-        <div class="form-group">
-          <input
-            class="form-control"
-            name="login_password"
-            placeholder="Password"
-            type="password"
-          />
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-10 sm-offset-1 main-card question-titles">
+      {% if session.user_id %}
+      <h4><span class="confirm-cart-titles"
+        >Logged in as</span> {{ session.user_name }}</h4>
+      {% endif %}
+      {% if not session.user_id %}
+      <div id='register-login-section' style="padding:20px 20px;" class="row">
+        <h4>
+          <span class="confirm-cart-titles"
+            >Please Register or Log In to Continue
+          </span>
+        </h4>
+        <!-- <div
+          style="margin-bottom:30px;"
+          class=" col-sm-offset-2 col-xs-8 col-xs-custom-offset-2 col-md-6"
+        > -->
+        <div id='login-form' class="col-xs-12 col-md-6 confirm-cart-form hidden">
+          <fieldset>
+            <div style='color:#de4621;' id="login_error"></div>
+            <div class="form-group">
+              <input
+                autocomplete="off"
+                autofocus
+                class="form-control"
+                name="login_username"
+                placeholder="Username or Email"
+                type="text"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                class="form-control"
+                name="login_password"
+                placeholder="Password"
+                type="password"
+              />
+            </div>
+            <div class="form-group">
+              <button onclick="request_login()" class="button button1">
+                Log In
+              </button>
+            </div>
+          </fieldset>
         </div>
-        <div class="form-group">
-          <div onclick="request_login()" class="button button1 col-xs-4">Log In</button>
+        <!-- <div class="col-sm-offset-2 col-xs-8 col-xs-custom-offset-2 col-md-6"> -->
+        <div id='register-form' class="col-xs-12 col-md-6 confirm-cart-form hidden">
+          <fieldset>
+            <div style='color:#de4621;'id="register_error"></div>
+            <div class="form-group">
+              <input
+                autocomplete="off"
+                autofocus
+                class="form-control"
+                name="register_username"
+                placeholder="Username"
+                type="text"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                class="form-control"
+                name="email"
+                placeholder="Email"
+                type="text"
+              />
+            </div>
+            <p>Password requires: a lowercase letter, uppercase letter, a number, minimum 8 characters</p>
+            <div class="form-group">
+              <input
+                class="form-control"
+                id="psw"
+                name="register_password"
+                placeholder="Password"
+                type="password"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                class="form-control"
+                name="confirm-password"
+                placeholder="Confirm Passowrd"
+                type="password"
+              />
+            </div>
+            <small style="color: #0d034c;font-size: 10px;"
+            >By clicking Register, you agree to our <a href="#">Terms</a> and
+            that you have read our <a href="#">Data Use Policy.</a></small
+          >
+            <div class="form-group">
+              <button
+  
+                class="button button1"
+                onclick="request_register()"
+              >
+                Register
+              </button>
+            </div>
+          </fieldset>
         </div>
-      </fieldset>
+        <div id='login-register-guest' class='row'>
+          <div class="col-xs-10 col-xs-offset-1">
+            <h4>Would you like to:</h4>
+            <div class="row">
+              <div id='login'class="col-sm-4 col-md-3">
+                <button onclick='showForm("login")' style="min-width: 173px;" class='button button1'>Login</button>
+              </div>
+              <div id='register'class="col-sm-4 col-md-3">
+                <button onclick='showForm("register")'style="min-width: 173px;" class="button button1">Register</button>
+              </div>
+              <div class="col-sm-4 col-md-3">
+                <button style="min-width: 173px;"onclick="continue_as_guest()"class="button button1">Continue As Guest</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-10 sm-offset-1 main-card question-titles">
+      <h4 class="confirm-cart-titles">Details</h4>
+      <div class="col-xs-12 col-sm-6 confirm-cart-form">
+        <h4>Contact:</h4>
+        <fieldset>
+          <div id="register_error"></div>
+          <div class="form-group">
+            <input
+              autocomplete="off"
+              autofocus
+              class="form-control required"
+              name="orderName"
+              placeholder="Full Name"
+              type="text"
+            />
+          </div>
+          <div class="form-group">
+            <input
+              class="form-control required"
+              name="orderPhone"
+              placeholder="Phone Number"
+              type="tel" required="" autocomplete="tel"
+            />
+          </div>
+          <div class="form-group">
+              <input
+                class="form-control required"
+                name="orderEmail"
+                placeholder="Email"
+                type="text"
+              />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 confirm-cart-form">
+          <h4>Address:</h4>
+          <div class="form-group">
+            <input
+              class="form-control required"
+              name="orderAddress"
+              placeholder="Event Address"
+              type="text"
+            />
+          </div>
+          <div class="form-group">
+            <input
+              class="form-control required"
+              name="orderCity"
+              placeholder="City"
+              type="text"
+            />
+          </div>
+          <div class="form-group">
+              <input
+                class="form-control required"
+                name="orderZipcode"
+                placeholder="Zipcode"
+                type="text"
+              />
+            </div>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-10 sm-offset-1 main-card question-titles">
+
+      <h4 class="confirm-cart-titles">Payment</h4>
+
+      <div class="row">
+        <div class="col-sm-12 col-md-offset-2 col-md-8 col-lg-6 col-lg-offset-3">
+      <form id="payment-form">
+        <div class="form-row">
+          <label for="card-element">
+            Credit or debit card
+          </label>
+          <div id="card-element">
+            <!-- A Stripe Element will be inserted here. -->
+          </div>
+      
+          <!-- Used to display Element errors. -->
+          <div id="card-errors" role="alert"></div>
+        </div>
+      </div>
+      </div>
+        <!-- <button>Submit Payment</button> -->
+      </form>
+      <div class="row">
+          <div class="col-xs-12 col-sm-10 sm-offset-1 main-card hidden" id='place-order-error' style='text-align: center; color: #0d034c;'></div>
+          <div id='place-order-button'><button onclick='placeOrder()' class='button button1 place-order-button'>Place Order</button></div>
+    </div>
     </div>
   </div>
 </div>
+<script src="{{ url_for('static', filename='picker.js') }}"></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static', filename='defaultcompressed.css') }}"
+/>
+<script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
-  let cart = sessionStorage.getItem("my_cart");
-  cart = JSON.parse(cart);
-  window["confirmCart"] = cart;
-  window.onload = function() {
-    drawToSelection("confirmCart", "my_cart", "");
+ sessionStorage.removeItem('order_placed')
+  const decodeHTML = function (html) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = html;
+    return txt.value;
   };
-  function request_login() {
-    let required_fields = true;
-    let username = $('input[name="login_username"]')[0].value;
-    if( username === ""){
-      $('#login_error').html("Username required to log in")
-      required_fields = false;
+
+// Custom styling can be passed to options when creating an Element.
+// (Note that this demo uses a wider set of styles than the guide below.)
+const style = {
+  base: {
+    color: '#32325d',
+    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+    fontSmoothing: 'antialiased',
+    fontSize: '16px',
+    '::placeholder': {
+      color: '#aab7c4'
     }
-    if ( $('input[name="login_password"]')[0].value == "" && required_fields){
-       $('#login_error').html("Password required to log in")
-       required_fields = false;
+  },
+  invalid: {
+    color: '#fa755a',
+    iconColor: '#fa755a'
+  }
+};
+// Create a Stripe client.
+const stripe = Stripe('pk_test_L8yMZPmXBR046Uxp2PzjT4O9');
+// Create an instance of Elements.
+const elements = stripe.elements();
+// Create an instance of the card Element.
+const card = elements.create('card', {style});
+// Add an instance of the card Element into the `card-element` <div>.
+card.mount('#card-element');
+
+card.addEventListener('change', ({error}) => {
+  const displayError = document.getElementById('card-errors');
+  if (error) {
+    displayError.textContent = error.message;
+  } else {
+    displayError.textContent = '';
+  }
+});
+const createToken = function(placeOrderButton, changeBack) {
+  stripe.createToken(card).then(function(result) {
+    if (result.error) {
+      // Inform the user if there was an error
+      var errorElement = document.getElementById('card-errors');
+      errorElement.textContent = result.error.message;
+      placeOrderButton.html(changeBack)
+    } else {
+      // Send the token to your server
+      stripeTokenHandler(result.token, placeOrderButton, changeBack);
     }
-    if ( required_fields ){
-      $.ajax({
-        type: "GET",
-        url: $SCRIPT_ROOT + "/request_login/",
-        contentType: "application/json; charset=utf-8",
-        data: {
-          "username" : username, "pass": $('input[name="login_password"]')[0].value 
-        },
-        success: function(data) {
-          $('#login_error').html(data)
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert(errorThrown);
+  });
+};
+function stripeTokenHandler(token, placeOrderButton, changeBack) {
+  // Insert the token ID into the form so it gets submitted to the server
+  const form = document.getElementById('payment-form');
+  const hiddenInput = document.createElement('input');
+  hiddenInput.setAttribute('type', 'hidden');
+  hiddenInput.setAttribute('name', 'stripeToken');
+  hiddenInput.setAttribute('value', token.id);
+  form.appendChild(hiddenInput);
+  // const orderInformation = getOrderInfoAsDictionary();
+  addOrderInformation(form);
+  $.post('/charge',  $(form).serialize() ).done(function( data ){
+        if( data.hasOwnProperty('error') ){
+          placeOrderButton.html(changeBack);
+          alert('something went wrong ' + data.error);
+        } else {
+          location.href = '/order_placed/'
         }
-      });
+  });
+  // Submit the form
+  // form.submit();
+}
+// Create a token when the form is submitted.
+// var form = document.getElementById('payment-form');
+// form.addEventListener('submit', function(e) {
+//   e.preventDefault();
+  
+// });
+  function getVal(object, key, fallback){
+    if( object.hasOwnProperty(key) ){
+      return object[key]
+    }else if( object.hasOwnProperty(fallback)) {
+      return object[fallback]
+    }else {
+      return 1
     }
   }
+
+  const foodCount = sessionStorage.getItem("foodCounter");
+  window.foodCounter = JSON.parse(foodCount);
+
+  const otherSettings = sessionStorage.getItem("otherSettings");
+  window.selectedFoodOptions = JSON.parse(otherSettings);
+  
+  const size_rules = { "Half Pan" : 2, "Full Pan" : 4, '48 oz Container' : 1.5}
+  const countConversions = { "Taco Tray": 24, "Burrito Tray": 8, "Nacho Bar" : 10, "Rotisserie Chicken" : 10};
+
+  // console.log(typeof(prices));
+  function convertPriced( listOfItemDicts ){
+    const entreePrices = getVal(prices, "entrees");
+    let total = 0;
+    listOfItemDicts.forEach(function(value){
+      // console.log(value)
+      let itemName = getVal(value, 'name')
+      if ( itemName == "Side Choices" ){
+        itemName= getVal(value, 'side')
+      }
+      const itemFlavor = getVal(value, "flavor")
+      const itemPortion = getVal(value, "portion", "size")
+      // console.log(itemPortion)
+      // console.log(itemPortion)
+      
+      let countNumberInTray = getVal(countConversions, itemName)
+      countNumberInTray *= getVal(size_rules, itemPortion)
+
+      const numberOfThisItemInCart = getVal(value, "count");
+      countNumberInTray *= numberOfThisItemInCart;
+
+      const rulesForItem = getVal(entreePrices, itemName)
+      
+      const pricePerItemName= getVal(rulesForItem, itemFlavor, "default");
+  
+      countNumberInTray *= pricePerItemName;
+
+      const multiplierForPortionSize = getVal( size_rules, itemPortion)
+      value.cost = "$" + countNumberInTray.toFixed(2);
+      total += countNumberInTray;
+    })
+    // console.log(total)
+    return total;
+  }
+
+  function setTotal(targetId, priceData = window.prices){
+    let total = 0;
+
+    const foodCounterKeys = Object.keys(foodCounter).filter(key => key !== 'total');
+
+    for ( foodKey of foodCounterKeys){
+      if ( foodCounter.hasOwnProperty(foodKey) ){
+        const itemsOfKey = foodCounter[foodKey].items;
+        total += convertPriced(itemsOfKey);
+      }
+    }
+    $(targetId).html(" $" + total.toFixed(2))
+  }
+  function getPrices(){
+    const pricesString = sessionStorage.getItem('entree_prices');
+    if( typeof(pricesString) != typeof('string')){
+      $.get('/get_prices/', function( data ) {
+        prices = data;
+        setTotal('#cart-total', data)
+      });
+    }else{
+     prices = JSON.parse( pricesString )
+     setTotal('#cart-total')
+    }
+  }
+  getPrices();
+
+  function toggleHide(tagId){
+    if( !$(tagId).hasClass('hidden') ){
+      $(tagId).addClass('hidden');
+    }else{
+      $(tagId).removeClass('hidden')
+    }
+  }
+  const showForm = (formName) => {
+    const wantedForm = ( formName === 'login') ? 'login' : 'register';
+    const other = ( formName === 'login') ? 'register' : 'login';
+    if( !$('#' + other + '-form').hasClass('hidden') ){
+      $('#'+ other + '-form').addClass('hidden')
+    }
+    $('#' + wantedForm + '-form').removeClass('hidden')
+    $('#' + other).removeClass('hidden')
+    $('#' + wantedForm).addClass('hidden')
+
+  }
+
+  window.onload = function() {
+    setPicker(sessionStorage.getItem("date"), sessionStorage.getItem('disabledDates'));
+
+    let itemKeys = Object.keys(window.foodCounter);
+    drawToSelection(itemKeys, "my_cart", "");
+  };
+
+  let numberOfPeople = sessionStorage.getItem("people");
+  window.people = JSON.parse(numberOfPeople);
+
+  function randomString(length, chars) {
+    let result = '';
+    for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  }
+
+  function continue_as_guest(){
+      $.get('/guest_login/', function(){
+        console.log('logging in as guest....')
+      }).done(function( data ){
+        if( data.hasOwnProperty('error') ){
+          alert('something went wrong ' + data.error)
+        }else{
+          const confirmationCode = data.code;
+          $('#register-login-section').empty();
+          $('#register-login-section').html('<h4>Your Confirmation Code is: <span class="red-title">' + confirmationCode + '</span></h4>'+
+                                      '<p>*Use this code for referencing your order in the future*</p>')
+          window.id = true;
+        }
+      });
+  }
+
+  function request_login() {
+    let username = $('input[name="login_username"]')[0].value;
+    if (username === "") { $("#login_error").html("Username required to log in"); return false;}
+    if ($('input[name="login_password"]')[0].value == "") { $("#login_error").html("Password required to log in"); return false; }
+    $.get('/request_login/', { username : username, pass : $('input[name="login_password"]')[0].value}, function( data ){
+      if ( data.hasOwnProperty('error') ){
+        $('#login_error').html('error logging in');
+      }else {
+        $('#register-login-section').empty()
+        $('#register-login-section').html("<h4>Succesful login! Username: <span style='color: #de4621;'>" + data.username + "</span></h4>");
+        convertNavBar()
+        window.id = true       
+      }
+    }).fail(function( errorThrown ){
+      alert(errorThrown);
+    });
+ }
+
+  const checkPassword = function( error_message ){
+    const password = $('input[name="register_password"]')[0].value;
+    if( !/[A-Z]/.test(password)){ error_message.html('Password requires at least 1 uppdercase letter'); return false; }
+    if( !/[a-z]/.test(password) ){ error_message.html('Password requires at least 1 lowercase letter'); return false; }
+    if ( !/[0-9]/.test(password) ){ error_message.html('Password requires at least 1 number'); return false; }
+    if ( password.length < 8 ){ error_message.html('Password must be at least 8 characters long'); return false; }
+    
+    return true;
+  }
+
+  function request_register(){
+    const errorMessage = $("#register_error");
+    const username = $('input[name="register_username"]')[0].value;
+    if ( username === '') { errorMessage.html("Username required"); return;}
+    
+    const email = $('input[name="email"]')[0].value;
+    if ( email === '' ){ errorMessage.html("Email required"); return;}
+    if ( !email.includes('@') || !email.includes('.')){ errorMessage.html("Please enter valid email"); return;}
+    
+    const password = $('input[name="register_password"]')[0].value;
+    if( password === '' || !checkPassword( errorMessage ) ){ errorMessage.html("Password required"); return;}
+    
+    const confirmPass = $('input[name="confirm-password"]')[0].value;
+    if ( password != confirmPass){errorMessage.html("Passwords do not match");return;}
+    $.get('/request_register/', {username : username, email : email, pass: password}, function(data){
+      if( data.hasOwnProperty('error') ){
+        $('#register_error').html(data.error + " already exists")
+      }else if ( data.hasOwnProperty('pass_error')){
+        $('#register_error').html(data.pass_error)
+      } else {
+        $('#register-login-section').empty()
+        $('#register-login-section').html("<h4>Successfully registered! Username: <span style='color: #de4621;'>" + data.username + "</span></h4>");
+        convertNavBar()
+        window.id = true;
+      }
+    }).fail(function(errorThrown){
+      alert(errorThrown)
+    })
+  }
+  
+
+  const backToMenu = () => {
+    sessionStorage.setItem("backFromCart", true);
+    const foodCount = JSON.stringify(foodCounter);
+    sessionStorage.setItem("foodCounter", foodCount);
+    document.location.href = "/";
+  };
+
+  const PROCESSING_BUTTON ="<button class='button processing-button place-order-button'><span class='glyphicon glyphicon-repeat'></span></button>";
+  const placeOrder = function(){
+    const placeOrderButton = $('#place-order-button');
+    const save_button = document.getElementById('place-order-button').innerHTML;
+    placeOrderButton.html(PROCESSING_BUTTON);
+    if( allRequiredFilled() ){
+      createToken(placeOrderButton, save_button);
+    }else {
+      placeOrderButton.html(save_button)
+    }
+  }
+  
+
+  function allRequiredFilled(){
+    let unsatisfiedFields = false
+    let errorMessage = '<h3>Required fields not satisfied:<span style="color:#de4621;">'
+    $('.required').each(function(index, item){
+      if( item.value === "" ){
+        const itemName = item.name.replace("order", "");
+        errorMessage += " " + itemName +","
+        unsatisfiedFields = true;
+      }
+    })
+    if ( !unsatisfiedFields && !window.id){  
+      errorMessage += "Must log in, register, or continue as guest,"
+      unsatisfiedFields = true;
+    }
+    if( unsatisfiedFields ){
+      $('#place-order-error').removeClass('hidden').html(errorMessage.slice(0, -1)+'</span></h3>');
+      return false;
+    }else {
+      if( !$('#place-order-error').hasClass('hidden') ){
+        $('#place-order-error').addClass('hidden')
+      } 
+      return true;
+    }
+  }
+  const addOrderInformation = function( createdForm ){
+    [['name', $('input[name="orderName"]')[0].value ],
+     ['date', $('#datepicker').val() ],
+     ['phone', $('input[name="orderPhone"]')[0].value],
+     ['email', $('input[name="orderEmail"]')[0].value],
+     ['address', parseAddress()],
+     ['order', parseFoodCounter()],
+     ['notes', $('textarea[name="additional-comments"]')[0].value],
+     ['id', window.id]].forEach(function(element){
+      const hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', element[0]);
+      hiddenInput.setAttribute('value', element[1]);
+      createdForm.appendChild(hiddenInput);
+     });
+  
+  }
+  const parseAddress = function(){
+    const street = $('input[name="orderAddress"]')[0].value;
+    const city = $('input[name="orderCity"]')[0].value;
+    const zip = $('input[name="orderZipcode"]')[0].value;
+    return street + ", " + city + " " + zip;
+  }
+
+  const parseFoodCounter = function(){
+    const foodCounterCopy = JSON.parse(JSON.stringify(foodCounter))
+    for (const key of Object.keys(foodCounterCopy)) {
+      if (foodCounterCopy.hasOwnProperty(key)) {
+        if( foodCounterCopy[key].hasOwnProperty('items') ){
+          delete foodCounterCopy[key].flavors
+          if( foodCounterCopy[key].items.length === 0 ){
+            delete foodCounterCopy[key];
+          }
+        }
+      }
+    }
+    return JSON.stringify(foodCounter);
+  }
+  const convertNavBar = function(){
+    const LOG_OUT = '<a class="titles main-nav-item" href="/logout" >Log Out</a>';
+    $('#nav-register').addClass('hidden');
+    $('#nav-login').html(LOG_OUT);
+  }
 </script>
+<style>
+  @media (max-width: 320px) {
+    .col-xs-custom-offset-2 {
+      margin-left: 0px !important;
+    }
+  }
+  @media (max-width: 768px) {
+    .col-xs-custom-offset-2 {
+      margin-left: 16.66666667%;
+    }
+  }
+
+  @media (max-width: 991px) and (min-width: 460px) {
+    #my_cart {
+      margin-left: 0% !important;
+    }
+  }
+  .processing-button{
+    color:white;
+    background-color: rgba(13, 3, 76, 0.8);
+  }
+  .glyphicon-repeat {
+    animation: process 2s infinite;
+    animation-timing-function: linear;
+  }
+  @keyframes process {
+    0%{
+      transform: rotate(0deg);
+    }
+    100%{
+      transform: rotate(360deg);
+    }
+  }
+</style>
 {% endblock %}
