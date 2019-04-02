@@ -145,7 +145,7 @@ block head %}
           >
             <div class="form-group">
               <button
-  
+
                 class="button button1"
                 onclick="request_register()"
               >
@@ -241,7 +241,7 @@ block head %}
   <div class="row">
     <div class="col-sm-10 sm-offset-1 main-card question-titles">
 
-      <h4 class="confirm-cart-titles">Payment</h4>
+      <h4><span class="confirm-cart-titles">Payment</span>*please disable any adblock extension for payment processor to work *</h4>
 
       <div class="row">
         <div class="col-sm-12 col-md-offset-2 col-md-8 col-lg-6 col-lg-offset-3">
@@ -253,7 +253,7 @@ block head %}
           <div id="card-element">
             <!-- A Stripe Element will be inserted here. -->
           </div>
-      
+
           <!-- Used to display Element errors. -->
           <div id="card-errors" role="alert"></div>
         </div>
@@ -268,12 +268,7 @@ block head %}
     </div>
   </div>
 </div>
-<script src="{{ url_for('static', filename='picker.js') }}"></script>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{{ url_for('static', filename='defaultcompressed.css') }}"
-/>
+
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
  sessionStorage.removeItem('order_placed')
@@ -355,7 +350,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
 // var form = document.getElementById('payment-form');
 // form.addEventListener('submit', function(e) {
 //   e.preventDefault();
-  
+
 // });
   function getVal(object, key, fallback){
     if( object.hasOwnProperty(key) ){
@@ -372,7 +367,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
 
   const otherSettings = sessionStorage.getItem("otherSettings");
   window.selectedFoodOptions = JSON.parse(otherSettings);
-  
+
   const size_rules = { "Half Pan" : 2, "Full Pan" : 4, '48 oz Container' : 1.5}
   const countConversions = { "Taco Tray": 24, "Burrito Tray": 8, "Nacho Bar" : 10, "Rotisserie Chicken" : 10};
 
@@ -390,7 +385,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
       const itemPortion = getVal(value, "portion", "size")
       // console.log(itemPortion)
       // console.log(itemPortion)
-      
+
       let countNumberInTray = getVal(countConversions, itemName)
       countNumberInTray *= getVal(size_rules, itemPortion)
 
@@ -398,9 +393,9 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
       countNumberInTray *= numberOfThisItemInCart;
 
       const rulesForItem = getVal(entreePrices, itemName)
-      
+
       const pricePerItemName= getVal(rulesForItem, itemFlavor, "default");
-  
+
       countNumberInTray *= pricePerItemName;
 
       const multiplierForPortionSize = getVal( size_rules, itemPortion)
@@ -500,7 +495,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
         $('#register-login-section').empty()
         $('#register-login-section').html("<h4>Succesful login! Username: <span style='color: #de4621;'>" + data.username + "</span></h4>");
         convertNavBar()
-        window.id = true       
+        window.id = true
       }
     }).fail(function( errorThrown ){
       alert(errorThrown);
@@ -513,7 +508,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
     if( !/[a-z]/.test(password) ){ error_message.html('Password requires at least 1 lowercase letter'); return false; }
     if ( !/[0-9]/.test(password) ){ error_message.html('Password requires at least 1 number'); return false; }
     if ( password.length < 8 ){ error_message.html('Password must be at least 8 characters long'); return false; }
-    
+
     return true;
   }
 
@@ -521,14 +516,14 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
     const errorMessage = $("#register_error");
     const username = $('input[name="register_username"]')[0].value;
     if ( username === '') { errorMessage.html("Username required"); return;}
-    
+
     const email = $('input[name="email"]')[0].value;
     if ( email === '' ){ errorMessage.html("Email required"); return;}
     if ( !email.includes('@') || !email.includes('.')){ errorMessage.html("Please enter valid email"); return;}
-    
+
     const password = $('input[name="register_password"]')[0].value;
     if( password === '' || !checkPassword( errorMessage ) ){ errorMessage.html("Password required"); return;}
-    
+
     const confirmPass = $('input[name="confirm-password"]')[0].value;
     if ( password != confirmPass){errorMessage.html("Passwords do not match");return;}
     $.get('/request_register/', {username : username, email : email, pass: password}, function(data){
@@ -546,7 +541,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
       alert(errorThrown)
     })
   }
-  
+
 
   const backToMenu = () => {
     sessionStorage.setItem("backFromCart", true);
@@ -566,7 +561,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
       placeOrderButton.html(save_button)
     }
   }
-  
+
 
   function allRequiredFilled(){
     let unsatisfiedFields = false
@@ -578,7 +573,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
         unsatisfiedFields = true;
       }
     })
-    if ( !unsatisfiedFields && !window.id){  
+    if ( !unsatisfiedFields && !window.id){
       errorMessage += "Must log in, register, or continue as guest,"
       unsatisfiedFields = true;
     }
@@ -588,7 +583,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
     }else {
       if( !$('#place-order-error').hasClass('hidden') ){
         $('#place-order-error').addClass('hidden')
-      } 
+      }
       return true;
     }
   }
@@ -607,7 +602,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
       hiddenInput.setAttribute('value', element[1]);
       createdForm.appendChild(hiddenInput);
      });
-  
+
   }
   const parseAddress = function(){
     const street = $('input[name="orderAddress"]')[0].value;
