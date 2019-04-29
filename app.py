@@ -663,12 +663,11 @@ def dated_url_for(endpoint, **values):
     if endpoint == 'static':
         filename = values.get('filename', None)
         if filename:
-            file_path = os.path.join(app.root_path, app.static_path, filename)
+            file_path = os.path.join("app/", app.root_path, app.static_path, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
-    root = "app/"
-    print(root)
+
     # endpoint = endpoint + root if root not in endpoint else endpoint
-    return url_for(root + endpoint, **values)
+    return url_for(endpoint, **values)
 
 """"""
 @app.route('/')
