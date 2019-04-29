@@ -666,7 +666,8 @@ def dated_url_for(endpoint, **values):
             file_path = os.path.join(app.root_path, app.static_path, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
     root = "" if not os.environ.get("DB", False) else "app/"
-    return url_for(root+endpoint, **values)
+    endpoint = endpoint + root if root not in endpoint else endpoint
+    return url_for(endpoint, **values)
 
 """"""
 @app.route('/')
