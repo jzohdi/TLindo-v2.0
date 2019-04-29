@@ -1632,7 +1632,7 @@ def load_file():
 
         result = execute("""UPDATE menu SET entree = %s, sides = %s WHERE row = %s
                          """,(json.dumps(entrees), json.dumps(sides), MENU_VERSION,))
-        print(session.get('user_id'))
+        # print(session.get('user_id'))
         return redirect( url_for("menusetter", admin=True) )
     return 'waiting for file'
 

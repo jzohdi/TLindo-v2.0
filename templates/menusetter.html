@@ -220,7 +220,8 @@ head %}
       <div class="input-group">
         <label class="input-group-btn">
           <form
-            action="http://localhost:5000/upload_menu/"
+          id='upload-menu'
+            action="https://taco-lindo-catering.herokuapp.com/upload_menu/"
             method="POST"
             enctype="multipart/form-data"
           >
@@ -253,7 +254,10 @@ head %}
   } else {
     window.device = "desk";
   }
-
+  function setUploadHref(){
+    $('#upload-menu').attr('href', window.location.href.replace("menusetter", "upload_menu/"))
+  }
+  setUploadHref();
   function addModalTo(elementID) {
     $("*[id*=" + elementID + "]:visible").each(function() {
       let $id = $(this).attr("id");
@@ -458,7 +462,7 @@ head %}
     float: left;
   } */
   .btn-file {
-   
+
     position: relative;
     overflow: hidden;
   }
