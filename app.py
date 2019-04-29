@@ -665,7 +665,7 @@ def dated_url_for(endpoint, **values):
         if filename:
             file_path = os.path.join(app.root_path, app.static_path, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
-    root = "app/" if os.environ.get("USER") else ""
+    root = "app/"
     print(root)
     # endpoint = endpoint + root if root not in endpoint else endpoint
     return url_for(root + endpoint, **values)
