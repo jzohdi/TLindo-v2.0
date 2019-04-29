@@ -14,7 +14,6 @@ cssselect==1.0.1
 cssselect2==0.2.0
 decorator==4.1.2
 Django==2.0
-dnspython==1.16.0
 EditorConfig==0.12.1
 feedparser==5.2.1
 Flask==1.0.2
@@ -59,7 +58,6 @@ pylint==1.9.3
 pylint-django==0.7.2
 pylint-flask==0.5
 pylint-plugin-utils==0.2.6
-pymongo==3.7.2
 PyPDF2==1.26.0
 Pyphen==0.9.4
 python-magic==0.4.13
