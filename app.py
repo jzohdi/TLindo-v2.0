@@ -954,7 +954,7 @@ def order_placed():
 
 def format_order_message( order_info ):
     to_return = ''
-    for key, value in order_info.iteritems():
+    for key, value in order_info.items():
         if key != 'id' and key != 'order_num':
             to_return += str(key).capitalize() + ': '+ str(value) + "\n"
     print(to_return)
