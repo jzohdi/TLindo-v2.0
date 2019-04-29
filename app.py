@@ -614,7 +614,10 @@ params = {
                     }
 
 app = Flask(__name__)
-app.static_path='/static'
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+app.static_path=STATIC_ROOT
 #app.static_folder = 'static'
 
 jsglue = JSGlue(app)
@@ -660,10 +663,11 @@ def override_url_for():
     return dict(url_for=dated_url_for)
 
 def dated_url_for(endpoint, **values):
+
     if endpoint == 'static':
         filename = values.get('filename', None)
         if filename:
-            file_path = os.path.join("app/", app.root_path, app.static_path, filename)
+            file_path = os.path.join(app.root_path, app.static_path, filename)
             values['q'] = int(os.stat(file_path).st_mtime)
 
     # endpoint = endpoint + root if root not in endpoint else endpoint
