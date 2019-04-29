@@ -30,7 +30,7 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='styles.css') }}"
+      href="{{ url_for('static', filename='compiledStyles.css') }}"
     />
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -143,10 +143,10 @@
                   {# <li>
                     <a class="titles main-nav-item" href="#">Change Password</a>
                   </li>
-                
+
                 </ul>
               </li>#} -->
-        
+
             </ul>
             {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
@@ -185,7 +185,7 @@
                 </ul>
               </li>
             </ul>
-    
+
             {% endif %} {% else %}<script type='text/javascript'>sessionStorage.removeItem("logged_in")</script>
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
@@ -303,7 +303,7 @@
       }
     });
   </script>
-  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+  <script src="{{ url_for('static', filename='compiledScripts.js') }}"></script>
   <script type='text/javascript'>
     getDevice();
   </script>
