@@ -1,15 +1,20 @@
 astroid==1.6.5
-cairocffi==1.0.2
-CairoSVG==2.3.0
-certifi==2019.3.9
-cffi==1.12.2
+autopep8==1.3.3
+backports.shutil-get-terminal-size==1.0.0
+backports.shutil-which==3.5.1
+beautifulsoup4==4.6.0
+bs4==0.0.1
+cairocffi==0.8.0
+CairoSVG==2.0.3
+certifi==2017.7.27.1
+cffi==1.10.0
 chardet==3.0.4
 click==6.7
 cssselect==1.0.1
 cssselect2==0.2.0
 decorator==4.1.2
-defusedxml==0.5.0
 Django==2.0
+dnspython==1.16.0
 EditorConfig==0.12.1
 feedparser==5.2.1
 Flask==1.0.2
@@ -19,7 +24,6 @@ Flask-Session==0.3.1
 Flask-Silk==0.2
 Flask-SQLAlchemy==2.2
 future==0.16.0
-gunicorn==19.9.0
 html5lib==0.999999999
 icdiff==1.9.1
 idna==2.6
@@ -30,8 +34,9 @@ Jinja2==2.10
 jinja2-django-tags==0.5
 jsbeautifier==1.6.14
 jsonschema==2.6.0
-jupyter-core==4.4.0
+jupyter-core==4.3.0
 lazy-object-proxy==1.3.1
+lxml==3.8.0
 MarkupSafe==1.0
 mccabe==0.6.1
 natsort==5.1.0
@@ -53,6 +58,7 @@ pylint==1.9.3
 pylint-django==0.7.2
 pylint-flask==0.5
 pylint-plugin-utils==0.2.6
+pymongo==3.7.2
 PyPDF2==1.26.0
 Pyphen==0.9.4
 python-magic==0.4.13
@@ -62,7 +68,6 @@ requests-oauthlib==0.8.0
 six==1.10.0
 SQLAlchemy==1.1.13
 sqlparse==0.2.3
-stripe==2.21.0
 termcolor==1.1.0
 tinycss==0.4
 tinycss2==0.6.0
@@ -74,6 +79,3 @@ WeasyPrint==0.42.3
 webencodings==0.5.1
 Werkzeug==0.14.1
 wrapt==1.10.11
-xlrd==1.1.0
-XlsxWriter==1.1.0
-xlwt==1.3.0
