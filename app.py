@@ -538,6 +538,10 @@ PASSWORD_RECOVERY_SUB = "Taco Lindo - Password Recovery"
 PASSWORD_RECOVERY_MSG = "We have recieved a password recovery request for your account\n" \
                         "If you did not make this request, please ignore this message.\n" \
                         "Otherwise go to this link {} within 24 hours to reset your password."
+PLACE_ORDER_SUBJECT = "Order Placed: Taco Lindo"
+ORDER_MESSAGE = ("Thank you for choosing Taco Lindo for your catering!\n"
+                 "We recieved your order details, and we saved the date shown below.\n"
+                 "Please take a second to review and make sure everything looks correct.\n{}")
 
 def commit_settings(params):
     new_obj = {}
@@ -947,6 +951,15 @@ def order_placed():
                                            email = email, address = address, order = order,
                                            comments = comments, total = total, code = confirmation_code,
                                            confirm_code = confirm_code, paid = paid)
+
+def format_order_message( order_info ):
+    to_return = ''
+    for key, value in order_info.iteritems():
+        if key != 'id' and key != 'order_num':
+            to_return += str(key).capitalize() + ': '+ str(value) + "\n" +
+    print(to_return)
+    return ORDER_MESSAGE.format(to_return)
+
 @app.route('/charge', methods=["POST"])
 def charge():
     if not session.get('beta'):
@@ -974,6 +987,11 @@ def charge():
 
     if not order_information.get('price'):
         return jsonify({'error' : 'could not confirm order pricing'})
+
+    email = request.form.get('email')
+    SUBJECT = PLACE_ORDER_SUBJECT
+    MESSAGE = format_order_message(order_information)
+    did_message_send = send_email(email, SUBJECT, MESSAGE)
 
     stripe.api_key = settings.get("STRIPE_KEY")
     token = request.form['stripeToken']
