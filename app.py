@@ -410,17 +410,21 @@ def get_listOfItems_fromExcel(wb, index):
     return all_items
 
 def add_note_to_order(user_orders, note, num):
+    try:
+        for index, order in enumerate(user_orders):
+            order_num = order.get('order_num')
+            if order_num == num or order_num == int(num):
+                if len(note) == 0 and 'special-note' in order:
+                    order.pop('special-note')
+                else:
+                    order['special-note'] = note
+                user_orders[index] = order
+                return user_orders
 
-    for index, order in enumerate(user_orders):
-        order_num = order.get('order_num')
-        if order_num == num or order_num == int(num):
-            if len(note) == 0 and 'special-note' in order:
-                order.pop('special-note')
-            else:
-                order['special-note'] = note
-            user_orders[index] = order
-            return user_orders
-    return False
+        return []
+    except Exception as e:
+        log_exception("line 413, " + str(e) )
+        return []
 
 def getOrder_and_checkIfValidDate(list_of_orders, num):
     orders_list = json.loads(list_of_orders)
@@ -507,22 +511,7 @@ def parse_items_resolution(list_of_item_dicts):
             for new_item in maximized_resolution:
                 return_list.append(new_item)
     return return_list
-"""
-class USER:
-    def __init__(self):
-        self.data = { 'admin' : False}
-    def put(self, key, item):
-        self.data[key] = item
-        if key == 'admin':
-            self.data['admin'] = True
-    def get(self, key, fallback = None):
-        if key in self.data:
-            return self.data[key]
-        else:
-            return fallback
-    def pop(self, key, fallback = None):
-        self.data.pop(key, fallback)
-"""
+
 """
 ###############################################################################
 ###################### END OF HELPER FUNCTIONS ################################
@@ -546,6 +535,7 @@ ORDER_MESSAGE = ("Thank you for choosing Taco Lindo for your catering!\n"
 def commit_settings(params):
     new_obj = {}
     if params:
+
         for key in params:
             new_obj[key] = params[key]
         return new_obj
@@ -1572,27 +1562,34 @@ def commit_note():
     order_num = request.form.get('order_num')
     special_note = request.form.get('note')
 
+    if not user_id or not order_num or not special_note:
+        return jsonify({'error' : 'Something went wrong!'})
+
     users_orders = execute("""SELECT orders FROM allorders WHERE id = %s
                            """, (user_id,))
     if len(users_orders) < 1:
-        return jsonify({'error' : 'failed'})
+        return jsonify({'error' : 'Could not confirm user in database.'})
+    user_orders = ""
+    try:
+        user_orders = json.loads( users_orders[0].get('orders') )
+    except Exception as err:
+        log_exception(error)
+        return jsonify({'error' : 'Something went wrong.'})
 
-    user_orders = json.loads(users_orders[0].get('orders'))
     initial_length = len(user_orders)
-
     user_orders = add_note_to_order(user_orders, special_note, order_num)
     final_length = len(user_orders)
 
     # check that no data was lost during insertion of note.
     if initial_length != final_length:
-        return jsonify({'error' : 'failed'})
+        return jsonify({'error' : 'Aborted when checking data corruption.'})
 
     final_user_orders = json.dumps(user_orders)
     result = execute(""" UPDATE allorders SET orders = %s WHERE id = %s
                      """, (final_user_orders, user_id))
 #    print(result)
 #    print(type(result))
-    return jsonify({'error' : 'success'})
+    return jsonify({'succes' : ''})
 @app.route('/get_prices/', methods=["GET"])
 def get_prices():
     if not session.get('beta'):
@@ -1703,6 +1700,9 @@ if __name__ == '__main__':
     app.debug = True
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+    # result = execute(""" SELECT * FROM managedates WHERE row = %s
+    #                 """,('1',))
+    # print(result)
 #    result = execute(""" SELECT orders FROM allorders WHERE id =%s
 #                     """,('7',))
 #    result = json.loads( result[0].get('orders') )[-1].get('order')

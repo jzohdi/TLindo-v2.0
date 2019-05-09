@@ -4,10 +4,12 @@
   Flask.url_for("login");
 </script>
 {{ super() }} {% endblock %} {% block main %}
-<div style="margin-top: 20vh;" class="container">
-  <p class="question-titles">{{ error }}</p>
-  <div class="row">
-    <div class="col-md-6 col-md-offset-3">
+<div class="container">
+
+  <div class="row main-card">
+    <h4 class='top-bottom-space responsive-header'>Welcome back! Please provide your login information.</h4>
+    <div class="col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
+      <p class="order-keys">{{ error }}</p>
       <form action="{{ url_for('login') }}" method="post">
         <fieldset>
           <div class="form-group">
@@ -43,4 +45,9 @@
     </div>
   </div>
 </div>
+<style>
+  .form-control {
+    width: 100%;
+  }
+</style>
 {% endblock %}

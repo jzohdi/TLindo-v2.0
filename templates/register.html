@@ -4,10 +4,11 @@ head %}
   Flask.url_for("register");
 </script>
 {% endblock %} {% block main %}
-<div class="container register-content">
-  <p style="color:#de4621;" class="question-titles">{{ error }}</p>
-  <div class="row">
-    <div class="col-sm-4 col-sm-offset-3">
+<div class="container">
+  <div class="row main-card">
+    <h4 class='top-bottom-space responsive-header'>To Register, please fill in the fields below.</h4>
+    <div class="col-sm-6 col-sm-offset-1 col-lg-4 col-lg-offset-2">
+      <p class="order-keys">{{ error }}</p>
       <form action="{{ url_for('register') }}" method="post">
         <fieldset>
           <div class="form-group">
@@ -28,17 +29,6 @@ head %}
               type="text"
             />
           </div>
-          {#<!--
-            <div class="form-group">
-              <input
-                class="form-control"
-                name="name"
-                placeholder="First and Last Name"
-                type="text"
-              />
-            </div>
-          -->#}
-
           <div class="form-group">
             <input
               class="form-control"
@@ -56,9 +46,9 @@ head %}
               type="password"
             />
           </div>
-          <small style="color: white;font-size: 10px;"
-            >By clicking Register, you agree to the <a href="#">Terms</a> and
-            that you have read our <a href="#">Data Use Policy.</a></small
+          <small style="font-size: 10px;"
+            >By clicking Register, you agree to the <a href="{{ url_for('privacy_policy') }}">Terms</a> and
+            that you have read our <a href="{{ url_for('terms_and_conditions') }}">Data Use Policy.</a></small
           >
           <div class="form-group">
             <button id="register" class="button button1" type="submit">
@@ -70,17 +60,17 @@ head %}
     </div>
 
     <div class="col-sm-3 pass-box" id="message">
-      <h4 class="register-pass-requirements">Password still needs:</h4>
-      <p id="letter" class="register-pass-requirements invalid">
+      <h4>Password still needs:</h4>
+      <p id="letter" class="invalid">
         A <b>lowercase</b> letter
       </p>
-      <p id="capital" class="register-pass-requirements invalid">
+      <p id="capital" class="invalid">
         A <b>capital (uppercase)</b> letter
       </p>
-      <p id="number" class="register-pass-requirements invalid">
+      <p id="number" class="invalid">
         A <b>number</b>
       </p>
-      <p id="length" class="register-pass-requirements invalid">
+      <p id="length" class="invalid">
         Minimum <b>8 characters</b>
       </p>
     </div>

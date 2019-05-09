@@ -7,6 +7,7 @@ head %}
 {% endblock %} {% block main %}
 
 <div id="main-planner-page" class="container">
+  <p id="dates-to-hide" class="hidden">{{ dates }}</p>
   <div id="top-message" class="row normalize-height">
     <div id="card1" class="col-md-6 col-md-offset-3 main-card fade-in-right">
       <h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>
@@ -19,7 +20,7 @@ head %}
       class="question-titles col-md-6 col-md-offset-3 main-card fade-in-left"
     >
       <h4>What day will your event be?</h4>
-      <p id="dates-to-hide" class="hidden">{{ dates }}</p>
+
       <div id="date-form" class="form-group">
         <input
           class="form-control"
@@ -29,18 +30,6 @@ head %}
           id="datepicker"
         />
       </div>
-      {#<!--
-        <h4 class="question-titles">What time is your event?</h4>
-        <div class="form-group">
-          <input
-            class="form-control"
-            type="text"
-            name="time"
-            placeholder="None"
-            id="timepicker"
-          />
-        </div>
-      -->#}
     </div>
   </div>
   <div id="need-phone" class="row normalize-height">

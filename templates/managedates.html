@@ -5,11 +5,11 @@ block head %}
 </script>
 
 {{ super() }} {% endblock %} {% block main %}
-<div style="margin-top: 16vh;" class="container">
-  <p class="question-titles">{{ error }}</p>
+<div style="margin-top: 5vh;" class="container">
   <div class="row">
     <div class="col-lg-6">
       <div class="main-card question-titles">
+        <p class="order-keys">{{ error }}</p>
         <form action="{{ url_for('managedates') }}" method="post">
           <h3 class="red-title">Disable and Enable Dates Tool</h3>
           <fieldset>

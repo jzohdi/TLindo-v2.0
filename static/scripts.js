@@ -1,3 +1,12 @@
+/*
+ SHUTDOWN OVER RIDE FOR DEVELOPMENT ONLY TAKE OUT BEFORE DEPOLOYMENT
+*/
+function shutDown(password) {
+  $.post($SCRIPT_ROOT + "/shutdown?pw=" + password, {}, function(
+    data,
+    textStatus
+  ) {});
+}
 
 const helpSizeConversion = {
   "Taco Tray": 24,
@@ -224,13 +233,13 @@ const setUpBackFromCart = function() {
     window.eventVariables.numberOfPeople = JSON.parse(
       sessionStorage.getItem("people")
     );
-
+    const message = ( window.selectedFoodOptions.help ) ? pickNumberOfItemsMessage() : "";
     window.eventVariables.date = sessionStorage.getItem("date");
     window.foodCounter = JSON.parse(sessionStorage.getItem("foodCounter"));
     drawToSelection(
       Object.keys(window.foodCounter),
       window.selectedFoodOptions.Id,
-      ""
+      message
     );
   } else if (document.getElementById("main-planner-page")) {
     setPicker();
@@ -275,15 +284,7 @@ function initSettings(idOfMin) {
 }
 
 initSettings("#min1");
-/*
- SHUTDOWN OVER RIDE FOR DEVELOPMENT ONLY TAKE OUT BEFORE DEPOLOYMENT
-*/
-function shutDown(password) {
-  $.post($SCRIPT_ROOT + "/shutdown?pw=" + password, {}, function(
-    data,
-    textStatus
-  ) {});
-}
+
 /*
  * here we simiply show the message on first screen that tells customer
  * to call if date not available or party is too small.
@@ -426,19 +427,23 @@ function nextWindow2() {
   }
 }
 
-const ASK_IF_HELP_TOP =
-  '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right question-titles">' +
-  "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>" +
-  "<h4>Based on the number of people, we can recommend <br>how much food to get for your gathering.</h4>" +
-  "</div>";
-
-const HELP_OR_NO_HELP =
-  '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">' +
-  '<h4 class="question-titles"><span class="glyphicon glyphicon-menu-left"></span> No Thanks, I know how much I want' +
-  "</h4></div>" +
-  '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">' +
-  '<h4 class="question-titles padding-on-md">I could use help! <span class="glyphicon glyphicon-menu-right"></span>' +
-  "</h4></div>";
+const buildHelpTop = () => {
+    const outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
+    const top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
+    const top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
+    const top_header_C = "<h4>To continue to the menu with help on your order size, click 'With amount help'.<br/> Otherwise, click 'Without amount help'.</h4>"
+    const close_div = "</div>";
+    return outer_div + top_header_A + top_header_B + top_header_C + close_div;
+}
+const chooseIfHelpDiv = () => {
+    const outer_leftDiv = '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
+    const left_side = '<h4 class="question-titles"> Without amount help</h4>' + "</div>";
+    const outer_rightDiv = '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
+    const right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
+    return outer_leftDiv + left_side + outer_rightDiv + right_side;
+}
+const ASK_IF_HELP_TOP = buildHelpTop();
+const HELP_OR_NO_HELP = chooseIfHelpDiv();
 
 const BACK_BUTTON2 = BACK_BUTTON.slice().replace("page1", "page2");
 
@@ -660,16 +665,16 @@ function showSelection(itemDictIndex) {
   };
   span.onclick = function() {
     // if closed window without adding items, revert back to original cart.
-    resetFoodCounterAndCart(temp_food_count);
-
+    // resetFoodCounterAndCart(temp_food_count);
+    addSelectionToCart("", itemSelection.item)
     modal.style.display = "none";
     $("#event-planner").empty();
   };
   window.onclick = function(event) {
     if (event.target == modal) {
       // if closing without adding items, revert cart.
-      resetFoodCounterAndCart(temp_food_count);
-
+      // resetFoodCounterAndCart(temp_food_count);
+      addSelectionToCart("", itemSelection.item)
       modal.style.display = "none";
       $("#event-planner").empty();
     }
@@ -680,9 +685,8 @@ const MAIN_MODAL_CONTENT =
   "<h4> HeaderPlaceholder </h4>" +
   "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" +
   "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
-  '<div class="row modal-add-to-order">Please Confirm Items: </div><div id="idPlaceholder"' +
-  ' class="row"></div><div class="row"><div onclick="addSelectionToCart(addSelectionPlaceholder)"' +
-  ' class="col-xs-2 col-xs-offset-3 add-select">Confirm Items</div></div>';
+  '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
+  ' class="row"></div>';
 
 // getModalContent returns the content to appear inside the modal pop up
 function getModalContent(itemName, itemSettings) {
@@ -702,9 +706,7 @@ function getModalContent(itemName, itemSettings) {
     .replace("getWantedParams", getWantedParams)
     .replace("idPlaceholder", idForSelectedList);
 
-  const addSelectionParams = "'selectedFoodOptions', '" + itemName + "'";
-
-  content = content.replace("addSelectionPlaceholder", addSelectionParams);
+  content = content.replace("namePlaceholder", itemSettings.item);
 
   return content;
 }
@@ -1069,9 +1071,16 @@ function addSelectionToCart(windowArray, itemName) {
 
 function startHelpScreen() {
   // console.log("Help");
+  let numGuests = 0;
+  const numKids = eventVariables.numberOfPeople.kids
+  const numAdults = eventVariables.numberOfPeople.adults
+  if ( (numKids + numAdults) >= 8 && (0.5*numKids + numAdults) < 8 ){
+    numGuests = 8;
+  }else{
+    numGuests = (0.5*numKids) + numAdults;
+  }
   let maxItems = Math.ceil(
-    (eventVariables.numberOfPeople.adults +
-      eventVariables.numberOfPeople.kids) /
+    (numGuests) /
       parseInt(window.PageSettings.minsize)
   );
   let maxFlavors = Math.min(maxItems, 4);

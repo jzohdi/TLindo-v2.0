@@ -328,7 +328,7 @@ block head %}
         if (textValue.length === 0) {
           reverteButtonAndTextarea(userIdAndOrderNum);
         } else {
-          commitNote(userId, userNum);
+          commitNote(userId, userNum, textValue);
         }
       } else {
         const replaceId = userIdAndOrderNum + "textarea";
@@ -344,8 +344,8 @@ block head %}
         order_num: orderNum,
         note: noteToCommit
       }).done(function(data) {
-        if (data.error === "failed") {
-          alert("something went wrong");
+        if (data.hasOwnProperty('error') ) {
+          alert(data.error);
         } else {
           location.href = "/scheduled_orders";
         }

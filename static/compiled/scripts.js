@@ -379,10 +379,25 @@ function nextWindow2() {
   }
 }
 
-var ASK_IF_HELP_TOP = '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right question-titles">' + "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>" + "<h4>Based on the number of people, we can recommend <br>how much food to get for your gathering.</h4>" + "</div>";
-var HELP_OR_NO_HELP = '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">' + '<h4 class="question-titles"><span class="glyphicon glyphicon-menu-left"></span> No Thanks, I know how much I want' + "</h4></div>" + '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">' + '<h4 class="question-titles padding-on-md">I could use help! <span class="glyphicon glyphicon-menu-right"></span>' + "</h4></div>";
+var ASK_IF_HELP_TOP = buildHelpTop();
+var HELP_OR_NO_HELP = chooseIfHelpDiv();
 var BACK_BUTTON2 = BACK_BUTTON.slice().replace("page1", "page2");
 
+function buildHelpTop(){
+    var outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
+    var top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
+    var top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
+    var top_header_C = "<h4>To continue to the menu with help on your order size, click 'With amount help'.<br/> Otherwise, click 'Without amount help'.</h4>"
+    var close_div = "</div>";
+    return outer_div + top_header_A + top_header_B + top_header_C + close_div;
+}
+function chooseIfHelpDiv(){
+    var outer_leftDiv = '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
+    var left_side = '<h4 class="question-titles"> Without amount help</h4>' + "</div>";
+    var outer_rightDiv = '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
+    var right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
+    return outer_leftDiv + left_side + outer_rightDiv + right_side;
+}
 function setStep3() {
   $("#top-message").append(ASK_IF_HELP_TOP);
   $("#event-planner").append(HELP_OR_NO_HELP);

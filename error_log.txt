@@ -1,0 +1,4 @@
+database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:43:55.360112
+database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:50:54.275956
+database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:53:18.497994
+database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:55:15.285782

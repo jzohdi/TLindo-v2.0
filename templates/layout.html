@@ -30,7 +30,7 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='compiledStyles.css') }}"
+      href="{{ url_for('static', filename='styles.css') }}"
     />
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -85,7 +85,7 @@
               href="{{ url_for('index') }}"
               ><img
                 style="height: 32px; float:left; padding-right: 10px; margin-top: -5px;"
-                src="static/taco-logo.png"
+                src="static/images/taco-logo.png"
                 alt=""
               /><span>Taco Lindo</span></a
             >
@@ -303,7 +303,7 @@
       }
     });
   </script>
-  <script src="{{ url_for('static', filename='compiledScripts.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
   <script type='text/javascript'>
     getDevice();
   </script>
