@@ -80,14 +80,14 @@
               type="button"
             ><span class="question-titles"
                 ><span class="glyphicon glyphicon-cog"></span></span></button>
-            <a
+            <a id='home-logo'
               class="main-nav-item titles navbar-brand"
               href="{{ url_for('index') }}"
               ><img
                 style="height: 32px; float:left; padding-right: 10px; margin-top: -5px;"
                 src="static/images/taco-logo.png"
                 alt=""
-              /><span>Taco Lindo</span></a
+              /><span>Taco Lindo Catering</span></a
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
@@ -189,7 +189,7 @@
             {% endif %} {% else %}<script type='text/javascript'>sessionStorage.removeItem("logged_in")</script>
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
-                <a class="titles main-nav-item" href="{{ url_for('index') }}"
+                <a id='new-reservation' class="titles main-nav-item" href="{{ url_for('index') }}"
                   >New Reservation</a
                 >
               </li>

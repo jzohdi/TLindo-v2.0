@@ -272,6 +272,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
 
 
   const backToMenu = function(){
+    sessionStorage.setItem('CURRENT_PAGE', "3");
     sessionStorage.setItem("backFromCart", true);
     const foodCount = removeCostAndStringify(window.foodCounter);
     sessionStorage.setItem("foodCounter", foodCount);

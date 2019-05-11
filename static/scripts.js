@@ -7,6 +7,12 @@ function shutDown(password) {
     textStatus
   ) {});
 }
+const refresh = () => {
+ sessionStorage.removeItem('CURRENT_PAGE');
+}
+['#home-logo', "#user_logged_in", '#new-reservation'].forEach((element)=>{
+  $(element).on('click', () => { refresh(); });
+});
 
 const helpSizeConversion = {
   "Taco Tray": 24,
@@ -68,6 +74,53 @@ const savePageLayout = (page, divIdArray) => {
   });
 };
 
+const setPage1 = () => {
+  const top_div = '<div id="card1" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
+      '<h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>' +
+      '<h4 class="question-titles">Lets plan your event!</h4></div>';
+  const top = $('#top-message').html(top_div);
+  const div_2 = '<div id="card2" class="question-titles col-md-6 col-md-offset-3 main-card fade-in-left">' +
+      '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' +
+      '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>'
+  const event_planner = $('#event-planner').html(div_2);
+  const div_3 = '<div id="card3" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
+      '<h4 class="question-titles"> If planning an event for less than <span id="min1"></span> people or' +
+      '</h4> <h4 class="question-titles"> If your date is unavailable, give us a call: </h4>' +
+      '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
+  const need_phone = $('#need-phone').html(div_3);
+  const next_button_div = '<div id="button1" class="col-md-6 col-md-offset-3">' +
+  '<button onclick="nextWindow()" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" '+
+    'class="button button1">Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
+  const next_button = $('#next-button').html(next_button_div);
+}
+/***********************************************************************************
+******************************************************************************************************************/
+const HELPER_SCREEN_DIV =
+  '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
+  "helpPlaceHolder" +
+  "<div class='row normalize-height'><div class='col-md-4'><h3 class='main-menu-headers' >" +
+  "Entree Options</h3><div id='food-options' class='row'></div></div>" +
+  "<div id='selected-food' class='col-md-8'><h3 class='main-menu-headers' >Selected Items</h3>" +
+  "<div id='cardIdPlaceHolder' class='row'></div></div></div><div id='checkoutButton' onclick='proceedToCheckout(\"cardIdPlaceHolder\")'" +
+  " class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
+
+
+const ITEM_NAME_BUTTON =
+  '<div id="indexPlaceholder" class="entree-options">' +
+  '<div class="entree-item col-xs-12 col-sm-6 col-md-12 xClass" onclick="showSelection(\'indexPlaceholder\')">itemName</div></div>';
+
+const ITEM_HTML_FOR_LIST =
+  '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span onclick="appendValue(appendValuePlaceholder, 1)"> ' +
+  '+ </span> countPlaceholder <span onclick="appendValue(appendValuePlaceholder, -1)"> - </span>';
+
+/***********************************************************************************
+******************************************************************************************************************/
+/***********************************************************************************
+******************************************************************************************************************/
+if ( sessionStorage.getItem('CURRENT_PAGE') === '1' ){
+  setPage1();
+}
+
 const setInputs = (arrayOfInputElements, arrayOfValues) => {
   arrayOfInputElements.forEach((element, index) => {
     $(element).val(arrayOfValues[index]);
@@ -84,13 +137,9 @@ function fadeOutSections(other = []) {
 }
 
 const prevWindow = pageNum => {
-  if (pageNum === "page1") {
-    fadeOutSections(["#card2", "#button1", "#button2"]);
-  }
-  if (pageNum === "page2") {
-    fadeOutSections(["#card2", "#card3", "#card4", "#button2"]);
-  }
-
+  const PAGE_NUM = sessionStorage.getItem('CURRENT_PAGE');
+  fadeOutSections(window.PAGE_RULES[PAGE_NUM].PREV) ;
+  sessionStorage.setItem('CURRENT_PAGE', JSON.stringify( parseInt(PAGE_NUM) - 1 ));
   const pageDivs = window[pageNum];
 
   setTimeout(function() {
@@ -112,7 +161,7 @@ const prevWindow = pageNum => {
 };
 const resetFoodCounterAndCart = savedCount => {
   if (window.addItems == false) {
-    foodCounter = savedCount;
+    window.foodCounter = savedCount;
     // window[window.selectedFoodOptions["Id"]] = savedCart;
   }
 };
@@ -181,15 +230,15 @@ function setPicker(selectDate = undefined, disabled = undefined) {
     // console.log("picker set");
   }
   // if using time picker as well to select for time of the day.
-  let el = document.getElementById("timepicker");
-  if (el) {
-    var $timeInput = $("#timepicker").pickatime();
-    var timePicker = $timeInput.pickatime("picker");
-    let minTime = [11, 00];
-    let maxTime = [20, 00];
-    timePicker.set("min", minTime);
-    timePicker.set("max", maxTime);
-  }
+  // let el = document.getElementById("timepicker");
+  // if (el) {
+  //   var $timeInput = $("#timepicker").pickatime();
+  //   var timePicker = $timeInput.pickatime("picker");
+  //   let minTime = [11, 00];
+  //   let maxTime = [20, 00];
+  //   timePicker.set("min", minTime);
+  //   timePicker.set("max", maxTime);
+  // }
 }
 
 /*
@@ -226,9 +275,9 @@ const setUpBackFromCart = function() {
       sessionStorage.getItem("otherSettings")
     );
     startSelectionScreen(
-      selectedFoodOptions.max_Items,
-      selectedFoodOptions.max_Flavors,
-      selectedFoodOptions.help
+      window.selectedFoodOptions.max_Items,
+      window.selectedFoodOptions.max_Flavors,
+      window.selectedFoodOptions.help
     );
     window.eventVariables.numberOfPeople = JSON.parse(
       sessionStorage.getItem("people")
@@ -255,35 +304,6 @@ function planEvent() {
 
   document.querySelector('input[name="date"]').onchange = changeEventHandler;
 }
-// calling this function will get JSON data about the menu and other settings for building page
-function initSettings(idOfMin) {
-  // window.PageSettings = JSON.parse(sessionStorage.getItem("PageSettings"));
-  // if (!PageSettings) {
-  let params;
-  $.getJSON($SCRIPT_ROOT + "/_get_menu", {}, function(data) {
-    window.PageSettings = data;
-
-    const menuSettings = JSON.stringify(data);
-    // sessionStorage.setItem("PageSettings", menuSettings);
-    $(idOfMin).append(data.minsize);
-
-    if (window.editOrder) {
-      startSelectionScreen();
-      const checkOutButton = $("#checkoutButton");
-      checkOutButton.html("Confirm Changes");
-      checkOutButton
-        .removeClass("col-xs-5")
-        .removeClass("col-sm-3")
-        .addClass("col-xs-12");
-      checkOutButton.attr("onclick", "confirmChanges()");
-    } else {
-      setUpBackFromCart();
-    }
-  });
-  // }
-}
-
-initSettings("#min1");
 
 /*
  * here we simiply show the message on first screen that tells customer
@@ -343,7 +363,7 @@ const NEXT_BUTTON =
 
 function nextWindow() {
   // get the date value input from the calender and set it inside window, so can be called later.
-  let eventDate = document.getElementById("datepicker").value;
+  const eventDate = document.getElementById("datepicker").value;
   if (eventDate === "" || eventDate === "None") {
     return;
   }
@@ -351,16 +371,20 @@ function nextWindow() {
 
   savePageLayout("page1", ["#event-planner", "#need-phone", "#next-button"]);
 
-  fadeOutSections(["#card2", "#card3", "#button1", "#card4"]);
+  fadeOutSections(window.PAGE_RULES[sessionStorage.getItem('CURRENT_PAGE')].NEXT );
+
+  sessionStorage.setItem('CURRENT_PAGE','2');
 
   setTimeout(function() {
     ["#event-planner", "#need-phone", "#next-button"].forEach(function(div) {
       $(div).empty();
     });
-
     $("#event-planner").append(HOW_MANY_PEOPLE_DIV);
-
     $("#next-button").append(BACK_BUTTON + NEXT_BUTTON);
+    if ( window.eventVariables.numberOfPeople ){
+       setInputs(['input[name="adults"]', 'input[name="kids"]'],
+        [window.eventVariables.numberOfPeople.adults, window.eventVariables.numberOfPeople.kids])
+     }
   }, 1000);
 }
 
@@ -397,15 +421,9 @@ function nextWindow2() {
   );
 
   if (isValidPeopleNum) {
-    fadeOutSections([
-      "#card1",
-      "#card2",
-      "#card3",
-      "#button1",
-      "#button2",
-      "#card4"
-    ]);
 
+    fadeOutSections(window.PAGE_RULES[sessionStorage.getItem('CURRENT_PAGE')].NEXT);
+    sessionStorage.setItem('CURRENT_PAGE', '3');
     setTimeout(function() {
       [
         $("#top-message"),
@@ -419,7 +437,7 @@ function nextWindow2() {
 
     // if the warning message hasnt already been shown
   } else if (document.getElementById("card3") === null) {
-    lessThanMin = NOT_ENOUGH_PEOPLE_ERROR.slice().replace(
+    let lessThanMin = NOT_ENOUGH_PEOPLE_ERROR.slice().replace(
       "minsizePlaceHolder",
       window.PageSettings.minsize
     );
@@ -449,7 +467,6 @@ const BACK_BUTTON2 = BACK_BUTTON.slice().replace("page1", "page2");
 
 function setStep3() {
   $("#top-message").append(ASK_IF_HELP_TOP);
-
   $("#event-planner").append(HELP_OR_NO_HELP);
   $("#next-button").append(BACK_BUTTON2);
 }
@@ -460,7 +477,7 @@ function setStep3() {
 function setUpHelpScreen(needHelp) {
   $("#card3").removeClass("choose-help-box");
   $("#card4").removeClass("choose-help-box");
-  fadeOutSections(["#card2", "#card3", "#card4", "#next-button"]);
+  fadeOutSections(window.PAGE_RULES[sessionStorage.getItem('CURRENT_PAGE')].NEXT);
 
   setTimeout(function() {
     [$("#top-message"), $("#event-planner")].forEach(div => div.empty());
@@ -473,14 +490,33 @@ function setUpHelpScreen(needHelp) {
    window.selectedFoodOptions will keep track of the items chosen
 
 */
-const HELPER_SCREEN_DIV =
-  '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
-  "helpPlaceHolder" +
-  "<div class='row normalize-height'><div class='col-md-4'><h3 class='main-menu-headers' >" +
-  "Entree Options</h3><div id='food-options' class='row'></div></div>" +
-  "<div id='selected-food' class='col-md-8'><h3 class='main-menu-headers' >Selected Items</h3>" +
-  "<div id='cardIdPlaceHolder' class='row'></div></div></div><div id='checkoutButton' onclick='proceedToCheckout(\"cardIdPlaceHolder\")'" +
-  " class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
+const MODAL_DIV =
+  '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
+  '<span class="close">X</span>' +
+  "contentPlaceHolder" +
+  "</div></div>";
+const MAIN_MODAL_CONTENT =
+  "<h4> ItemNamePlaceholder: </h4>" +
+  "<h4> HeaderPlaceholder </h4>" +
+  "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" +
+  "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
+  '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
+  ' class="row"></div>';
+
+const ADD_MORE_MESSAGE =
+  '<span class="tooltiptext">' +
+  "Based on your number of people, we recommend the current cart limit. <br/> " +
+  "But you can click here to increase the size of your cart!" +
+  "</span></div>";
+
+const AT_ORDER_LIMIT_DIV =
+  '<div id="limit-message"style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">' +
+  'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' +
+  ADD_MORE_MESSAGE +
+  "</div>";
+
+const AT_FLAVOR_LIMIT_DIV =
+  '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Already at Max unique flavors for item</div>';
 
 function startSelectionScreen(
   max_Items = 40,
@@ -579,10 +615,6 @@ const buildOptionsDict = function(dictionaryForItem) {
   return newObj;
 };
 
-const ITEM_NAME_BUTTON =
-  '<div id="indexPlaceholder" class="entree-options">' +
-  '<div class="entree-item col-xs-12 col-sm-6 col-md-12 xClass" onclick="showSelection(\'indexPlaceholder\')">itemName</div></div>';
-
 function insertSidesDiv(itemDictionaryKey, divId) {
   const buttonDiv = ITEM_NAME_BUTTON.replace(
     new RegExp("indexPlaceholder", "g"),
@@ -602,11 +634,6 @@ function insertDivToOptions(idOfElement, index, item_name) {
     .replace("xClass", translateClass);
   $(idOfElement).append(buttonDivToAppend);
 }
-const MODAL_DIV =
-  '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
-  '<span class="close">X</span>' +
-  "contentPlaceHolder" +
-  "</div></div>";
 
 // Show slection parameter is the key for the value pair of itemdictionary. which was set as the index
 // of the item.
@@ -680,13 +707,6 @@ function showSelection(itemDictIndex) {
     }
   };
 }
-const MAIN_MODAL_CONTENT =
-  "<h4> ItemNamePlaceholder: </h4>" +
-  "<h4> HeaderPlaceholder </h4>" +
-  "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" +
-  "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
-  '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
-  ' class="row"></div>';
 
 // getModalContent returns the content to appear inside the modal pop up
 function getModalContent(itemName, itemSettings) {
@@ -879,20 +899,6 @@ function allowMore() {
   $("#limit-message").empty();
   window.selectedFoodOptions.max_Items += 1;
 }
-const ADD_MORE_MESSAGE =
-  '<span class="tooltiptext">' +
-  "Based on your number of people, we recommend the current cart limit. <br/> " +
-  "But you can click here to increase the size of your cart!" +
-  "</span></div>";
-
-const AT_ORDER_LIMIT_DIV =
-  '<div id="limit-message"style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">' +
-  'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' +
-  ADD_MORE_MESSAGE +
-  "</div>";
-
-const AT_FLAVOR_LIMIT_DIV =
-  '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Already at Max unique flavors for item</div>';
 
 function getAddToCartError(item, action) {
   //
@@ -963,10 +969,6 @@ function reconcileFlavors(item_name) {
   });
   foodCounter[item_name].flavors = temp_flavor_array;
 }
-
-const ITEM_HTML_FOR_LIST =
-  '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span onclick="appendValue(appendValuePlaceholder, 1)"> ' +
-  '+ </span> countPlaceholder <span onclick="appendValue(appendValuePlaceholder, -1)"> - </span>';
 
 const getHtmlForItem = (
   entreeName,
@@ -1087,6 +1089,35 @@ function startHelpScreen() {
 
   startSelectionScreen(maxItems, maxFlavors, true);
 }
+// calling this function will get JSON data about the menu and other settings for building page
+function initSettings(idOfMin) {
+  const settings = sessionStorage.getItem("PageSettings");
+  if ( settings === null ){
+    $.get("/_get_menu", {}, function(data) {
+      window.PageSettings = data;
+      sessionStorage.setItem("PageSettings", JSON.stringify(data));
+      $(idOfMin).append(data.minsize);
+    });
+  }else {
+    window.PageSettings = JSON.parse( settings );
+  }
+   if (window.editOrder) {
+    startSelectionScreen();
+    const checkOutButton = $("#checkoutButton");
+    checkOutButton.html("Confirm Changes");
+    checkOutButton
+      .removeClass("col-xs-5")
+      .removeClass("col-sm-3")
+      .addClass("col-xs-12");
+    checkOutButton.attr("onclick", "confirmChanges()");
+  } else {
+    setUpBackFromCart();
+  }
+
+  // }
+}
+
+initSettings("#min1");
 
 function proceedToCheckout(myCart) {
   let itemCount = 0;
