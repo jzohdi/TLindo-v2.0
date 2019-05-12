@@ -74,25 +74,7 @@ const savePageLayout = (page, divIdArray) => {
   });
 };
 
-const setPage1 = () => {
-  const top_div = '<div id="card1" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
-      '<h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>' +
-      '<h4 class="question-titles">Lets plan your event!</h4></div>';
-  const top = $('#top-message').html(top_div);
-  const div_2 = '<div id="card2" class="question-titles col-md-6 col-md-offset-3 main-card fade-in-left">' +
-      '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' +
-      '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>'
-  const event_planner = $('#event-planner').html(div_2);
-  const div_3 = '<div id="card3" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
-      '<h4 class="question-titles"> If planning an event for less than <span id="min1"></span> people or' +
-      '</h4> <h4 class="question-titles"> If your date is unavailable, give us a call: </h4>' +
-      '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
-  const need_phone = $('#need-phone').html(div_3);
-  const next_button_div = '<div id="button1" class="col-md-6 col-md-offset-3">' +
-  '<button onclick="nextWindow()" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" '+
-    'class="button button1">Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
-  const next_button = $('#next-button').html(next_button_div);
-}
+
 /***********************************************************************************
 ******************************************************************************************************************/
 const HELPER_SCREEN_DIV =
@@ -117,9 +99,6 @@ const ITEM_HTML_FOR_LIST =
 ******************************************************************************************************************/
 /***********************************************************************************
 ******************************************************************************************************************/
-if ( sessionStorage.getItem('CURRENT_PAGE') === '1' ){
-  setPage1();
-}
 
 const setInputs = (arrayOfInputElements, arrayOfValues) => {
   arrayOfInputElements.forEach((element, index) => {
@@ -136,29 +115,6 @@ function fadeOutSections(other = []) {
   });
 }
 
-const prevWindow = pageNum => {
-  const PAGE_NUM = sessionStorage.getItem('CURRENT_PAGE');
-  fadeOutSections(window.PAGE_RULES[PAGE_NUM].PREV) ;
-  sessionStorage.setItem('CURRENT_PAGE', JSON.stringify( parseInt(PAGE_NUM) - 1 ));
-  const pageDivs = window[pageNum];
-
-  setTimeout(function() {
-    for (var key in pageDivs) {
-      if (pageDivs.hasOwnProperty(key)) {
-        $(key).html(pageDivs[key]);
-      }
-    }
-    if (pageNum === "page1") setPicker(window.eventVariables.date);
-    if (pageNum === "page2")
-      setInputs(
-        ['input[name="adults"]', 'input[name="kids"]'],
-        [
-          window.eventVariables.numberOfPeople.adults,
-          window.eventVariables.numberOfPeople.kids
-        ]
-      );
-  }, 1000);
-};
 const resetFoodCounterAndCart = savedCount => {
   if (window.addItems == false) {
     window.foodCounter = savedCount;
@@ -167,9 +123,11 @@ const resetFoodCounterAndCart = savedCount => {
 };
 // set up the window variables that can be used later. including
 // getting whether the user is on a phone device or desktop.
-var defaultMaxFlavors = 4;
-var eventVariables = {};
+window.defaultMaxFlavors = 4;
+window.eventVariables = {};
+
 window.device;
+
 function getDevice() {
   if (
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -240,7 +198,16 @@ function setPicker(selectDate = undefined, disabled = undefined) {
   //   timePicker.set("max", maxTime);
   // }
 }
-
+function arrowMove(idOfElement) {
+  let next_Arrow = $(idOfElement);
+  if (idOfElement.includes("next")) next_Arrow.css("padding-left", "14px");
+  else next_Arrow.css("padding-right", "14px");
+}
+function arrowMoveBack(idOfElement) {
+  let next_Arrow = $(idOfElement);
+  if (idOfElement.includes("next")) next_Arrow.css("padding-left", "0px");
+  else next_Arrow.css("padding-right", "0px");
+}
 /*
 copy text to clipBoard
 */
@@ -301,14 +268,19 @@ const setUpBackFromCart = function() {
  */
 function planEvent() {
   let dateSelector = $("#datepicker");
-
-  document.querySelector('input[name="date"]').onchange = changeEventHandler;
+  const dateInput = document.querySelector('input[name="date"]');
+  if ( dateInput ){
+    dateInput.onchange = changeEventHandler;
+  }
 }
 
 /*
  * here we simiply show the message on first screen that tells customer
  * to call if date not available or party is too small.
  */
+const MAIN_TIMING = '0.8';
+const SET_TIME = 850;
+
 function changeEventHandler(event) {
   if (!event.target.value) console.log("nothing here");
   else {
@@ -320,26 +292,133 @@ function changeEventHandler(event) {
   let nextButton = $("#next-button");
   if (nextButton.hasClass("hidden")) {
     let cssAnimationTiming =
-      " -webkit-animation-duration: 2s; animation-duration: 2s";
+      " -webkit-animation-duration: " + MAIN_TIMING + "s; animation-duration: "+ MAIN_TIMING + "s";
     nextButton[0].setAttribute("style", cssAnimationTiming);
     nextButton.removeClass("hidden").addClass("fade-in-left");
   }
 }
 // this function is called by the button an adds css stlying to give the animation
 // effect on hovering over the next button
-function arrowMove(idOfElement) {
-  let next_Arrow = $(idOfElement);
-  if (idOfElement.includes("next")) next_Arrow.css("padding-left", "14px");
-  else next_Arrow.css("padding-right", "14px");
-}
-function arrowMoveBack(idOfElement) {
-  let next_Arrow = $(idOfElement);
-  if (idOfElement.includes("next")) next_Arrow.css("padding-left", "0px");
-  else next_Arrow.css("padding-right", "0px");
+// col-md-offset-3
+const page1_A = '<div id="card1" class="col-md-12 main-card fade-in-right">' +
+      '<h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>' +
+      '<h4 class="question-titles">Lets plan your event!</h4></div>';
+const page1_B = '<div id="card2" class="question-titles col-md-12 main-card fade-in-left">' +
+    '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' +
+    '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>';
+const page1_C = '<div id="card3" class="col-md-12 main-card fade-in-right">' +
+    '<h4 class="question-titles"> If planning an event for less than <span id="min1"></span> people or' +
+    '</h4> <h4 class="question-titles"> If your date is unavailable, give us a call: </h4>' +
+    '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
+const page1_D = '<div id="goNext" class="col-md-6 col-md-offset-3 fade-in-right">' +
+  '<button onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" '+
+  'class="button button1">Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
+
+const page1ToInsertIds = ['#top-message', '#event-planner', '#need-phone', '#next-button'];
+const page1Divs = [page1_A, page1_B, page1_C, page1_D];
+const page1ToFade = ["#card2", "#card3", "#goNext", "#card4"];
+
+function Page( list_of_ids, divs, fade_out_divs, prev_exception = [] ){
+  this.toInsert = list_of_ids
+  this.divs = divs;
+  this.toFade = fade_out_divs;
+  this.dontFadeToGoBack = prev_exception;
+  this.callBack = null;
+  this.nextPage = null;
+
+  this.run = (toEmpty = [] ) => {
+    this.toInsert.forEach( (element, index) => {
+      $(element).html( this.divs[index] );
+    })
+
+    this.callBack();
+  }
+
+  this.exit = ( pageObject = null, toEmpty = [], prev = null ) => {
+
+    fadeOutSections(this.toFade);
+
+    setTimeout(function() {
+        toEmpty.forEach(function(div) {
+         $(div).empty();
+         if( pageObject ){
+            if( prev ){
+              for ( const key in prev ){
+                $(key).html(prev[key]);
+              }
+            }
+           pageObject.run();
+
+         }
+     });
+  }, SET_TIME);
+  }
+
 }
 
+const page1 = new Page(page1ToInsertIds, page1Divs, page1ToFade );
+
+page1.callBack = () => {
+
+  setPicker(window.eventVariables.date);
+
+  $('#goNext').on('click', () => {
+    const eventDate = document.getElementById("datepicker").value;
+    if (eventDate === "" || eventDate === "None") { return; }
+    window.eventVariables.date = eventDate;
+    page1.exit( page2, ["#event-planner", "#need-phone", "#next-button"] );
+  })
+
+}
+
+if ( !sessionStorage.getItem("backFromCart") ){
+  if ( !location.href.includes('edit_order')){
+     page1.run();
+  }
+}
+
+const buildHelpTop = () => {
+    const outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
+    const top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
+    const top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
+    const top_header_C = "<h4>To continue to the menu with help on your order size, click 'With amount help'.<br/> Otherwise, click 'Without amount help'.</h4>"
+    const close_div = "</div>";
+    return outer_div + top_header_A + top_header_B + top_header_C + close_div;
+}
+const chooseIfHelpDiv = () => {
+    const outer_leftDiv = '<div id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
+    const left_side = '<h4 class="question-titles"> Without amount help</h4>' + "</div>";
+    const outer_rightDiv = '<div id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
+    const right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
+    return outer_leftDiv + left_side + outer_rightDiv + right_side;
+}
+const ASK_IF_HELP_TOP = buildHelpTop();
+const HELP_OR_NO_HELP = chooseIfHelpDiv();
+
+const BACK_BUTTON =
+  '<div id="button2" style="-webkit-animation-duration: '+ MAIN_TIMING +'s; animation-duration: '+ MAIN_TIMING +'s;" class="col-xs-6 fade-in-left">' +
+  "<button id='goBack' onmouseout=\"arrowMoveBack('#back-arrow')\" onmouseover=\"arrowMove('#back-arrow')\"" +
+  ' class="button button1"><span id="back-arrow" class="glyphicon glyphicon-menu-left"></span>  Back</button> </div>';
+
+const BACK_BUTTON2 = BACK_BUTTON.slice().replace("page1", "page2");
+
+const page3Ids = ["#top-message", "#event-planner", "#next-button"]
+const page3Divs = [ASK_IF_HELP_TOP, HELP_OR_NO_HELP, BACK_BUTTON2]
+const page3ToFade = ["#card2", "#card3", "#card4", "#goBack"];
+const page3NotFade = []
+const page3 = new Page(page3Ids, page3Divs, page3ToFade, page3NotFade);
+
+
+const NOT_ENOUGH_PEOPLE_ERROR =
+  '<div id="card3" class="col-md-12 main-card fade-in-right"> <h4 class="question-titles">' +
+  "The minimum number of people to reserve a catering event is " +
+  "minsizePlaceHolder" +
+  ", <br>" +
+  "but let's see if we can help out. Give us a call </h4>" +
+  '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a> </div>';
+
 const HOW_MANY_PEOPLE_DIV =
-  '<div id="card2" class="col-md-6 col-md-offset-3 main-card fade-in-right">' +
+  '<div id="card2" class="col-md-12 main-card fade-in-left">' +
   ' <h4 class="question-titles">How many people will be at your event?</h4>' +
   '<div class="form-group">' +
   '<h5 class="question-titles">Adults: <input name="adults" class="form-control" /></h5>' +
@@ -351,42 +430,63 @@ const HOW_MANY_PEOPLE_DIV =
   "</div>" +
   "</div>";
 
-const BACK_BUTTON =
-  '<div id="button2" style="-webkit-animation-duration: 1s; animation-duration: 1s;" class="col-xs-6 fade-in-left">' +
-  "<button onclick=\"prevWindow('page1')\" onmouseout=\"arrowMoveBack('#back-arrow')\" onmouseover=\"arrowMove('#back-arrow')\"" +
-  ' class="button button1"><span id="back-arrow" class="glyphicon glyphicon-menu-left"></span>  Back</button> </div>';
-
 const NEXT_BUTTON =
-  '<div id="button1" style="-webkit-animation-duration: 1s; animation-duration: 1s;" class="col-xs-6 fade-in-right">' +
-  '<button onclick="nextWindow2()" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" class="button button1">' +
+  '<div id="button1" style="-webkit-animation-duration: '+MAIN_TIMING+'s; animation-duration: '+MAIN_TIMING+'s;" class="col-xs-6 fade-in-right">' +
+  '<button id="goNext" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" class="button button1">' +
   'Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
 
-function nextWindow() {
-  // get the date value input from the calender and set it inside window, so can be called later.
-  const eventDate = document.getElementById("datepicker").value;
-  if (eventDate === "" || eventDate === "None") {
-    return;
-  }
-  eventVariables.date = eventDate;
-
-  savePageLayout("page1", ["#event-planner", "#need-phone", "#next-button"]);
-
-  fadeOutSections(window.PAGE_RULES[sessionStorage.getItem('CURRENT_PAGE')].NEXT );
-
-  sessionStorage.setItem('CURRENT_PAGE','2');
-
-  setTimeout(function() {
-    ["#event-planner", "#need-phone", "#next-button"].forEach(function(div) {
-      $(div).empty();
-    });
-    $("#event-planner").append(HOW_MANY_PEOPLE_DIV);
-    $("#next-button").append(BACK_BUTTON + NEXT_BUTTON);
-    if ( window.eventVariables.numberOfPeople ){
-       setInputs(['input[name="adults"]', 'input[name="kids"]'],
-        [window.eventVariables.numberOfPeople.adults, window.eventVariables.numberOfPeople.kids])
-     }
-  }, 1000);
+page3.startExit = () => {
+  $("#card3").removeClass("choose-help-box");
+  $("#card4").removeClass("choose-help-box");
+  page3.exit( null, ["#top-message", "#event-planner"])
 }
+const prev_from_3 = {'#top-message' : page1_A, '#next-button' : BACK_BUTTON + NEXT_BUTTON }
+
+page3.callBack = () => {
+  $('#goBack').on('click', () => {
+    page3.exit(page2, ['#top-message', '#event-planner', '#next-button'], prev_from_3)
+  })
+  $('#card4').on('click', () => {
+      page3.startExit();
+      setTimeout(function() { startHelpScreen(); }, SET_TIME);
+  })
+  $('#card3').on('click', () => {
+      page3.startExit();
+      setTimeout(() => { startSelectionScreen(); }, SET_TIME);
+  })
+
+}
+const page2InsertIds = ["#event-planner", "#next-button"]
+const page2Divs = [HOW_MANY_PEOPLE_DIV, BACK_BUTTON+NEXT_BUTTON];
+const page2ToFade = [ "#card1", "#card2", "#card3", "#goNext", "#goBack", "#card4", '#button1'];
+const page2GoBackException = ['#card1', '#card3', '#card4'];
+
+const page2 = new Page(page2InsertIds, page2Divs, page2ToFade, page2GoBackException);
+
+page2.callBack = () => {
+  if ( window.eventVariables.numberOfPeople ){
+    setInputs(['input[name="adults"]', 'input[name="kids"]'], [window.eventVariables.numberOfPeople.adults, window.eventVariables.numberOfPeople.kids])
+  }
+  $('#goBack').on('click', () => {
+      page2.exit( page1, ["#event-planner", "#need-phone", "#next-button"] );
+  })
+
+  $('#goNext').on('click', () => {
+     const isValidPeopleNum = saveNumberOfPeople("eventVariables", 'input[name="adults"]','input[name="kids"]');
+
+     if (isValidPeopleNum) {
+        sessionStorage.setItem('CURRENT_PAGE', '3');
+        page2.exit( page3, ["#top-message", "#event-planner", "#need-phone","#next-button"] );
+        // setTimeout(() => {$('#next-button').removeClass('fade-out-right')}, 1050)
+     }else if (document.getElementById("card3") === null) {
+         const lessThanMin = NOT_ENOUGH_PEOPLE_ERROR.slice().replace(
+                              "minsizePlaceHolder",window.PageSettings.minsize );
+         $("#need-phone").append(lessThanMin);
+     }
+  });
+
+}
+
 
 const saveNumberOfPeople = (saveVariable, inputForAdults, inputForKids) => {
   let adultsNum = document.querySelector(inputForAdults).value;
@@ -402,89 +502,6 @@ const saveNumberOfPeople = (saveVariable, inputForAdults, inputForKids) => {
   return totalPeople >= window.PageSettings.minsize;
 };
 
-const NOT_ENOUGH_PEOPLE_ERROR =
-  '<div id="card3" class="col-md-6 col-md-offset-3 main-card fade-in-right"> <h4 class="question-titles">' +
-  "The minimum number of people to reserve a catering event is " +
-  "minsizePlaceHolder" +
-  ", <br>" +
-  "but let's see if we can help out. Give us a call </h4>" +
-  '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a> </div>';
-
-function nextWindow2() {
-  savePageLayout("page2", ["#top-message", "#event-planner", "#next-button"]);
-  /* get data within input forms, convert to Integer, if less than 8, show message */
-
-  let isValidPeopleNum = saveNumberOfPeople(
-    "eventVariables",
-    'input[name="adults"]',
-    'input[name="kids"]'
-  );
-
-  if (isValidPeopleNum) {
-
-    fadeOutSections(window.PAGE_RULES[sessionStorage.getItem('CURRENT_PAGE')].NEXT);
-    sessionStorage.setItem('CURRENT_PAGE', '3');
-    setTimeout(function() {
-      [
-        $("#top-message"),
-        $("#event-planner"),
-        $("#need-phone"),
-        $("#next-button")
-      ].forEach(div => div.empty());
-      /* Javascrip the third page into screen */
-      setStep3();
-    }, 1000);
-
-    // if the warning message hasnt already been shown
-  } else if (document.getElementById("card3") === null) {
-    let lessThanMin = NOT_ENOUGH_PEOPLE_ERROR.slice().replace(
-      "minsizePlaceHolder",
-      window.PageSettings.minsize
-    );
-    $("#need-phone").append(lessThanMin);
-  }
-}
-
-const buildHelpTop = () => {
-    const outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
-    const top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
-    const top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
-    const top_header_C = "<h4>To continue to the menu with help on your order size, click 'With amount help'.<br/> Otherwise, click 'Without amount help'.</h4>"
-    const close_div = "</div>";
-    return outer_div + top_header_A + top_header_B + top_header_C + close_div;
-}
-const chooseIfHelpDiv = () => {
-    const outer_leftDiv = '<div onclick="setUpHelpScreen(\'nohelp\')" id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
-    const left_side = '<h4 class="question-titles"> Without amount help</h4>' + "</div>";
-    const outer_rightDiv = '<div onclick="setUpHelpScreen(\'help\')" id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
-    const right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
-    return outer_leftDiv + left_side + outer_rightDiv + right_side;
-}
-const ASK_IF_HELP_TOP = buildHelpTop();
-const HELP_OR_NO_HELP = chooseIfHelpDiv();
-
-const BACK_BUTTON2 = BACK_BUTTON.slice().replace("page1", "page2");
-
-function setStep3() {
-  $("#top-message").append(ASK_IF_HELP_TOP);
-  $("#event-planner").append(HELP_OR_NO_HELP);
-  $("#next-button").append(BACK_BUTTON2);
-}
-
-/* Start the help screen for selecting the items
-   or menu seletion without help.
-   If no help then call function startSelectionScreen */
-function setUpHelpScreen(needHelp) {
-  $("#card3").removeClass("choose-help-box");
-  $("#card4").removeClass("choose-help-box");
-  fadeOutSections(window.PAGE_RULES[sessionStorage.getItem('CURRENT_PAGE')].NEXT);
-
-  setTimeout(function() {
-    [$("#top-message"), $("#event-planner")].forEach(div => div.empty());
-    if (needHelp === "help") startHelpScreen();
-    if (needHelp === "nohelp") startSelectionScreen();
-  }, 1000);
-}
 /* *************************************************************************
    start menu selection screen
    window.selectedFoodOptions will keep track of the items chosen
@@ -501,7 +518,7 @@ const MAIN_MODAL_CONTENT =
   "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" +
   "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
   '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
-  ' class="row"></div>';
+  ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
 
 const ADD_MORE_MESSAGE =
   '<span class="tooltiptext">' +
@@ -520,7 +537,7 @@ const AT_FLAVOR_LIMIT_DIV =
 
 function startSelectionScreen(
   max_Items = 40,
-  max_Flavors = defaultMaxFlavors,
+  max_Flavors = window.defaultMaxFlavors,
   help = false
 ) {
   if (!sessionStorage.getItem("backFromCart")) {
@@ -533,7 +550,7 @@ function startSelectionScreen(
     // window.my_cart = [];
 
     window.foodCounter = {};
-    foodCounter["total"] = 0;
+    window.foodCounter["total"] = 0;
   }
   const helpDiv = help
     ? "<h4>Based on your party size, please select a total of " +
@@ -646,7 +663,7 @@ function showSelection(itemDictIndex) {
   window.addItems = false;
 
   // keep a temporary copy of the foodCounter to revert back to if the modal is closed without confirming add items
-  var temp_food_count = deepCopy(foodCounter);
+  // var temp_food_count = deepCopy(window.foodCounter);
 
   // the main modal screen with div class='modal-content' holding the content and data
   let modalContent;
@@ -668,8 +685,7 @@ function showSelection(itemDictIndex) {
   const modal = document.getElementById("myModal");
   const openButton = document.getElementById(itemDictIndex.toString());
   const span = document.getElementsByClassName("close")[0];
-  const done = document.getElementById("done");
-
+  const done = document.getElementById("done-selection");
   // these define clicking actions for opening and closing the modal
   openButton.onclick = function() {
     modal.style.display = "block";
@@ -697,13 +713,14 @@ function showSelection(itemDictIndex) {
     modal.style.display = "none";
     $("#event-planner").empty();
   };
+  done.onclick = () => {
+    span.click();
+  }
   window.onclick = function(event) {
     if (event.target == modal) {
       // if closing without adding items, revert cart.
       // resetFoodCounterAndCart(temp_food_count);
-      addSelectionToCart("", itemSelection.item)
-      modal.style.display = "none";
-      $("#event-planner").empty();
+      span.click();
     }
   };
 }
@@ -903,14 +920,14 @@ function allowMore() {
 function getAddToCartError(item, action) {
   //
   const atOrderLimit =
-    foodCounter.total + action > selectedFoodOptions.max_Items;
+    window.foodCounter.total + action > window.selectedFoodOptions.max_Items;
 
   const alreadyHasFlavor =
-    foodCounter[item.name] &&
-    foodCounter[item.name].flavors.includes(item.flavor);
+    window.foodCounter[item.name] &&
+    window.foodCounter[item.name].flavors.includes(item.flavor);
 
   const atFlavorLimit =
-    foodCounter[item.name] && foodCounter[item.name].flavors.length === 4;
+    window.foodCounter[item.name] && window.foodCounter[item.name].flavors.length === 4;
 
   if (atOrderLimit) {
     return AT_ORDER_LIMIT_DIV;
@@ -927,35 +944,35 @@ function appendOrAddItem(toAppend, amount) {
   if (toAppend.name === "Side Choices") {
     changeTotal = 0;
   }
-  if (!foodCounter.hasOwnProperty(toAppend.name)) {
+  if (!window.foodCounter.hasOwnProperty(toAppend.name)) {
     // come here if the item does not exist in counter yet, in this case, we will always be adding a new Dish/Flavor
-    foodCounter[toAppend.name] = {
+    window.foodCounter[toAppend.name] = {
       flavors: [toAppend.flavor],
       items: [deepCopy(toAppend)]
     };
-    foodCounter["total"] += changeTotal;
+    window.foodCounter["total"] += changeTotal;
     return;
   }
 
-  const idx = foodCounter[toAppend.name]["items"].findIndex(item =>
+  const idx = window.foodCounter[toAppend.name]["items"].findIndex(item =>
     equalsExcept(toAppend, item, ["count", "cost"])
   );
-  const inCart = foodCounter[toAppend.name]["items"][idx];
+  const inCart = window.foodCounter[toAppend.name]["items"][idx];
 
   if (inCart) {
     // TODO: look up falsiness and truthiness
     inCart.count += amount;
-    foodCounter["total"] += changeTotal;
+    window.foodCounter["total"] += changeTotal;
     if (inCart.count <= 0) {
-      foodCounter[toAppend.name]["items"].splice(idx, 1);
+      window.foodCounter[toAppend.name]["items"].splice(idx, 1);
     }
     reconcileFlavors(toAppend.name);
   } else {
-    if (!foodCounter[toAppend.name].flavors.includes(toAppend.flavor)) {
-      foodCounter[toAppend.name].flavors.push(toAppend.flavor);
+    if (!window.foodCounter[toAppend.name].flavors.includes(toAppend.flavor)) {
+      window.foodCounter[toAppend.name].flavors.push(toAppend.flavor);
     }
-    foodCounter[toAppend.name]["items"].push(toAppend);
-    foodCounter["total"] += changeTotal;
+    window.foodCounter[toAppend.name]["items"].push(toAppend);
+    window.foodCounter["total"] += changeTotal;
   }
 }
 
@@ -963,11 +980,11 @@ function appendOrAddItem(toAppend, amount) {
 // so the flavors array consistently contains only the flavors and all of the flavors
 function reconcileFlavors(item_name) {
   let temp_flavor_array = [];
-  foodCounter[item_name].items.forEach(function(element) {
+  window.foodCounter[item_name].items.forEach(function(element) {
     if (!temp_flavor_array.includes(element.flavor))
       temp_flavor_array.push(element.flavor);
   });
-  foodCounter[item_name].flavors = temp_flavor_array;
+  window.foodCounter[item_name].flavors = temp_flavor_array;
 }
 
 const getHtmlForItem = (
@@ -1074,8 +1091,8 @@ function addSelectionToCart(windowArray, itemName) {
 function startHelpScreen() {
   // console.log("Help");
   let numGuests = 0;
-  const numKids = eventVariables.numberOfPeople.kids
-  const numAdults = eventVariables.numberOfPeople.adults
+  const numKids = window.eventVariables.numberOfPeople.kids
+  const numAdults = window.eventVariables.numberOfPeople.adults
   if ( (numKids + numAdults) >= 8 && (0.5*numKids + numAdults) < 8 ){
     numGuests = 8;
   }else{
@@ -1092,6 +1109,7 @@ function startHelpScreen() {
 // calling this function will get JSON data about the menu and other settings for building page
 function initSettings(idOfMin) {
   const settings = sessionStorage.getItem("PageSettings");
+
   if ( settings === null ){
     $.get("/_get_menu", {}, function(data) {
       window.PageSettings = data;
@@ -1100,8 +1118,7 @@ function initSettings(idOfMin) {
     });
   }else {
     window.PageSettings = JSON.parse( settings );
-  }
-   if (window.editOrder) {
+  } if (window.editOrder) {
     startSelectionScreen();
     const checkOutButton = $("#checkoutButton");
     checkOutButton.html("Confirm Changes");
@@ -1121,11 +1138,11 @@ initSettings("#min1");
 
 function proceedToCheckout(myCart) {
   let itemCount = 0;
-  const keys = Object.keys(foodCounter);
+  const keys = Object.keys(window.foodCounter);
   for (const key of keys) {
     if (key !== "total") {
-      if (foodCounter[key].hasOwnProperty("items")) {
-        itemCount += foodCounter[key].items.length;
+      if (window.foodCounter[key].hasOwnProperty("items")) {
+        itemCount += window.foodCounter[key].items.length;
       }
     }
   }
@@ -1133,19 +1150,19 @@ function proceedToCheckout(myCart) {
     alert("There doesn't seem to be anything in your cart!");
     return;
   }
-  const people = JSON.stringify(eventVariables.numberOfPeople);
+  const people = JSON.stringify(window.eventVariables.numberOfPeople);
   sessionStorage.setItem("people", people);
 
-  sessionStorage.setItem("date", eventVariables.date);
+  sessionStorage.setItem("date", window.eventVariables.date);
 
-  const foodCount = JSON.stringify(foodCounter);
+  const foodCount = JSON.stringify(window.foodCounter);
   sessionStorage.setItem("foodCounter", foodCount);
 
-  const otherSettings = JSON.stringify(selectedFoodOptions);
+  const otherSettings = JSON.stringify(window.selectedFoodOptions);
   sessionStorage.setItem("otherSettings", otherSettings);
 
   // if (sessionStorage.getItem("logged_in") == null) {
-  location.href = "/confirmCart";
+  location.href = "/confirmCart#order-summary";
   // } else {
   //   location.href = "";
   // }

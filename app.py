@@ -1133,7 +1133,7 @@ def edit_order():
         return redirect( url_for('user_orders'))
 
     session['edit_order_num'] = order_num
-    return render_template('edit_order.html', order = json.dumps(order_to_edit))
+    return render_template('edit_order.html', order = order_to_edit)
 
 @app.route('/commit_order_edit/', methods=["POST"])
 def commit_edit():

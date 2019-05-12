@@ -1,4 +1,4 @@
- $(function(){
+$(function(){
    sessionStorage.removeItem('order_placed')
   const decodeHTML = function (html) {
     const txt = document.createElement('textarea');

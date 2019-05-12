@@ -55,9 +55,6 @@
       integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
       crossorigin="anonymous"
     ></script>
-    <script type=text/javascript>
-      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-    </script>
     <script id="append-css" type="text/css"></script>
     {{
       JSGlue.include()
@@ -66,7 +63,7 @@
     <title>{% block title %} Lindo Catering {% endblock %}</title>
   </head>
 
-  <body class="feather">
+  <body style="overflow-x:hidden;"class="feather">
     <div id="bootstrapCssTest" class="hidden"></div>
     <div id="layout-page" class="container-fullwidth">
       <nav class="navbar">

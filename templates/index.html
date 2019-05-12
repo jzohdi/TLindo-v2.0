@@ -3,7 +3,6 @@ head %}
 <script>
   Flask.url_for("index");
 </script>
-
 {% endblock %} {% block main %}
 
 <div id="main-planner-page" class="container">
@@ -27,19 +26,6 @@ head %}
 <script type="text/javascript">
 if ( sessionStorage.getItem('CURRENT_PAGE') === null ){
   sessionStorage.setItem('CURRENT_PAGE', '1');
-}
-window.PAGE_RULES = {
-    '1' : {
-      'NEXT' : ["#card2", "#card3", "#button1", "#card4"]
-    },
-    '2' : {
-      'NEXT' : [ "#card1", "#card2", "#card3", "#button1", "#button2", "#card4"],
-      'PREV' : ["#card2", "#button1", "#button2"]
-    },
-    '3' : {
-      'NEXT' : ["#card2", "#card3", "#card4", "#next-button"],
-      'PREV' : ["#card2", "#card3", "#card4", "#button2"]
-    }
 }
 </script>
 {% endblock %}

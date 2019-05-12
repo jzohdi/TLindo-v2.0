@@ -24,7 +24,7 @@ block head %}
       </button>
     </div>
   </div>
-  <div class="row">
+  <div id='order-summary' class="row">
     <div class="col-sm-10 sm-offset-1 main-card question-titles">
       <h4 class="confirm-cart-titles">Order Summary:</h4>
       <div class="row" style="margin-left: 20px; margin-bottom: 30px;">
@@ -140,8 +140,8 @@ block head %}
               />
             </div>
             <small style="color: #0d034c;font-size: 10px;"
-            >By clicking Register, you agree to our <a href="#">Terms</a> and
-            that you have read our <a href="#">Data Use Policy.</a></small
+            >By clicking Register, you agree to our <a href="{{ url_for('terms_and_conditions') }}">Terms</a> and
+            that you have read our <a href="{{ url_for('privacy_policy') }}">Data Use Policy.</a></small
           >
             <div class="form-group">
               <button

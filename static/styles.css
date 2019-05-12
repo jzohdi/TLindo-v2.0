@@ -104,17 +104,26 @@ body,
   background-image: -o-linear-gradient(top left, white, #fdce55);
   background-image: linear-gradient(to bottom right, white, #fdce55); */
   /*background-color: #0d034c;*/
-      background: url(images/tacos.png) no-repeat;
+      background: url(images/tacos_blur.png) no-repeat;
     width: 100%;
     background-size: auto 100%;
     left: 0;
     z-index: -100;
 }
+.navbar {
+  background-color: transparent;
+  padding-top: 20px;
+}
 .question-titles {
-  font-family: LTPro, Arial, Helvetica, sans-serif;
+  /*font-family: LTPro, Arial, Helvetica, sans-serif;*/
   color: #0d034c;
 }
-@media (min-width: 1050px) {
+@media(min-width: 1250px ){
+  .titles{
+    font-size:24px;
+  }
+}
+@media (min-width: 1050px) and (max-width: 1249px) {
   .titles {
     font-size: 20px;
   }
@@ -125,9 +134,9 @@ body,
   }
 }
 .titles {
-  font-family: LTPro, Arial, Helvetica, sans-serif;
-  color: #0d034c;
-  /* color: white; */
+  /*font-family: LTPro, Arial, Helvetica, sans-serif;*/
+  /*color: #0d034c;*/
+   color: white;
     -o-transition: color 1s, background-color 1s;
   -moz-transition: color 1s, background-color 1s;
   -webkit-transition: color 1s, background-color 1s; /*Safari*/
@@ -227,7 +236,7 @@ footer {
 }
 /* for index page / main page */
 
-/* most of this content is setting the styling for the site wide styling
+/* most of this content is setatting the styling for the site wide styling
   Inclduing the main-card which represents the white box with shadow on hover
   styling. Below are also custom and other fade animations, including specification
   for cross browser support **** IE excluded?? ****/
@@ -235,16 +244,23 @@ footer {
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   background-color: rgba(255, 255, 255, 1);
   border-radius: 8px;
-  -webkit-animation-duration: 1s;
-  -moz-animation-duration: 1s;
-  -o-animation-duration: 1s;
-  -ms-animation-duration: 1s;
-  animation-duration: 1s;
-  overflow: hidden;
-  -webkit-transition: box-shadow 0.7s, transform 1s, opacity 1s;;
-  -moz-transition: box-shadow 0.7s, transform 1s, opacity 1s;
-  -o-transition: box-shadow 0.7s, transform 1s, opacity 1s;
-  transition: box-shadow 0.7s, transform 1s, opacity 1s;
+  -webkit-animation-duration: 0.6s;
+  -moz-animation-duration: 0.6s;
+  -o-animation-duration: 0.6s;
+  -ms-animation-duration: 0.6s;
+  animation-duration: 0.6s;
+  /*overflow: hidden;*/
+  -webkit-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;;
+  -moz-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+  -o-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+  transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+}
+#goBack, #goNext{
+    -webkit-animation-duration: 0.6s;
+  -moz-animation-duration: 0.6s;
+  -o-animation-duration: 0.6s;
+  -ms-animation-duration: 0.6s;
+  animation-duration: 0.6s;
 }
 /*#card-padding{*/
 /*  padding: 3vh 0vh;*/
@@ -261,7 +277,7 @@ footer {
   .main-card {
     padding-top: 10px;
     padding-bottom: 10px;
-    margin: 10px 20px 10px 20px;
+    margin: 10px 10px 10px 20px;
   }
 }
 /*Override date picker default top margin */
@@ -290,7 +306,7 @@ footer {
 @-webkit-keyframes fade-in-left {
   0% {
     opacity: 0;
-    -webkit-transform: translateX(-30%);
+    -webkit-transform: translateX(-20%);
   }
   100% {
     opacity: 1;
@@ -301,7 +317,7 @@ footer {
 @keyframes fade-in-left {
   0% {
     opacity: 0;
-    transform: translateX(-30%);
+    transform: translateX(-20%);
   }
   100% {
     opacity: 1;
@@ -311,7 +327,7 @@ footer {
 @-moz-keyframes fade-in-left {
   0% {
     opacity: 0;
-    transform: translateX(-30%);
+    transform: translateX(-20%);
   }
   100% {
     opacity: 1;
@@ -321,7 +337,7 @@ footer {
 @-ms-keyframes fade-in-left {
   0% {
     opacity: 0;
-    -ms-transform: translateX(-30%);
+    -ms-transform: translateX(-20%);
   }
   100% {
     opacity: 1;
@@ -331,7 +347,7 @@ footer {
 @-o-keyframes fade-in-left {
   0% {
     opacity: 0;
-    transform: translateX(-30%);
+    transform: translateX(-20%);
   }
   100% {
     opacity: 1;
@@ -341,17 +357,17 @@ footer {
 
 .fade-out-right {
   opacity: 0;
-  -ms-transform: translateX(+30%);
-  -moz-transform: translateX(+30%);
-  -webkit-transform: translateX(+30%);
-  transform: translateX(+30%);
+  -ms-transform: translateX(+20%);
+  -moz-transform: translateX(+20%);
+  -webkit-transform: translateX(+20%);
+  transform: translateX(+20%);
 }
 .fade-out-left {
   opacity: 0;
-  -ms-transform: translateX(-30%);
-  -moz-transform: translateX(-30%);
-  -webkit-transform: translateX(-30%);
-  transform: translateX(-30%);
+  -ms-transform: translateX(-20%);
+  -moz-transform: translateX(-20%);
+  -webkit-transform: translateX(-20%);
+  transform: translateX(-20%);
 }
 
 .fade-in-left {
@@ -377,7 +393,7 @@ footer {
 @-webkit-keyframes fade-in-right {
   0% {
     opacity: 0;
-    -webkit-transform: translateX(+30%);
+    -webkit-transform: translateX(+20%);
   }
   100% {
     opacity: 1;
@@ -387,7 +403,7 @@ footer {
 @-moz-keyframes fade-in-right {
   0% {
     opacity: 0;
-    transform: translateX(+30%);
+    transform: translateX(+20%);
   }
   100% {
     opacity: 1;
@@ -397,7 +413,7 @@ footer {
 @-ms-keyframes fade-in-right {
   0% {
     opacity: 0;
-    -ms-transform: translateX(+30%);
+    -ms-transform: translateX(+20%);
   }
   100% {
     opacity: 1;
@@ -407,7 +423,7 @@ footer {
 @-o-keyframes fade-in-right {
   0% {
     opacity: 0;
-    transform: translateX(+30%);
+    transform: translateX(+20%);
   }
   100% {
     opacity: 1;
@@ -418,7 +434,7 @@ footer {
 @keyframes fade-in-right {
   0% {
     opacity: 0;
-    transform: translateX(+30%);
+    transform: translateX(+20%);
   }
   100% {
     opacity: 1;
@@ -491,6 +507,11 @@ footer {
   border: 1px #0d034c solid;
   background-color: white;
   font-size: 15px;
+}
+@media (max-width: 767px ){
+  .entree-item {
+    width: 100%;
+  }
 }
 .entree-item:hover {
   cursor: pointer;
@@ -976,6 +997,12 @@ hr {
 }
 #done-button {
   margin-top: 30px;
+}
+#done-selection{
+  bottom: 25px;
+  width: 50%;
+  position: absolute;
+  margin-left: 20%;
 }
 @media (max-width: 991px) and (min-width: 768px) {
   .shift-right {

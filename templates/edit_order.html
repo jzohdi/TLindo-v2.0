@@ -10,135 +10,191 @@ head %}
   <div id="event-planner" class="row normalize-height"></div>
 </div>
 <script type="text/javascript">
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-  const size_rules = { "Half Pan" : 2, "Full Pan" : 4, '48 oz Container' : 1.5}
-  const countConversions = { "Taco Tray": 24, "Burrito Tray": 8 };
+var size_rules = {
+  "Half Pan": 2,
+  "Full Pan": 4,
+  '48 oz Container': 1.5
+};
+var countConversions = {
+  "Taco Tray": 24,
+  "Burrito Tray": 8, "Nacho Bar" : 10, "Rotisserie Chicken" : 5};
 
-  const convertPriced = function( listOfItemDicts ){
-    const entreePrices = getVal(prices, "entrees");
-    let total = 0;
-    listOfItemDicts.forEach(function(value){
-      // console.log(value)
-      let itemName = getVal(value, 'name')
-      if ( itemName == "Side Choices" ){
-        itemName= getVal(value, 'side')
-      }
-      const itemFlavor = getVal(value, "flavor")
-      const itemPortion = getVal(value, "portion", "size")
-      // console.log(itemPortion)
-      // console.log(itemPortion)
+var convertPriced = function convertPriced(listOfItemDicts) {
+  var entreePrices = getVal(prices, "entrees");
+  var total = 0;
+  listOfItemDicts.forEach(function (value) {
+    // console.log(value)
+    var itemName = getVal(value, 'name');
 
-      let countNumberInTray = getVal(countConversions, itemName)
-      countNumberInTray *= getVal(size_rules, itemPortion)
+    if (itemName == "Side Choices") {
+      itemName = getVal(value, 'side');
+    }
 
-      const numberOfThisItemInCart = getVal(value, "count");
-      countNumberInTray *= numberOfThisItemInCart;
+    var itemFlavor = getVal(value, "flavor");
+    var itemPortion = getVal(value, "portion", "size"); // console.log(itemPortion)
+    // console.log(itemPortion)
 
-      const rulesForItem = getVal(entreePrices, itemName)
+    var countNumberInTray = getVal(countConversions, itemName);
+    countNumberInTray *= getVal(size_rules, itemPortion);
+    var numberOfThisItemInCart = getVal(value, "count");
+    countNumberInTray *= numberOfThisItemInCart;
+    var rulesForItem = getVal(entreePrices, itemName);
+    var pricePerItemName = getVal(rulesForItem, itemFlavor, "default");
+    countNumberInTray *= pricePerItemName;
+    var multiplierForPortionSize = getVal(size_rules, itemPortion);
+    value.cost = "$" + countNumberInTray.toFixed(2);
+    total += countNumberInTray;
+  }); // console.log(total)
 
-      const pricePerItemName= getVal(rulesForItem, itemFlavor, "default");
+  return total;
+};
 
-      countNumberInTray *= pricePerItemName;
+var setTotal = function setTotal(targetId) {
+  var priceData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window.prices;
+  var total = 0;
+  var foodCounterKeys = Object.keys(window.foodCounter).filter(function (key) {
+    return key !== 'total';
+  });
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
 
-      const multiplierForPortionSize = getVal( size_rules, itemPortion)
-      value.cost = "$" + countNumberInTray.toFixed(2);
-      total += countNumberInTray;
-    })
-    // console.log(total)
-    return total;
-  }
-  const setTotal = function(targetId, priceData = window.prices){
-    let total = 0;
+  try {
+    for (var _iterator = foodCounterKeys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      foodKey = _step.value;
 
-    const foodCounterKeys = Object.keys(foodCounter).filter(key => key !== 'total');
-
-    for ( foodKey of foodCounterKeys){
-      if ( foodCounter.hasOwnProperty(foodKey) ){
-        const itemsOfKey = foodCounter[foodKey].items;
+      if (foodCounter.hasOwnProperty(foodKey)) {
+        var itemsOfKey = foodCounter[foodKey].items;
         total += convertPriced(itemsOfKey);
       }
     }
-    $(targetId).html(" $" + total.toFixed(2))
-  }
-
-  const getPrices = function(allEntreeKeys, $id){
-    const pricesString = sessionStorage.getItem('entree_prices');
-
-    if( typeof(pricesString) != typeof('string')){
-
-      $.get('/get_prices/', function( data ) {
-        prices = data;
-        setTotal('#cart-total', data)
-        drawToSelection(allEntreeKeys, $id, "");
-      });
-    }else{
-
-     prices = JSON.parse( pricesString )
-     setTotal('#cart-total')
-     drawToSelection(allEntreeKeys, $id, "");
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
     }
   }
 
-  const getVal = function(object, key, fallback){
-    if( object.hasOwnProperty(key) ){
-      return object[key]
-    }else if( object.hasOwnProperty(fallback)) {
-      return object[fallback]
-    }else {
-      return 1
-    }
-  }
-  window.editOrder = true;
+  $(targetId).html(" $" + total.toFixed(2));
+};
 
-  const setFoodCounter = function(listOfPreviousOrderItems){
-    if ( !typeof(foodCounter) ){
-      setTimeout(function(){
-        setFoodCounter(listOfPreviousOrderItems)
-      },100 );
-    }else{
+var getPrices = function getPrices(allEntreeKeys, $id) {
+  var pricesString = sessionStorage.getItem('entree_prices');
+
+  if (_typeof(pricesString) != _typeof('string')) {
+    $.get('/get_prices/', function (data) {
+      prices = data;
+      setTotal('#cart-total', data);
+      drawToSelection(allEntreeKeys, $id, "");
+    });
+  } else {
+    prices = JSON.parse(pricesString);
+    setTotal('#cart-total');
+    drawToSelection(allEntreeKeys, $id, "");
+  }
+};
+
+function getVal(object, key, fallback) {
+  if (object.hasOwnProperty(key)) {
+    return object[key];
+  } else if (object.hasOwnProperty(fallback)) {
+    return object[fallback];
+  } else {
+    return 1;
+  }
+};
+
+window.editOrder = true;
+
+function setFoodCounter(listOfPreviousOrderItems) {
+  if (!(typeof foodCounter === "undefined" ? "undefined" : _typeof(foodCounter))) {
+    setTimeout(function () {
+      setFoodCounter(listOfPreviousOrderItems);
+    }, 100);
+  } else {
+    try{
       listOfPreviousOrderItems = JSON.parse(listOfPreviousOrderItems);
-      for ( const item of listOfPreviousOrderItems ){
+    }catch(err){
+      console.log(listOfPreviousOrderItems);
+    }
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+      for (var _iterator2 = listOfPreviousOrderItems[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        var item = _step2.value;
         appendOrAddItem(item, item.count);
       }
-      const allEntreeKeys = Object.keys(window.foodCounter);
-
-      const $id = window.selectedFoodOptions.Id;
-      getPrices( allEntreeKeys, $id);
-    }
-  }
-
-  const parseFoodCounter = function(){
-    const foodCounterCopy = JSON.parse(JSON.stringify(foodCounter))
-
-    for (const key of Object.keys(foodCounterCopy)) {
-      if (foodCounterCopy.hasOwnProperty(key)) {
-        if( foodCounterCopy[key].hasOwnProperty('items') ){
-          delete foodCounterCopy[key].flavors
-          if( foodCounterCopy[key].items.length === 0 ){
-            delete foodCounterCopy[key];
-          }
+    } catch (err) {
+      _didIteratorError2 = true;
+      _iteratorError2 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+          _iterator2.return();
+        }
+      } finally {
+        if (_didIteratorError2) {
+          throw _iteratorError2;
         }
       }
     }
-    return JSON.stringify(foodCounter);
-  }
-  const confirmChanges = function(){
-    const order = parseFoodCounter();
 
-    $.post('/commit_order_edit/', {order : order}).done(function( data ){
-      if( data.error === 'failed'){
-        alert('something went wrong')
-      }else{
-        location.href = '/user_orders';
-      }
-    })
+    var allEntreeKeys = Object.keys(window.foodCounter);
+    var $id = window.selectedFoodOptions.Id;
+    getPrices(allEntreeKeys, $id);
   }
-    window.onload = function() {
-      const previousOrder = {{ order|tojson }};
-      setTimeout(function(){
-        setFoodCounter(previousOrder);
-      }, 100)
-      // console.log(JSON.parse(previousOrder));
+};
+
+function parseFoodCounter() {
+  var foodCounterCopy = JSON.parse(JSON.stringify(foodCounter));
+
+  for (var _i = 0, _Object$keys = Object.keys(foodCounterCopy); _i < _Object$keys.length; _i++) {
+    var key = _Object$keys[_i];
+
+    if (foodCounterCopy.hasOwnProperty(key)) {
+      if (foodCounterCopy[key].hasOwnProperty('items')) {
+        delete foodCounterCopy[key].flavors;
+
+        if (foodCounterCopy[key].items.length === 0) {
+          delete foodCounterCopy[key];
+        }
+      }
     }
+  }
+
+  return JSON.stringify(foodCounter);
+};
+
+function confirmChanges() {
+  var order = parseFoodCounter();
+  $.post('/commit_order_edit/', {
+    order: order
+  }).done(function (data) {
+    if (data.error === 'failed') {
+      alert('something went wrong');
+    } else {
+      location.href = '/user_orders';
+    }
+  });
+};
+
+window.onload = function () {
+  var previousOrder = {{ order|tojson }};
+  setTimeout(function () {
+    setFoodCounter(previousOrder);
+  }, 100); // console.log(JSON.parse(previousOrder));
+};
 </script>
 {% endblock %}
