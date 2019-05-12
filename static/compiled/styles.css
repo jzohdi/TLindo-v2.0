@@ -26,6 +26,11 @@ body,
   min-height: 100vh;
   font-family: LTPro, Arial, Helvetica, sans-serif !important;
 }
+@media ( max-width: 767px){
+  #navbar{
+    margin-right: 0px;
+  }
+}
 .container {
   /* center contents */
   margin-left: auto;
@@ -105,9 +110,12 @@ body,
   background-image: linear-gradient(to bottom right, white, #fdce55); */
   /*background-color: #0d034c;*/
       background: url(images/tacos_blur.png) no-repeat;
-    width: 100%;
-    background-size: 100%;
-    left: 0;
+    /*width: 100%;*/
+    /*background-size: 100%;*/
+    /*left: 0;*/
+      background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
     z-index: -100;
 }
 .navbar {
@@ -128,9 +136,14 @@ body,
     font-size: 20px;
   }
 }
-@media (max-width: 1049px) {
+@media (max-width: 1049px) and ( min-width: 768px){
   .titles {
     font-size: 15px;
+  }
+}
+@media(max-width: 767px){
+  .titles{
+    font-size: 18px;
   }
 }
 .titles {

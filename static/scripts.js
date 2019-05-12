@@ -381,13 +381,13 @@ const buildHelpTop = () => {
     const outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
     const top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
     const top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
-    const top_header_C = "<h4>To continue to the menu with help on your order size, click 'With amount help'.<br/> Otherwise, click 'Without amount help'.</h4>"
+    const top_header_C = "<h4>To continue to the menu with help on your order size, click <span class='order-keys'>'With amount help'.</span><br/> Otherwise, click 'Without help'.</h4>"
     const close_div = "</div>";
     return outer_div + top_header_A + top_header_B + top_header_C + close_div;
 }
 const chooseIfHelpDiv = () => {
     const outer_leftDiv = '<div id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
-    const left_side = '<h4 class="question-titles"> Without amount help</h4>' + "</div>";
+    const left_side = '<h4 class="question-titles"> Without help</h4>' + "</div>";
     const outer_rightDiv = '<div id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
     const right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
     return outer_leftDiv + left_side + outer_rightDiv + right_side;
