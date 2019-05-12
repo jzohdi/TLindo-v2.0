@@ -30,7 +30,7 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='styles.css') }}"
+      href="{{ url_for('static', filename='compiled/styles.css') }}"
     />
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -300,7 +300,7 @@
       }
     });
   </script>
-  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+  <script src="{{ url_for('static', filename='compiled/scripts.js') }}"></script>
   <script type='text/javascript'>
     getDevice();
   </script>

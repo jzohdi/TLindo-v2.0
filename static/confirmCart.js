@@ -395,7 +395,7 @@ function stripeTokenHandler(token, placeOrderButton, changeBack) {
   $('#back-to-menu').on('click', () => {
     backToMenu()
   });
-  $('#place-order').on('click', () => {
+  $('#place-order-button').on('click', () => {
     placeOrder();
   })
 });
