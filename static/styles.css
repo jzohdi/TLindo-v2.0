@@ -1011,10 +1011,11 @@ hr {
   margin-top: 30px;
 }
 #done-selection{
-  bottom: 25px;
+   /*bottom: 25px;*/
   width: 50%;
-  position: absolute;
-  margin-left: 20%;
+  position: static;
+  margin-left: 22%;
+  margin-top: 5vmin;
 }
 @media (max-width: 991px) and (min-width: 768px) {
   .shift-right {
@@ -1023,7 +1024,6 @@ hr {
 }
 .StripeElement {
   box-sizing: border-box;
-
   height: 40px;
 
   padding: 10px 12px;
