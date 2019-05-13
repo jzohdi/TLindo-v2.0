@@ -807,7 +807,7 @@ var getOptionDiv = function getOptionDiv(key, value) {
 };
 
 var beginSelectionDiv = function beginSelectionDiv(key) {
-  var content = "<div class='col-sm-6 col-md-4'> Choose " + key + " : ";
+  var content = "<div class='col-sm-12 col-md-4 order-option'> Choose " + key + " : ";
   if (key === "side") {
     return content += "<select id='selected-item' onchange='setSelectionForSide()' class='select-setting'>";
   } else {
