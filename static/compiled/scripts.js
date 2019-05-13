@@ -1,5 +1,98 @@
 'use strict';
+function getVal(object, key, fallback) {
+  if (object.hasOwnProperty(key)) {
+    return object[key];
+  } else if (object.hasOwnProperty(fallback)) {
+    return object[fallback];
+  } else {
+    return 1;
+  }
+}
 
+var foodCount = sessionStorage.getItem("foodCounter");
+window.foodCounter = JSON.parse(foodCount);
+
+var otherSettings = sessionStorage.getItem("otherSettings");
+window.selectedFoodOptions = JSON.parse(otherSettings);
+
+var size_rules = { "Half Pan": 2, "Full Pan": 4, '48 oz Container': 1.5 };
+var countConversions = { "Taco Tray": 24, "Burrito Tray": 8, "Nacho Bar": 10, "Rotisserie Chicken": 10 };
+
+// console.log(typeof(prices));
+function convertPriced(listOfItemDicts) {
+  var entreePrices = getVal(window.prices, "entrees");
+
+  var total = 0;
+  listOfItemDicts.forEach(function (value) {
+    // console.log(value)
+    var itemName = getVal(value, 'name');
+    if (itemName == "Side Choices") {
+      itemName = getVal(value, 'side');
+    }
+    var itemFlavor = getVal(value, "flavor");
+    var itemPortion = getVal(value, "portion", "size");
+    // console.log(itemPortion)
+    // console.log(itemPortion)
+
+    var countNumberInTray = getVal(countConversions, itemName);
+    countNumberInTray *= getVal(size_rules, itemPortion);
+
+    var numberOfThisItemInCart = getVal(value, "count");
+    countNumberInTray *= numberOfThisItemInCart;
+
+    var rulesForItem = getVal(entreePrices, itemName);
+
+    var pricePerItemName = getVal(rulesForItem, itemFlavor, "default");
+
+    countNumberInTray *= pricePerItemName;
+
+    var multiplierForPortionSize = getVal(size_rules, itemPortion);
+    value.cost = "$" + countNumberInTray.toFixed(2);
+    total += countNumberInTray;
+  });
+  // console.log(total)
+  return total;
+}
+
+function setTotal(targetId) {
+  var priceData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window.prices;
+
+  var total = 0;
+
+  var foodCounterKeys = Object.keys(foodCounter).filter(function (key) {
+    return key !== 'total';
+  });
+
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = foodCounterKeys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var foodKey = _step.value;
+
+      if (foodCounter.hasOwnProperty(foodKey)) {
+        var itemsOfKey = foodCounter[foodKey].items;
+        total += convertPriced(itemsOfKey);
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  $(targetId).html(" $" + total.toFixed(2));
+}
 /*
  SHUTDOWN OVER RIDE FOR DEVELOPMENT ONLY TAKE OUT BEFORE DEPOLOYMENT
 */
@@ -474,9 +567,9 @@ var MAIN_MODAL_CONTENT = "<h4> ItemNamePlaceholder: </h4>" + "<h4> HeaderPlaceho
 
 var ADD_MORE_MESSAGE = '<span class="tooltiptext">' + "Based on your number of people, we recommend the current cart limit. <br/> " + "But you can click here to increase the size of your cart!" + "</span></div>";
 
-var AT_ORDER_LIMIT_DIV = '<div id="limit-message"style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">' + 'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' + ADD_MORE_MESSAGE + "</div>";
+var AT_ORDER_LIMIT_DIV = '<div id="limit-message" style="margin-right: 0px;" class="row order-keys">' + 'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' + ADD_MORE_MESSAGE + "</div>";
 
-var AT_FLAVOR_LIMIT_DIV = '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Already at Max unique flavors for item</div>';
+var AT_FLAVOR_LIMIT_DIV = '<div style="margin-right: 0px;"  class="row order-keys"> Already at Max unique flavors for item</div>';
 
 function startSelectionScreen() {
   var max_Items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 40;
@@ -738,7 +831,7 @@ var getSelectionDivsForSide = function getSelectionDivsForSide(sideDictionary) {
   return divString;
 };
 
-var PICK_NUMBER_MORE_ITEMS = '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">( Select numberPlaceholder more items )</div>';
+var PICK_NUMBER_MORE_ITEMS = '<div style="margin-right: 0px;" class="row order-keys">( Select numberPlaceholder more items )</div>';
 
 var pickNumberOfItemsMessage = function pickNumberOfItemsMessage() {
   if (selectedFoodOptions.help) {
@@ -870,13 +963,17 @@ function reconcileFlavors(item_name) {
 
 var getHtmlForItem = function getHtmlForItem(entreeName, index, cartId, valueDictionary, arrayOfItemNames) {
   var appendValueParams = "'" + entreeName + "', '" + index + "', '" + cartId + "', '" + arrayOfItemNames + "'";
-
+  var toRemove = 8;
   var newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams).replace("countPlaceholder", valueDictionary.count) + "<div>";
-
+  var costDiv = "";
   for (var key in valueDictionary) {
-    if (key === "cost") newDiv += "<small style='float:right;margin-right:20px;'>" + valueDictionary[key] + "</small>,";else if (key != "count") newDiv += "<div class='selected-key'> " + valueDictionary[key] + ", </div>";
+    if (key === "cost") {
+      costDiv = "<div class='cost-div'>" + valueDictionary[key] + "</div>";
+    }else if (key != "count") {
+      newDiv += "<div class='selected-key'> " + valueDictionary[key] + ", </div>";
+    }
   }
-  return newDiv.slice(0, newDiv.length - 8) + "</div></div></div>";
+  return newDiv.slice(0, newDiv.length - 8) + "</div></div>" + costDiv +"</div>";
 };
 
 /**
@@ -906,6 +1003,7 @@ function drawToSelection(arrayOfItemNames, cartId, message) {
   $("#" + cartId).html(itemsDiv);
 }
 
+
 function appendValue(itemName, index, cartId, arrayOfItemNames, value) {
   // console.log(" appending", array_name, index, value, cartId);
   index = parseInt(index);
@@ -929,10 +1027,12 @@ function appendValue(itemName, index, cartId, arrayOfItemNames, value) {
   }
   arrayOfItemNames = arrayOfItemNames.split(",");
 
-  if (typeof setTotal === "function") setTotal("#cart-total");
-
+  if (document.getElementById('cart-total')) {
+    setTotal("#cart-total");
+  }
   drawToSelection(arrayOfItemNames, cartId, message);
 }
+
 // if addSelection to cart, push everything in allselected cart to main card, and set addItems ot true.
 function addSelectionToCart(windowArray, itemName) {
   var allEntreeKeys = Object.keys(window.foodCounter);

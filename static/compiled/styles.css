@@ -873,11 +873,12 @@ hr {
   background-color: black;
   color: white;
   padding: 10px;
-  width: 22vw !important;
+  width: 22vmax !important;
   visibility: hidden;
   text-align: center;
   position: fixed;
   z-index: 2;
+  transform: translate(-80%, 18px);
 }
 .want-more-button:hover .tooltiptext {
   visibility: visible;
@@ -916,6 +917,11 @@ hr {
     width: 50%;
     margin-left: 25%;
   }
+}
+.cost-div{
+      float: right;
+    margin-right: 20px;
+    margin-left: auto;
 }
 .order-keys {
   color: #de4621;
