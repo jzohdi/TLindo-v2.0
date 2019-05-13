@@ -700,6 +700,10 @@ START OF MENU SELECTION FOR USER
   min-width: 120px;
 }
 .add-select {
+  margin-top: 21px;
+  margin-right: 20px;
+  float:right;
+  white-space:nowrap;
   border-radius: 5px;
   background-color: #0d034c;
   color: white;
@@ -708,10 +712,9 @@ START OF MENU SELECTION FOR USER
   transition: color 1s, background-color 1s;
   font-size: 12px;
   height: auto;
-  display: block;
+  display: inline-block;
   padding: 5px 20px !important;
-  width: auto;
-  /* padding: 2px !important; */
+  width: fit-content;
 }
 .add-select:hover {
   color: #fbbb13;
@@ -720,8 +723,8 @@ START OF MENU SELECTION FOR USER
 .modal-add-to-order {
   font-size: 20px;
   border-bottom: 2px solid;
-  width: 80%;
-  margin-left: 10%;
+  width: 90%;
+  margin-left: 2%;
   margin-top: 5%;
   margin-bottom: 3%;
   text-align: left;
@@ -733,9 +736,9 @@ START OF MENU SELECTION FOR USER
   padding-left: 5%;
 }
 @media (max-width: 376px) {
-  #modal-selection {
-    margin-left: -45px;
-  }
+  /*#modal-selection {*/
+  /*  margin-left: -45px;*/
+  /*}*/
   #modal-selection div span {
     width: 20px;
   }
@@ -760,6 +763,8 @@ START OF MENU SELECTION FOR USER
   color: white;
 }
 #my_cart {
+  margin-left: 15px;
+    margin-right: 0px;
   text-align: left;
   font-size: 14px;
 }
@@ -773,11 +778,11 @@ START OF MENU SELECTION FOR USER
     width: 40px;
   }
 }
-@media (min-width: 992px) {
-  #my_cart {
-    margin-left: -50px;
-  }
-}
+/*@media (min-width: 992px) {*/
+/*  #my_cart {*/
+/*    margin-left: -50px;*/
+/*  }*/
+/*}*/
 @media (max-width: 991px) and (min-width: 460px) {
   #my_cart {
     margin-left: 10%;
@@ -962,6 +967,41 @@ hr {
   margin-left: 22%;
   margin-top: 5vmin;
 
+}
+.item-count{
+    display: table-cell;
+    white-space: nowrap;
+    float: left;
+}
+.selected-item{
+  margin-right: 0px;
+  display: flex;
+}
+.selected-item div{
+      border-bottom: none !important;
+}
+.selected-item-list{
+  margin-top:0.5vw;
+}
+@media(min-width: 378px){
+  .seleted-item-list{
+    display: table;
+  }
+}
+.selected-key{
+      padding: 0px 3px;
+  display: inline-block;
+  white-space: nowrap;
+}
+@media (max-width:377px){
+  .selected-item-list{
+    display:grid;
+  }
+}
+.selected-item-list span{
+  cursor: mouse;
+  display: inline !important;
+white-space: nowrap;
 }
 @media (max-width: 991px) and (min-width: 768px) {
   .shift-right {

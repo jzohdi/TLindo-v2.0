@@ -103,7 +103,7 @@ var HELPER_SCREEN_DIV = '<div id="card2" class="col-md-8 col-md-offset-2 main-ca
 
 var ITEM_NAME_BUTTON = '<div id="indexPlaceholder" class="entree-options">' + '<div class="entree-item col-xs-12 col-sm-6 col-md-12 xClass" onclick="showSelection(\'indexPlaceholder\')">itemName</div></div>';
 
-var ITEM_HTML_FOR_LIST = '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span onclick="appendValue(appendValuePlaceholder, 1)"> ' + '+ </span> countPlaceholder <span onclick="appendValue(appendValuePlaceholder, -1)"> - </span>';
+var ITEM_HTML_FOR_LIST = '<div class="row selected-item"><div class="item-count"><span onclick="appendValue(appendValuePlaceholder, 1)"> ' + '+ </span> countPlaceholder <span onclick="appendValue(appendValuePlaceholder, -1)"> - </span></div>';
 
 /***********************************************************************************
 ******************************************************************************************************************/
@@ -470,7 +470,7 @@ var saveNumberOfPeople = function saveNumberOfPeople(saveVariable, inputForAdult
 
 */
 var MODAL_DIV = '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' + '<span class="close">X</span>' + "contentPlaceHolder" + "</div></div>";
-var MAIN_MODAL_CONTENT = "<h4> ItemNamePlaceholder: </h4>" + "<h4> HeaderPlaceholder </h4>" + "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" + "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" + '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' + ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
+var MAIN_MODAL_CONTENT = "<h4> ItemNamePlaceholder: </h4>" + "<h4> HeaderPlaceholder </h4>" + "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" + "class='row add-select'>Add to cart</div></div>" + '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' + ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
 
 var ADD_MORE_MESSAGE = '<span class="tooltiptext">' + "Based on your number of people, we recommend the current cart limit. <br/> " + "But you can click here to increase the size of your cart!" + "</span></div>";
 
@@ -871,12 +871,12 @@ function reconcileFlavors(item_name) {
 var getHtmlForItem = function getHtmlForItem(entreeName, index, cartId, valueDictionary, arrayOfItemNames) {
   var appendValueParams = "'" + entreeName + "', '" + index + "', '" + cartId + "', '" + arrayOfItemNames + "'";
 
-  var newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams).replace("countPlaceholder", valueDictionary.count);
+  var newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams).replace("countPlaceholder", valueDictionary.count) + "<div>";
 
   for (var key in valueDictionary) {
-    if (key === "cost") newDiv += "<small style='float:right;margin-right:20px;'>" + valueDictionary[key] + "</small>,";else if (key != "count") newDiv += " " + valueDictionary[key] + ",";
+    if (key === "cost") newDiv += "<small style='float:right;margin-right:20px;'>" + valueDictionary[key] + "</small>,";else if (key != "count") newDiv += "<div class='selected-key'> " + valueDictionary[key] + ", </div>";
   }
-  return newDiv.slice(0, newDiv.length - 1) + "</div>";
+  return newDiv.slice(0, newDiv.length - 8) + "</div></div></div>";
 };
 
 /**
@@ -892,10 +892,13 @@ function drawToSelection(arrayOfItemNames, cartId, message) {
   var itemsDiv = message;
   arrayOfItemNames.forEach(function (entreeItem) {
     var listOfSelectedItems = window["foodCounter"][entreeItem];
+
     if (listOfSelectedItems && listOfSelectedItems.items) {
+
       listOfSelectedItems = listOfSelectedItems.items;
       listOfSelectedItems.forEach(function (selectedItem, index) {
         itemsDiv += getHtmlForItem(entreeItem, index, cartId, selectedItem, arrayOfItemNames);
+
       });
     }
   });
