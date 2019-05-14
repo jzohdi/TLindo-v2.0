@@ -505,7 +505,7 @@ footer {
 }
 @media (max-width: 899px) {
   .modal-content {
-    width: 80%;
+    width: 95%;
   }
 }
 /* The Close Button */
@@ -990,6 +990,8 @@ hr {
 
 }
 .item-count{
+  font-size: calc(22px - 0.5vw)
+  font-weight: bold;
     display: table-cell;
     white-space: nowrap;
     float: left;
