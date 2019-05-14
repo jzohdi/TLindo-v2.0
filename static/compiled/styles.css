@@ -990,7 +990,7 @@ hr {
 
 }
 .item-count{
-  font-size: calc(22px - 0.5vw)
+  font-size: calc(22px - 0.5vw);
   font-weight: bold;
     display: table-cell;
     white-space: nowrap;
