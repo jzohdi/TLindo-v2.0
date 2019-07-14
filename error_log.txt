@@ -2,3 +2,10 @@ database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:43:5
 database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:50:54.275956
 database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:53:18.497994
 database action failed'bool' object has no attribute 'cursor' 2019-05-07 14:55:15.285782
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:20:35.116029
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:23:41.247839
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:28:11.477078
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:28:22.850606
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:42:35.618290
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:52:28.965050
+database action failed'bool' object has no attribute 'cursor' 2019-07-06 17:52:52.341145

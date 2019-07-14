@@ -18,9 +18,11 @@ from config import getKeys
 import psycopg2
 import psycopg2.extras
 import json
-#from helpers import get_salt
+import datetime
+from pymongo import MongoClient
+import traceback
+from helpers import App_Actions
 from tempfile import mkdtemp
-from smtplib import SMTP
 import string
 import random
 from werkzeug import secure_filename
@@ -30,29 +32,17 @@ import xlrd
 from copy import deepcopy as deep_copy
 import stripe
 
+App_Actions_dependencies = {'random' : random}
+App_Actions_dependencies['traceback'] = traceback
+App_Actions_dependencies['MongoClient'] = MongoClient
+App_Actions_dependencies['datetime'] = datetime
+App_Actions_dependencies['pwd_context'] = pwd_context
+App_Actions_dependencies['string'] = string
 """
 ###############################################################################
 ######################### HELPER FUNCTIONS ####################################
 ###############################################################################
 """
-def send_email(recipient, subject, msg):
-    try:
-        server = SMTP('smtp.gmail.com', 587)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(settings.get('EMAIL_ADDRESS'), settings.get('PASSWORD'))
-        message = 'Subject: {}\n\n{}'.format(subject, msg)
-        server.sendmail(settings.get('EMAIL_ADDRESS'), recipient, message)
-        server.quit()
-#        print('Success: Email sent!')
-        return True
-#            print(settings.get('PASSWORD'))
-#            print(settings.get('EMAIL_ADDRESS'))
-    except Exception as error:
-        print(error)
-        return False
-
 ##############################################################################
 ###################### function that sorts managedates table by date  ########
 def sort_managedates():
@@ -76,34 +66,6 @@ def sort_managedates():
         execute("""UPDATE managedates SET dates = %s WHERE row = %s""",(final_sorted, MENU_VERSION,))
     else:
         print("already sorted")
-
-def move_disabled_dates():
-    result = execute("""
-                     SELECT * FROM managedates WHERE row = %s
-                     """,(MENU_VERSION,))[0]
-    max_val = result.get("max")
-    new_array = []
-    current_dates = {}
-    dates = json.loads(result.get("dates"))
-
-    for key, value in dates.items():
-
-        date_in_records = datetime.datetime.strptime(key, '%d %B, %Y')
-        is_date_passed = (datetime.datetime.today() > date_in_records)
-
-        if not is_date_passed :
-
-            current_dates[key] = value
-
-            if float(value.get('sum')) >= max_val or value["disabled"] == 'True':
-                new_array.append(key)
-
-    new_array = json.dumps(new_array)
-    current_dates = json.dumps(current_dates)
-
-    execute("""
-            UPDATE managedates SET dates = %s, disabled = %s WHERE row = %s
-            """, (current_dates, new_array, MENU_VERSION,) )
 
 def reconcile_managedates(order_date, cost):
     manage_dates = execute("""
@@ -162,60 +124,6 @@ def validate_date(date_string):
         return key
     except:
         return False
-
-def parse_and_sort_dates(list_of_orders, include_editable = False):
-    errors = []
-    past_dates = []
-    upcoming_dates = []
-    for orders_for_user in list_of_orders:
-        all_orders = orders_for_user.get('orders', '[{"date": "None"}]')
-        try:
-
-            this_users_orders = json.loads(all_orders)
-            for each_order in this_users_orders:
-
-                try:
-
-                    this_order_date = each_order.get('date', "fail")
-
-                    try:
-                        each_order['order'] = json.loads(each_order.get('order'))
-                    except Exception:
-                        pass
-#                    print(type(each_order.get('order')))
-                    #validate date is correct format
-                    is_valid_date = validate_date(this_order_date)
-
-                    if is_valid_date:
-                        is_date_passed = (datetime.datetime.today() > is_valid_date)
-
-                        if include_editable:
-                            if is_valid_date > datetime.datetime.today() + datetime.timedelta(hours=24):
-                                each_order['editable'] = True
-
-                        if is_date_passed:
-
-                            past_dates.append(each_order)
-                        else:
-                            upcoming_dates.append(each_order)
-
-                    else:
-
-                        errors.append(each_order)
-                except:
-
-                    errors.append(each_order)
-
-        # exception if order is in incorrect format
-        except:
-
-            errors.append(all_orders)
-#    print(errors)
-    return (past_dates, upcoming_dates, errors)
-
-def get_salt(N):
-    return ''.join(random.SystemRandom().choice(string.ascii_lowercase +
-                   string.ascii_uppercase + string.digits) for _ in range(N))
 
 def parse_order_to_list(foodCounter):
     total = foodCounter.pop('total')
@@ -523,22 +431,14 @@ MENU_VERSION = '1'
 MIN_RES_RULES = {'Rotisserie Chicken': 2, "Nacho Bar" : 2}
 DEFAULT_COUNT = { 'Taco Tray' : 24, 'Burrito Tray' : 8, "Nacho Bar" : 5, "Rotisserie Chicken" : 5 }
 SIZE_RULES = {'Half Pan' : 2, 'Full Pan' : 4, '48 oz Container' : 1.5}
-PASSWORD_RECOVERY_SUB = "Taco Lindo - Password Recovery"
-PASSWORD_RECOVERY_MSG = "We have recieved a password recovery request for your account\n" \
-                        "If you did not make this request, please ignore this message.\n" \
-                        "Otherwise go to this link {} within 24 hours to reset your password."
-PLACE_ORDER_SUBJECT = "Order Placed: Taco Lindo"
-ORDER_MESSAGE = ("Thank you for choosing Taco Lindo for your catering!\n"
-                 "We recieved your order details, and we saved the date shown below.\n"
-                 "Please take a second to review and make sure everything looks correct.\n{}")
 
 def commit_settings(params):
     new_obj = {}
     if params:
-
-        for key in params:
-            new_obj[key] = params[key]
-        return new_obj
+        for_connection = ["HOST", "DB", "PW", "USER", "PORT"]
+        for connection in for_connection:
+            new_obj[connection] = params[connection]
+        return (new_obj, params)
     else:
         environment = ['BETA_KEY', 'DATABASE_URL', 'DB', 'EMAIL_ADDRESS', 'HOST',
                 'PASSWORD', 'PORT', 'PW', 'SHUTDOWN', 'STRIPE_KEY', 'USER', 'SECRET_KEY']
@@ -548,11 +448,10 @@ def commit_settings(params):
 
 params = getKeys()
 
-settings = commit_settings(params)
+(params, settings) = commit_settings(params)
 
-settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', str(get_salt(25)))
-
-
+App_Actions = App_Actions(settings, **App_Actions_dependencies)
+settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', App_Actions.get_salt(25))
 def execute(statement, values = ("NA",), close = True):
     conn = False
     cur = False
@@ -680,14 +579,8 @@ def index():
     if 'admin' in session:
         return redirect(url_for('scheduled_orders'))
 
-    move_disabled_dates()
-
-    dates = execute("""
-                    SELECT * FROM managedates WHERE row = %s
-                    """,( MENU_VERSION,))
-
-    disabled = dates[0].get("disabled")
-
+    disabled = App_Actions.get_disabled_dates()
+    
     return render_template('index.html', dates=disabled)
 
 @app.route('/user_orders', methods=["GET", "POST"])
@@ -697,22 +590,21 @@ def user_orders():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
-    user_key = str(session.get('user_id'))
+    user_key = session.get('user_id')
+    kwargs = {'user_id' : user_key}
+    all_orders = App_Actions.connect_to_db(App_Actions.get_user_orders, kwargs)
 
-    all_orders = execute("""
-                         SELECT orders FROM allorders WHERE id = %s
-                         """, (user_key,))
+    if all_orders.get('status'):
 
-    (past_dates, upcoming_dates, errors) = parse_and_sort_dates(all_orders, True)
+        all_orders = all_orders.get("return_value")
+        (past_dates, upcoming_dates, errors) = App_Actions.split_list_of_orders(all_orders)
 
-    past_dates_reverse_sorted = sorted(past_dates, key = lambda item : item.get('date'), reverse=True)
-    sorted_upcoming_dates = sorted(upcoming_dates, key = lambda item : item.get('date'))
-#    print(sorted_upcoming_dates)
-#    print(past_dates_reverse_sorted)
+        past_dates_sorted = App_Actions.sort_list_of_dates(past_dates, "date", True)
+        upcoming_dates_sorted = App_Actions.sort_list_of_dates(upcoming_dates, "date")
 
-#    session['upcoming_orders'] = sorted_upcoming_dates
-
-    return render_template('userorders.html', admin=False, upcoming_orders = sorted_upcoming_dates, past_orders = past_dates_reverse_sorted)
+        return render_template('userorders.html', admin=False, upcoming_orders = upcoming_dates_sorted, past_orders = past_dates_sorted)
+    else:
+        return redirect(url_for('logout'))
 
 @app.route('/orderlookup', methods=["GET", "POST"])
 def orderlookup():
@@ -723,16 +615,14 @@ def orderlookup():
         confirmation_code = request.form.get("confirmationCode")
         if len(confirmation_code) < 5:
             return render_template('orderlookup.html', error="Invalid Code")
-        get_orders = execute("""
-                            SELECT orders FROM allorders WHERE id = %s
-                            """, (confirmation_code,))
-#        print(get_orders)
-        user_orders = json.loads(get_orders[0].get("orders"))
-#        print(user_orders)
-        user_orders[0]['order'] = user_orders[0].get('order')
-#        print(user_orders)
-        session['guest_code'] = confirmation_code
-        return render_template("orderlookup.html", orders=user_orders)
+        kwargs = {"confirmation_code" : confirmation_code}
+        user_order = App_Actions.connect_to_db(App_Actions.get_order_for_code, kwargs)
+        if user_order.get("status"):
+            user_order = user_order.get("return_value")
+            session['guest_code'] = confirmation_code
+            return render_template("orderlookup.html", order=user_order)
+        
+            return render_template("orderlookup.html", error='No order found')
     else:
         return render_template("orderlookup.html")
 
@@ -741,7 +631,7 @@ def change_password():
     if not session.get('beta'):
         return "access denied :("
     if 'user_id' not in session:
-        redirect( url_for('login'))
+        return redirect( url_for('login'))
 
     old_password = request.form.get('current-password')
     new_password = request.form.get('new-password')
@@ -753,26 +643,13 @@ def change_password():
         return render_template('user_settings.html', error='Could not validate password')
     if new_password != confirm_new_password:
         return render_template('user_settings.html', error='Passwords do not match')
-
-    if not len(new_password) >= 8 or not any([x.isdigit() for x in new_password]) \
-    or not any([x.isupper() for x in new_password]) or not any([x.islower() for x in new_password]):
+    if not App_Actions.is_valid_password(new_password):
         return render_template('user_settings.html', error='Could not validate password' )
-
-    current_user = execute(""" SELECT * FROM users WHERE id = %s
-                           """,( unique,) )
-    hash_salt = current_user[0]['salt']
-
-    if len(current_user) != 1:
-        return render_template("user_settings.html", error="Could not validate password")
-
-    if not pwd_context.verify(old_password + hash_salt, current_user[0]['password']):
-        return render_template("user_settings.html", error="Could not validate password")
-
-    encrypted = pwd_context.hash(new_password + hash_salt)
-
-    result = (""" UPDATE users SET password = %s WHERE id = %s
-              """, (encrypted, unique,) )
-    if not result:
+    
+    kwargs = {"user_id" : unique, "new_pass" : new_password, 'old_pass' : old_password}
+    change_pass_result = App_Actions.connect_to_db(App_Actions.change_user_pass, kwargs)
+    
+    if not change_pass_result.get('status') or not change_pass_result.get('return_value'):
         return render_template("user_settings.html", error="Password could not be changed")
 
     return render_template('user_settings.html', error='New password set!')
@@ -796,22 +673,22 @@ def forgotpassword():
         user = result[0]
         hash_code = get_salt(45)
 
-        set_new_pass_link = 'http://127.0.0.1:5000'+'/password_recovery?code={}&recipient={}'.format(hash_code, email)
-        SUBJECT = PASSWORD_RECOVERY_SUB
-        MESSAGE = PASSWORD_RECOVERY_MSG.format(set_new_pass_link)
+        set_new_pass_link = 'https://taco-lindo-catering.herokuapp.com'+'/password_recovery?code={}&recipient={}'.format(hash_code, email)
+ 
 #        print(MESSAGE)
-        did_message_send = send_email(email, SUBJECT, MESSAGE)
-        if (did_message_send):
-
+        # did_message_send = send_email(email, SUBJECT, MESSAGE)
+        # if (did_message_send):
+        return render_template('forgotpassword.html', error="Resent link sent!")
+        """
             current_time = str(datetime.datetime.now())
-            result = execute("""INSERT INTO passwordrecovery (code, email, timestamp) VALUES (%s, %s, %s)
-                             """, (hash_code, email, current_time,))
+            result = execute(""INSERT INTO passwordrecovery (code, email, timestamp) VALUES (%s, %s, %s)
+                             "", (hash_code, email, current_time,))
             print(result)
-            return render_template('forgotpassword.html', error="Resent link sent!")
+            
         else:
             return render_template('forgotpassword.html', error="Something went wrong.")
 #        print(hash_code)
-
+        """
     else:
         return render_template('forgotpassword.html')
 @app.route('/password_recovery', methods=["POST", "GET"])
@@ -948,7 +825,7 @@ def format_order_message( order_info ):
         if key != 'id' and key != 'order_num':
             to_return += str(key).capitalize() + ': '+ str(value) + "\n"
     print(to_return)
-    return ORDER_MESSAGE.format(to_return)
+    return to_return
 
 @app.route('/charge', methods=["POST"])
 def charge():
@@ -979,10 +856,11 @@ def charge():
         return jsonify({'error' : 'could not confirm order pricing'})
 
     email = request.form.get('email')
+    """
     SUBJECT = PLACE_ORDER_SUBJECT
     MESSAGE = format_order_message(order_information)
     did_message_send = send_email(email, SUBJECT, MESSAGE)
-
+    """
     stripe.api_key = settings.get("STRIPE_KEY")
     token = request.form['stripeToken']
 
@@ -1079,37 +957,20 @@ def change_contact_info():
     if 'user_id' not in session and 'guest_code' not in session:
         return jsonify({'error': 'failed'})
 
-    order_num = request.form.get('order_num')
-    name = request.form.get('Name')
-    phone = request.form.get('Phone')
-    address = request.form.get('Address')
-    email = request.form.get('Email')
+    # unique_id = str(session.get('user_id')) if 'user_id' in session else session.get('guest_code')
+    # if not unique_id:
+    #   return jsonify({'error' : "missing arguments"})
+    to_update_obj = {}
+    confirmation_code = request.form.get('confirmation_code')
 
-    unique_id = str(session.get('user_id')) if 'user_id' in session else session.get('guest_code')
+    for key, value in request.form.items():
+        if not value and key != "Comments":
+            return jsonify({'error': 'missing arguments'})
+        to_update_obj[key.lower()] = value
+    kwargs = {"confirmation_code" : confirmation_code, "update_dict" : to_update_obj}
+    App_Actions.connect_to_db(App_Actions.update_contact_info, kwargs)
 
-    if any([order_num == None, name == None, phone == None, address == None,
-            email == None, unique_id == None]):
-        return jsonify({'error': 'missing arguments'})
-
-    all_users_orders = execute("""SELECT orders FROM allorders WHERE id = %s
-                                 """, (unique_id,) )
-    users_orders = json.loads(all_users_orders[0].get('orders'))
-
-    for index, each_order in enumerate(users_orders):
-#        each_order.pop('editable')
-        if each_order.get('order_num') == int(order_num):
-            each_order['name'] = name
-            each_order['phone'] = phone
-            each_order['address'] = address
-            each_order['email'] = email
-        users_orders[index] = each_order
-
-    dumps_upcoming_orders = json.dumps(users_orders)
-
-    execute("""UPDATE allorders SET orders = %s WHERE id = %s
-            """,(dumps_upcoming_orders, unique_id,))
-
-    return jsonify({'error' : "Contact Set!"})
+    return jsonify({'success' : "Contact Set!"})
 
 @app.route('/edit_order', methods=["POST", "GET"])
 def edit_order():
@@ -1170,7 +1031,7 @@ def guest_login():
     if 'guest_code' in session:
         session.pop('guest_code')
 
-    guest_code = get_salt(8)
+    guest_code = App_Actions.get_confirmation_code()
     session['guest_code'] = guest_code
 
     return jsonify({'code' : guest_code})
@@ -1179,20 +1040,19 @@ def guest_login():
 def request_login():
     if not session.get('beta'):
         return "access denied :("
-    username = request.args.get('username', '')
+    username_or_email = request.args.get('username', '')
     password = request.args.get('pass', '')
 
-    if username == ''  or password == '':
+    if username_or_email == ''  or password == '':
         return jsonify({'error' : 'Username or password not provided'})
-    users = execute("""
-                    SELECT * FROM users WHERE username = %s OR email = %s
-                    """, (username, username,))
-    if len(users) != 1:
-        return jsonify({'error' : 'could not confirm username or password'})
-    if not pwd_context.verify(password + users[0]['salt'], users[0]['password']):
-        return jsonify({'error' : 'could not confirm username or password'})
 
-    session["user_id"] = users[0]["id"]
+    kwargs = {'username_or_email' : username_or_email, "password" : password }
+    verify_user = App_Actions.connect_to_db(App_Actions.login_user, kwargs)
+
+    if not verify_user.get('status') or not verify_user.get("return_value"):
+        return jsonify({'error' : "could not confirm username or password"})
+    
+    session["user_id"] = verify_user.get("return_value")
     session["user_name"] = username
 
     return jsonify({ 'username' : username, 'id' : users[0]["id"]})
@@ -1205,8 +1065,7 @@ def request_register():
     email = request.args.get("email")
     password = request.args.get("pass")
 
-    if not len(password) >= 8 or not any([x.isdigit() for x in password]) \
-    or not any([x.isupper() for x in password]) or not any([x.islower() for x in password]):
+    if not App_Actions.is_valid_password(password):
             return jsonify({'pass_error' : 'could not validate password'})
 
     already_exists = execute("""
@@ -1243,11 +1102,6 @@ def request_register():
 def login():
     if not session.get('beta'):
         return "access denied :("
-    """"
-    session.pop("admin", None)
-    session.pop("user_id", None)
-    session.pop("user_name", None)
-    """
     beta_key = session.get('beta')
     session.clear()
     session['beta'] = beta_key
@@ -1262,19 +1116,14 @@ def login():
         username = request.form.get("username")
         provided_pass = request.form.get("password")
 
-        users = execute("""
-                        SELECT * FROM users WHERE username = %s OR email = %s
-                        """, (username, username,))
-        if len(users) != 1:
-            return render_template("login.html", error="invalid username/password")
-        if not pwd_context.verify(provided_pass + users[0]['salt'], users[0]['password']):
-            return render_template("login.html", error="invalid username/password")
+        kwargs = {'username_or_email' : username, 'password' : provided_pass}
+        verify_user = App_Actions.connect_to_db(App_Actions.login_user, kwargs)
+        if not verify_user.get("status") or not verify_user.get("return_value"):
+            return render_template('login.html', error="Invalid username or email/password.")
 
-        session["user_id"] = users[0]["id"]
+        session["user_id"] = verify_user.get("return_value")
         session["user_name"] = username
-#        print("user logged in succesfully")
-        #print(username)
-        if users[0].get("username") == 'admin':
+        if username == 'admin':
             session['admin'] = True
             return redirect( url_for("scheduled_orders") )
 
@@ -1286,11 +1135,6 @@ def login():
 def logout():
     if not session.get('beta'):
         return "access denied :("
-    """
-    session.pop("user_id", None)
-    session.pop("user_name", None)
-    session.pop("admin", None)
-    """
     beta_key = session.get('beta')
     session.clear()
     session['beta'] = beta_key
@@ -1300,66 +1144,37 @@ def logout():
 def register():
     if not session.get('beta'):
         return "access denied :("
-    """
-    session.pop("admin", None)
-    session.pop("user_name", None)
-    session.pop("user_id", None)
-    """
+
     beta_key = session.get('beta')
     session.clear()
     session['beta'] = beta_key
     if request.method == "POST":
 
         #check that all information has been provided
-        if not request.form.get("username"):
-            return render_template("register.html", error="must provide username")
-        if not request.form.get("email"):
-            return render_template("register.html", error="must provide email")
-        if not request.form.get("password"):
-            return render_template("register.html", error="must provide password")
-        if not request.form.get("confirm-password"):
-            return render_template("register.html", error="could not confirm password")
-        if request.form.get("password") != request.form.get("confirm-password"):
-            return render_template("register.html", error="could not confirm password")
-
+        is_valid_form = App_Actions.validate_form(request.form)
+        if not is_valid_form.get('return_valid').get("is_valid"):
+            return render_template('register.html', error=is_valid_form.get('return_valid').get('message'))
         password = request.form.get("password")
 # validate password meets conditions
-        if not len(password) >= 8 or not any([x.isdigit() for x in password]) \
-        or not any([x.isupper() for x in password]) or not any([x.islower() for x in password]):
+        if not App_Actions.is_valid_password(passowrd):
             return render_template('register.html', error='could not validate password')
 
-        username = str(request.form.get("username"))
-        email = str(request.form.get("email"))
+        username = request.form.get("username")
+        email = request.form.get("email")
         # check to see if username has already been added to database
-        already_exists = execute("""
-                                 SELECT * FROM users WHERE username = %s OR email = %s
-                                 """, (username, email))
-        if len(already_exists) >= 1:
-            error_var = "username" if (username == already_exists[0]["username"]) else "email"
+        kwargs = {'username' : username, "email" : email, "password" : password}
+        registered_user = App_Actions.connect_to_db(App_Actions.register_user, kwargs)
+        if not registered_user.get('status'):
+            return render_template('register.html', error = "Something went wrong.")
+        if hasattr(registered_user.get('return_value'), 'error'):
+            return render_template("register.html", error = registered_user.get('return_value').get('error'))
+        
+        print(registered_user.get('return_value'))
 
-            return render_template("register.html", error="{} unavailable".format(error_var))
+        session["user_id"] = registered_user.get("return_value").get("_id")
+        session["user_name"] = registered_user.get("return_value").get("username")
 
-        hash_salt = get_salt(12)
-
-        pass_hash = pwd_context.hash(password + hash_salt)
-
-        result = execute("""
-                         INSERT INTO users (username, email, password, salt)
-                         VALUES (%s, %s, %s, %s)
-                         """,(username, email, pass_hash, hash_salt))
-        #print(result)
-
-        confirm_user_added = execute("""
-                              SELECT * FROM users WHERE username = %s
-                              """,(username,))
-        #print(confirm_user_added)
-
-        user_id_num = confirm_user_added[0]["id"]
-
-        session["user_id"] = user_id_num
-        session["user_name"] = confirm_user_added[0]["username"]
-
-        if username == 'admin':
+        if registered_user.get("return_value").get("username") == 'admin':
             session['admin'] = True
             return redirect( url_for("managedates") )
         return redirect(url_for("index"))
@@ -1378,52 +1193,21 @@ def managedates():
     if "admin" not in session:
         return redirect(url_for('login'))
 
-    #sort_managedates()
-    move_disabled_dates()
-
-    dates = execute("""
-                    SELECT * FROM managedates WHERE row = %s
-                    """, (MENU_VERSION,))
-
-    all_dates = json.loads(dates[0].get("dates"))
-
-    sorted_dates = get_sorted_dates(all_dates)
-
-    max_val = dates[0].get("max")
-
-    # must convert sum - string to sum - integer for each date
-    #dates = parse_dictionary(all_dates)
-    #print(all_dates)
+    ( all_dates, max_val) = App_Actions.get_disabled_dates(True)
+    sorted_dates = App_Actions.sort_list_of_dates(all_dates)
 
     if request.method == "POST":
-        print(request.form)
         data = request.form.get("data")
-        data = data.split("/")
+        kwargs = {'dates' : data.split("/")}
         if data[0] != '':
             if 'disable' in request.form:
-                for date in data:
-                    if date not in all_dates:
-                        all_dates[date] = {'sum' : '0', 'disabled' : 'True' }
-                    else:
-                        all_dates[date]['disabled'] = 'True'
-
-            if 'enable' in request.form:
-                for date in data:
-                    if date in all_dates:
-                        if all_dates[date]['sum'] == '0':
-                            all_dates.pop(date, None)
-                        else:
-                            all_dates[date]['disabled'] = 'False'
-
-            dates_to_add = json.dumps(all_dates)
-
-            execute("""
-                UPDATE managedates SET dates = %s WHERE row = %s
-                """,(dates_to_add, MENU_VERSION,))
+                 App_Actions.connect_to_db(App_Actions.disable_dates, **kwargs)
+            if 'enable' in request.form:      
+                App_Actions.connect_to_db(App_Actions.enable_dates, **kwargs)
 
         return redirect(url_for("managedates"))
 
-    return render_template("managedates.html", dates = all_dates, admin=True,
+    return render_template("managedates.html", admin=True,
                                                maximum = max_val,
                                                sorted_dates = sorted_dates)
 
@@ -1541,17 +1325,17 @@ def scheduled_orders():
     if "admin" not in session:
         return redirect(url_for('login'))
 
-    all_orders = execute("""
-                        SELECT orders FROM allorders
-                        """, ("N/A",))
-#    print(all_orders)
+    all_orders = App_Actions.connect_to_db(App_Actions.get_all_orders)
+   
+    if all_orders.get("status"):
+        all_orders = all_orders.get("return_value")
+        
+    (past_dates, upcoming_dates, errors) = App_Actions.split_list_of_orders(all_orders)
 
-    (past_dates, upcoming_dates, errors) = parse_and_sort_dates(all_orders)
+    past_dates_sorted = App_Actions.sort_list_of_dates(past_dates, "date", True)
+    upcoming_dates_sorted = App_Actions.sort_list_of_dates(upcoming_dates, "date")
 
-    past_dates_reverse_sorted = sorted(past_dates, key = lambda item : validate_date(item.get('date')), reverse=True)
-    sorted_upcoming_dates = sorted(upcoming_dates, key = lambda item : validate_date(item.get('date')) )
-
-    return render_template('scheduled_orders.html', admin=True, upcoming_orders = sorted_upcoming_dates, past_orders = past_dates_reverse_sorted)
+    return render_template('scheduled_orders.html', admin=True, upcoming_orders = upcoming_dates_sorted, past_orders = past_dates_sorted)
 
 @app.route('/commit_special_note/', methods=["POST"])
 def commit_note():
@@ -1573,7 +1357,7 @@ def commit_note():
     try:
         user_orders = json.loads( users_orders[0].get('orders') )
     except Exception as err:
-        log_exception(error)
+        log_exception(err)
         return jsonify({'error' : 'Something went wrong.'})
 
     initial_length = len(user_orders)
@@ -1697,9 +1481,11 @@ def terms_and_conditions():
     return render_template('terms_and_conditions.html')
 
 if __name__ == '__main__':
+
     app.debug = True
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
     # result = execute(""" SELECT * FROM managedates WHERE row = %s
     #                 """,('1',))
     # print(result)

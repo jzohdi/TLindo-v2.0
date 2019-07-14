@@ -7,14 +7,14 @@ head %}
 
 <div id="main-planner-page" class="container">
   <p id="dates-to-hide" class="hidden">{{ dates }}</p>
-  <div id="top-message" class="row normalize-height">
-  </div>
-  <div id="event-planner" class="row normalize-height">
-  </div>
-  <div id="need-phone" class="row normalize-height">
-  </div>
-  <div id="next-button" class="row normalize-height hidden">
-  </div>
+  <div id="top-message" class="row normalize-height"></div>
+  <div id="event-planner" class="row normalize-height"></div>
+  <div id="need-phone" class="row normalize-height"></div>
+  <div id="people-num" class="row normalize-height"></div>
+  <div id="help-or-no" class="row normalize-height"></div>
+  <div id="help-or-no-buttons" class="row normalize-height"></div>
+  <div id="select-menu" class="row normalize-height"></div>
+  <div id="next-button" class="row normalize-height hidden"></div>
 </div>
 <script src="{{ url_for('static', filename='datepicker.js') }}"></script>
 
@@ -24,8 +24,8 @@ head %}
   href="{{ url_for('static', filename='defaultcompressed.css') }}"
 />
 <script type="text/javascript">
-if ( sessionStorage.getItem('CURRENT_PAGE') === null ){
-  sessionStorage.setItem('CURRENT_PAGE', '1');
-}
+  if (sessionStorage.getItem("CURRENT_PAGE") === null) {
+    sessionStorage.setItem("CURRENT_PAGE", "1");
+  }
 </script>
 {% endblock %}

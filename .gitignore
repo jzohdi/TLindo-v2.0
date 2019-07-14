@@ -1,3 +1,4 @@
 .env.ini
 myenv/
 flask_session/
+venv/

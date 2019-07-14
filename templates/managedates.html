@@ -61,18 +61,21 @@ block head %}
             <th>Date</th>
             <th>Order amount</th>
           </tr>
-          {% for date in sorted_dates %} {% if dates[date].disabled == 'True' %}
+          {% for date in sorted_dates %} {% if date.disabled == 'True' %}
           <tr
-            onclick="goToScheduled('{{ date }}')"
+            onclick="goToScheduled('{{ date._id }}')"
             style="cursor: pointer;font-weight: bold; color: #ff0202;"
           >
-            <td>{{ date }}</td>
-            <td>{{ dates[date].sum }}</td>
+            <td>{{ date._id }}</td>
+            <td>{{ date.sum }}</td>
           </tr>
           {% else %}
-          <tr onclick="goToScheduled('{{ date }}')" style="cursor: pointer;">
-            <td>{{ date }}</td>
-            <td>{{ dates[date].sum }}</td>
+          <tr
+            onclick="goToScheduled('{{ date._id }}')"
+            style="cursor: pointer;"
+          >
+            <td>{{ date._id }}</td>
+            <td>{{ date.sum }}</td>
           </tr>
           {% endif %} {% endfor %}
         </table>

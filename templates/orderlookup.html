@@ -36,29 +36,29 @@ block head %}
       <h4 class='top-bottom-space responsive-header'>Order:</h4>
       <p class='order-keys'>{{ error }}</p>
       <div id="insert-order" class="row">
-        {% for order in orders %}
+        {% if order %}
         <div class="col-sm-4">
           <h4 class="confirm-cart-titles">Contact:</h4>
           <!-- prettier-ignore -->
           <div
-          id="{{ order['order_num'] }}EditContact"
-          onclick="editContact('#modal-holder', '{{ order.order_num }}')"
+          id="{{ order['_id'] }}EditContact"
+          onclick="editContact('#modal-holder', '{{ order._id }}')"
           class="button button1 edit-order-button"
         >
           <span class="glyphicon glyphicon-pencil"></span>Edit Contact
         </div>
           <label for="">Name: </label>
-          <div><span id="{{ order['order_num'] }}name">{{ order.name }}</span></div>
+          <div><span id="{{ order['_id'] }}name">{{ order.name }}</span></div>
           <label for="">Date: </label>
-          <div><span id="{{ order['order_num'] }}date">{{ order.date }}</span></div>
+          <div><span id="{{ order['_id'] }}date">{{ order.date }}</span></div>
           <label for="">Phone: </label>
-          <div><span id="{{ order['order_num'] }}phone">{{ order.phone }}</span></div>
+          <div><span id="{{ order['_id'] }}phone">{{ order.phone }}</span></div>
           <label for="">Email: </label>
-          <div><span id="{{ order['order_num'] }}email">{{ order.email }}</span></div>
+          <div><span id="{{ order['_id'] }}email">{{ order.email }}</span></div>
           <label for="">Address: </label>
-          <div><span id="{{ order['order_num'] }}address">{{ order.address }}</span></div>
+          <div><span id="{{ order['_id'] }}address">{{ order.address }}</span></div>
           <label for="">Additional Comments: </label>
-          <div><span id="{{ order['order_num'] }}comments">{{ order.comments }}</span></div>
+          <div><span id="{{ order['_id'] }}comments">{{ order.comments }}</span></div>
         </div>
             <div class="col-sm-8">
               <h4 class="confirm-cart-titles">Order Summary:</h4>
@@ -80,7 +80,7 @@ block head %}
             </div>
           </div>
         </div>
-        {% endfor %}
+        {% endif %}
       </div>
     </div>
   </div>
@@ -92,24 +92,24 @@ block head %}
       "contentPlaceHolder" +
       "</div></div>";
 
-    function editContact(modalTagId, orderNum) {
+    function editContact(modalTagId, confirmation_code) {
       const valuesDict = {};
       const listOfKeys = ["Name", "Phone", "Address", "Email", "Comments"];
       listOfKeys.forEach(function(value) {
-        valuesDict[value] = $("#" + orderNum + value.toLowerCase())
+        valuesDict[value] = $("#" + confirmation_code + value.toLowerCase())
           .html()
           .trim();
       });
       // console.log(valuesDict);
       let modalDiv = CONTACT_MODAL_DIV.replace(
         "contentPlaceHolder",
-        getContactModal(orderNum, valuesDict, listOfKeys)
+        getContactModal(confirmation_code, valuesDict, listOfKeys)
       );
 
       $(modalTagId).append(modalDiv);
 
       const modal = document.getElementById("myModal");
-      // const openButton = document.getElementById(orderNum + "EditContact");
+      // const openButton = document.getElementById(confirmation_code + "EditContact");
       const span = document.getElementsByClassName("close")[0];
       const done = document.getElementById("done");
 
@@ -131,7 +131,7 @@ block head %}
       document
         .getElementById("done-button")
         .addEventListener("click", function() {
-          const build_contact_dict = { order_num: orderNum };
+          const build_contact_dict = { confirmation_code: confirmation_code };
           listOfKeys.forEach(function(value, index) {
             const input_value = $("#" + value).val();
 
@@ -141,7 +141,7 @@ block head %}
           $.post("/change_contact_info/", build_contact_dict).done(function(
             data
           ) {
-            if (data.error != "Contact Set!") {
+            if (data.hasOwnProperty("error")) {
               alert("Something went wrong " + data.error);
             } else {
               location.reload();
@@ -157,7 +157,7 @@ block head %}
     const CONTACT_FORM_DONE_BUTTON =
       '<div id="done-button" class="col-xs-12 col-sm-6 col-sm-offset-3 button button1">Done!</div>';
 
-    function getContactModal(orderNum, valuesDict, listOfLabels) {
+    function getContactModal(confirmation_code, valuesDict, listOfLabels) {
       let modalFormToReturn = "";
       listOfLabels.forEach(function(value, index) {
         modalFormToReturn += CONTACT_MODAL_FORM.replace(

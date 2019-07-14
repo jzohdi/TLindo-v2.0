@@ -8,10 +8,12 @@ function shutDown(password) {
   ) {});
 }
 const refresh = () => {
- sessionStorage.removeItem('CURRENT_PAGE');
-}
-['#home-logo', "#user_logged_in", '#new-reservation'].forEach((element)=>{
-  $(element).on('click', () => { refresh(); });
+  sessionStorage.removeItem("CURRENT_PAGE");
+};
+["#home-logo", "#user_logged_in", "#new-reservation"].forEach(element => {
+  $(element).on("click", () => {
+    refresh();
+  });
 });
 
 const helpSizeConversion = {
@@ -74,18 +76,16 @@ const savePageLayout = (page, divIdArray) => {
   });
 };
 
-
 /***********************************************************************************
-******************************************************************************************************************/
+ ******************************************************************************************************************/
 const HELPER_SCREEN_DIV =
   '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' +
   "helpPlaceHolder" +
   "<div class='row normalize-height'><div class='col-md-4'><h3 class='main-menu-headers' >" +
-  "Entree Options</h3><div id='food-options' class='row'></div></div>" +
+  "Entrees</h3><div id='entree-options' class='row'></div><h3 class='main-menu-headers'>Sides</h3><div id='side-options' class='row'></div></div>" +
   "<div id='selected-food' class='col-md-8'><h3 class='main-menu-headers' >Selected Items</h3>" +
   "<div id='cardIdPlaceHolder' class='row'></div></div></div><div id='checkoutButton' onclick='proceedToCheckout(\"cardIdPlaceHolder\")'" +
   " class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
-
 
 const ITEM_NAME_BUTTON =
   '<div id="indexPlaceholder" class="entree-options">' +
@@ -96,9 +96,9 @@ const ITEM_HTML_FOR_LIST =
   '+ </span> countPlaceholder <span onclick="appendValue(appendValuePlaceholder, -1)"> - </span>';
 
 /***********************************************************************************
-******************************************************************************************************************/
+ ******************************************************************************************************************/
 /***********************************************************************************
-******************************************************************************************************************/
+ ******************************************************************************************************************/
 
 const setInputs = (arrayOfInputElements, arrayOfValues) => {
   arrayOfInputElements.forEach((element, index) => {
@@ -242,6 +242,7 @@ const setUpBackFromCart = function() {
       sessionStorage.getItem("otherSettings")
     );
     startSelectionScreen(
+      "#select-menu",
       window.selectedFoodOptions.max_Items,
       window.selectedFoodOptions.max_Flavors,
       window.selectedFoodOptions.help
@@ -249,7 +250,9 @@ const setUpBackFromCart = function() {
     window.eventVariables.numberOfPeople = JSON.parse(
       sessionStorage.getItem("people")
     );
-    const message = ( window.selectedFoodOptions.help ) ? pickNumberOfItemsMessage() : "";
+    const message = window.selectedFoodOptions.help
+      ? pickNumberOfItemsMessage()
+      : "";
     window.eventVariables.date = sessionStorage.getItem("date");
     window.foodCounter = JSON.parse(sessionStorage.getItem("foodCounter"));
     drawToSelection(
@@ -257,6 +260,8 @@ const setUpBackFromCart = function() {
       window.selectedFoodOptions.Id,
       message
     );
+    setPicker();
+    planEvent();
   } else if (document.getElementById("main-planner-page")) {
     setPicker();
     planEvent();
@@ -269,7 +274,7 @@ const setUpBackFromCart = function() {
 function planEvent() {
   let dateSelector = $("#datepicker");
   const dateInput = document.querySelector('input[name="date"]');
-  if ( dateInput ){
+  if (dateInput) {
     dateInput.onchange = changeEventHandler;
   }
 }
@@ -278,7 +283,7 @@ function planEvent() {
  * here we simiply show the message on first screen that tells customer
  * to call if date not available or party is too small.
  */
-const MAIN_TIMING = '0.8';
+const MAIN_TIMING = "0.8";
 const SET_TIME = 850;
 
 function changeEventHandler(event) {
@@ -292,7 +297,11 @@ function changeEventHandler(event) {
   let nextButton = $("#next-button");
   if (nextButton.hasClass("hidden")) {
     let cssAnimationTiming =
-      " -webkit-animation-duration: " + MAIN_TIMING + "s; animation-duration: "+ MAIN_TIMING + "s";
+      " -webkit-animation-duration: " +
+      MAIN_TIMING +
+      "s; animation-duration: " +
+      MAIN_TIMING +
+      "s";
     nextButton[0].setAttribute("style", cssAnimationTiming);
     nextButton.removeClass("hidden").addClass("fade-in-left");
   }
@@ -300,114 +309,126 @@ function changeEventHandler(event) {
 // this function is called by the button an adds css stlying to give the animation
 // effect on hovering over the next button
 // col-md-offset-3
-const page1_A = '<div id="card1" class="col-md-12 main-card fade-in-right">' +
-      '<h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>' +
-      '<h4 class="question-titles">Lets plan your event!</h4></div>';
-const page1_B = '<div id="card2" class="question-titles col-md-12 main-card fade-in-left">' +
-    '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' +
-    '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>';
-const page1_C = '<div id="card3" class="col-md-12 main-card fade-in-right">' +
-    '<h4 class="question-titles"> If planning an event for less than <span id="min1"></span> people or' +
-    '</h4> <h4 class="question-titles"> If your date is unavailable, give us a call: </h4>' +
-    '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
-const page1_D = '<div id="goNext" class="col-md-6 col-md-offset-3 fade-in-right">' +
-  '<button onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" '+
+const page1_A =
+  '<div id="card1" class="col-md-12 main-card fade-in-right">' +
+  '<h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>' +
+  '<h4 class="question-titles">Lets plan your event!</h4></div>';
+const page1_B =
+  '<div id="card2" class="question-titles col-md-12 main-card fade-in-left">' +
+  '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' +
+  '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>';
+const page1_C =
+  '<div id="card3" class="col-md-12 main-card fade-in-right">' +
+  '<h4 class="question-titles"> If your date is unavailable, give us a call: </h4>' +
+  '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
+const page1_D =
+  '<div id="goNext" class="col-md-6 col-md-offset-3 fade-in-right">' +
+  "<button onmouseout=\"arrowMoveBack('#next-arrow')\" onmouseover=\"arrowMove('#next-arrow')\" " +
   'class="button button1">Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
 
-const page1ToInsertIds = ['#top-message', '#event-planner', '#need-phone', '#next-button'];
+const page1ToInsertIds = [
+  "#top-message",
+  "#event-planner",
+  "#need-phone",
+  "#next-button"
+];
 const page1Divs = [page1_A, page1_B, page1_C, page1_D];
 const page1ToFade = ["#card2", "#card3", "#goNext", "#card4"];
 
-function Page( list_of_ids, divs, fade_out_divs, prev_exception = [] ){
-  this.toInsert = list_of_ids
+function Page(list_of_ids, divs, fade_out_divs, prev_exception = []) {
+  this.toInsert = list_of_ids;
   this.divs = divs;
   this.toFade = fade_out_divs;
   this.dontFadeToGoBack = prev_exception;
   this.callBack = null;
   this.nextPage = null;
 
-  this.run = (toEmpty = [] ) => {
-    this.toInsert.forEach( (element, index) => {
-      $(element).html( this.divs[index] );
-    })
+  this.run = (toEmpty = []) => {
+    this.toInsert.forEach((element, index) => {
+      $(element).html(this.divs[index]);
+    });
 
     this.callBack();
-  }
+  };
 
-  this.exit = ( pageObject = null, toEmpty = [], prev = null ) => {
-
+  this.exit = (pageObject = null, toEmpty = [], prev = null) => {
     fadeOutSections(this.toFade);
 
     setTimeout(function() {
-        toEmpty.forEach(function(div) {
-         $(div).empty();
-         if( pageObject ){
-            if( prev ){
-              for ( const key in prev ){
-                $(key).html(prev[key]);
-              }
+      toEmpty.forEach(function(div) {
+        $(div).empty();
+        if (pageObject) {
+          if (prev) {
+            for (const key in prev) {
+              $(key).html(prev[key]);
             }
-           pageObject.run();
-
-         }
-     });
-  }, SET_TIME);
-  }
-
+          }
+          pageObject.run();
+        }
+      });
+    }, SET_TIME);
+  };
 }
 
-const page1 = new Page(page1ToInsertIds, page1Divs, page1ToFade );
+const page1 = new Page(page1ToInsertIds, page1Divs, page1ToFade);
 
 page1.callBack = () => {
-
   setPicker(window.eventVariables.date);
-
-  $('#goNext').on('click', () => {
-    const eventDate = document.getElementById("datepicker").value;
-    if (eventDate === "" || eventDate === "None") { return; }
-    window.eventVariables.date = eventDate;
-    page1.exit( page2, ["#event-planner", "#need-phone", "#next-button"] );
-  })
-
-}
-
-if ( !sessionStorage.getItem("backFromCart") ){
-  if ( !location.href.includes('edit_order')){
-     page1.run();
-  }
-}
+  page2.run();
+  // $("#goNext").on("click", () => {
+  //   const eventDate = document.getElementById("datepicker").value;
+  //   if (eventDate === "" || eventDate === "None") {
+  //     return;
+  //   }
+  //   window.eventVariables.date = eventDate;
+  //   page1.exit(page2, ["#event-planner", "#need-phone", "#next-button"]);
+  // });
+};
 
 const buildHelpTop = () => {
-    const outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
-    const top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
-    const top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
-    const top_header_C = "<h4>To continue to the menu with help on your order size, click <span class='order-keys'>'With amount help'.</span><br/> Otherwise, click 'Without help'.</h4>"
-    const close_div = "</div>";
-    return outer_div + top_header_A + top_header_B + top_header_C + close_div;
-}
+  const outer_div =
+    '<div id="card9" class="col-md-12 main-card fade-in-right question-titles">';
+  const top_header_A =
+    "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
+  const top_header_B =
+    "<h4>Based on the number of people, we can recommend how much food to get.</h4>";
+  const top_header_C = "";
+  // const top_header_C =
+  //   "<h4>To continue to the menu with help on your order size, click <span class='order-keys'>'With amount help'.</span><br/> Otherwise, click 'Without help'.</h4>";
+  const close_div = "</div>";
+  return outer_div + top_header_A + top_header_B + top_header_C + close_div;
+};
 const chooseIfHelpDiv = () => {
-    const outer_leftDiv = '<div id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
-    const left_side = '<h4 class="question-titles"> Without help</h4>' + "</div>";
-    const outer_rightDiv = '<div id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
-    const right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
-    return outer_leftDiv + left_side + outer_rightDiv + right_side;
-}
+  const outer_leftDiv =
+    '<div id="card10" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
+  const left_side = '<h4 class="question-titles"> Without help</h4>' + "</div>";
+  const outer_rightDiv =
+    '<div id="card11" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
+  const right_side =
+    '<h4 class="question-titles">With amount help</h4>' + "</div>";
+  return outer_leftDiv + left_side + outer_rightDiv + right_side;
+};
 const ASK_IF_HELP_TOP = buildHelpTop();
 const HELP_OR_NO_HELP = chooseIfHelpDiv();
 
 const BACK_BUTTON =
-  '<div id="button2" style="-webkit-animation-duration: '+ MAIN_TIMING +'s; animation-duration: '+ MAIN_TIMING +'s;" class="col-xs-6 fade-in-left">' +
+  '<div id="button2" style="-webkit-animation-duration: ' +
+  MAIN_TIMING +
+  "s; animation-duration: " +
+  MAIN_TIMING +
+  's;" class="col-xs-6 fade-in-left">' +
   "<button id='goBack' onmouseout=\"arrowMoveBack('#back-arrow')\" onmouseover=\"arrowMove('#back-arrow')\"" +
   ' class="button button1"><span id="back-arrow" class="glyphicon glyphicon-menu-left"></span>  Back</button> </div>';
 
 const BACK_BUTTON2 = BACK_BUTTON.slice().replace("page1", "page2");
 
-const page3Ids = ["#top-message", "#event-planner", "#next-button"]
-const page3Divs = [ASK_IF_HELP_TOP, HELP_OR_NO_HELP, BACK_BUTTON2]
-const page3ToFade = ["#card2", "#card3", "#card4", "#goBack"];
-const page3NotFade = []
+// const page3Ids = ["#top-message", "#event-planner", "#next-button"];
+// const page3Divs = [ASK_IF_HELP_TOP, HELP_OR_NO_HELP, BACK_BUTTON2];
+const page3Ids = ["#help-or-no", "#help-or-no-buttons"];
+const page3Divs = [ASK_IF_HELP_TOP, HELP_OR_NO_HELP];
+const page3ToFade = ["#card2", "#card3", "#card4"];
+const page3NotFade = [];
 const page3 = new Page(page3Ids, page3Divs, page3ToFade, page3NotFade);
-
 
 const NOT_ENOUGH_PEOPLE_ERROR =
   '<div id="card3" class="col-md-12 main-card fade-in-right"> <h4 class="question-titles">' +
@@ -431,63 +452,117 @@ const HOW_MANY_PEOPLE_DIV =
   "</div>";
 
 const NEXT_BUTTON =
-  '<div id="button1" style="-webkit-animation-duration: '+MAIN_TIMING+'s; animation-duration: '+MAIN_TIMING+'s;" class="col-xs-6 fade-in-right">' +
+  '<div id="button1" style="-webkit-animation-duration: ' +
+  MAIN_TIMING +
+  "s; animation-duration: " +
+  MAIN_TIMING +
+  's;" class="col-xs-6 fade-in-right">' +
   '<button id="goNext" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" class="button button1">' +
   'Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
 
 page3.startExit = () => {
   $("#card3").removeClass("choose-help-box");
   $("#card4").removeClass("choose-help-box");
-  page3.exit( null, ["#top-message", "#event-planner"])
-}
-const prev_from_3 = {'#top-message' : page1_A, '#next-button' : BACK_BUTTON + NEXT_BUTTON }
+  page3.exit(null, ["#top-message", "#event-planner"]);
+};
+const prev_from_3 = {
+  "#top-message": page1_A,
+  "#next-button": BACK_BUTTON + NEXT_BUTTON
+};
 
 page3.callBack = () => {
-  $('#goBack').on('click', () => {
-    page3.exit(page2, ['#top-message', '#event-planner', '#next-button'], prev_from_3)
-  })
-  $('#card4').on('click', () => {
-      page3.startExit();
-      setTimeout(function() { startHelpScreen(); }, SET_TIME);
-  })
-  $('#card3').on('click', () => {
-      page3.startExit();
-      setTimeout(() => { startSelectionScreen(); }, SET_TIME);
-  })
+  // $("#goBack").on("click", () => {
+  //   page3.exit(
+  //     page2,
+  //     ["#top-message", "#event-planner", "#next-button"],
+  //     prev_from_3
+  //   );
+  // });
+  $("#card11").on("click", () => {
+    if (!selectedFoodOptions.help) {
+      $("#select-menu").empty();
+      startHelpScreen();
+    }
+  });
+  $("#card10").on("click", () => {
+    if (selectedFoodOptions.help) {
+      $("#select-menu").empty();
+      selectedFoodOptions.help = false;
+      startSelectionScreen("#select-menu");
+    }
+  });
+};
+// const page2InsertIds = ["#event-planner", "#next-button"];
+// const page2Divs = [HOW_MANY_PEOPLE_DIV, BACK_BUTTON + NEXT_BUTTON];
+const page2InsertIds = ["#people-num"];
 
-}
-const page2InsertIds = ["#event-planner", "#next-button"]
-const page2Divs = [HOW_MANY_PEOPLE_DIV, BACK_BUTTON+NEXT_BUTTON];
-const page2ToFade = [ "#card1", "#card2", "#card3", "#goNext", "#goBack", "#card4", '#button1'];
-const page2GoBackException = ['#card1', '#card3', '#card4'];
+const page2Divs = [HOW_MANY_PEOPLE_DIV];
+const page2ToFade = [
+  "#card1",
+  "#card2",
+  "#card3",
+  "#goNext",
+  "#goBack",
+  "#card4",
+  "#button1"
+];
+const page2GoBackException = ["#card1", "#card3", "#card4"];
 
-const page2 = new Page(page2InsertIds, page2Divs, page2ToFade, page2GoBackException);
+const page2 = new Page(
+  page2InsertIds,
+  page2Divs,
+  page2ToFade,
+  page2GoBackException
+);
 
 page2.callBack = () => {
-  if ( window.eventVariables.numberOfPeople ){
-    setInputs(['input[name="adults"]', 'input[name="kids"]'], [window.eventVariables.numberOfPeople.adults, window.eventVariables.numberOfPeople.kids])
+  if (window.eventVariables.numberOfPeople) {
+    setInputs(
+      ['input[name="adults"]', 'input[name="kids"]'],
+      [
+        window.eventVariables.numberOfPeople.adults,
+        window.eventVariables.numberOfPeople.kids
+      ]
+    );
   }
-  $('#goBack').on('click', () => {
-      page2.exit( page1, ["#event-planner", "#need-phone", "#next-button"] );
-  })
 
-  $('#goNext').on('click', () => {
-     const isValidPeopleNum = saveNumberOfPeople("eventVariables", 'input[name="adults"]','input[name="kids"]');
+  initSettings("#min1");
+  startSelectionScreen("#select-menu");
+  page3.run();
+  // $("#goBack").on("click", () => {
+  //   page2.exit(page1, ["#event-planner", "#need-phone", "#next-button"]);
+  // });
 
-     if (isValidPeopleNum) {
-        sessionStorage.setItem('CURRENT_PAGE', '3');
-        page2.exit( page3, ["#top-message", "#event-planner", "#need-phone","#next-button"] );
-        // setTimeout(() => {$('#next-button').removeClass('fade-out-right')}, 1050)
-     }else if (document.getElementById("card3") === null) {
-         const lessThanMin = NOT_ENOUGH_PEOPLE_ERROR.slice().replace(
-                              "minsizePlaceHolder",window.PageSettings.minsize );
-         $("#need-phone").append(lessThanMin);
-     }
-  });
+  // $("#goNext").on("click", () => {
+  //   const isValidPeopleNum = saveNumberOfPeople(
+  //     "eventVariables",
+  //     'input[name="adults"]',
+  //     'input[name="kids"]'
+  //   );
 
+  //   if (isValidPeopleNum) {
+  //     sessionStorage.setItem("CURRENT_PAGE", "3");
+  //     page2.exit(page3, [
+  //       "#top-message",
+  //       "#event-planner",
+  //       "#need-phone",
+  //       "#next-button"
+  //     ]);
+  //     // setTimeout(() => {$('#next-button').removeClass('fade-out-right')}, 1050)
+  //   } else if (document.getElementById("card3") === null) {
+  //     const lessThanMin = NOT_ENOUGH_PEOPLE_ERROR.slice().replace(
+  //       "minsizePlaceHolder",
+  //       window.PageSettings.minsize
+  //     );
+  //     $("#need-phone").append(lessThanMin);
+  //   }
+  // });
+};
+if (!sessionStorage.getItem("backFromCart")) {
+  if (!location.href.includes("edit_order")) {
+    page1.run();
+  }
 }
-
-
 const saveNumberOfPeople = (saveVariable, inputForAdults, inputForKids) => {
   let adultsNum = document.querySelector(inputForAdults).value;
   adultsNum = adultsNum !== "" ? parseInt(adultsNum) : 0;
@@ -536,6 +611,7 @@ const AT_FLAVOR_LIMIT_DIV =
   '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Already at Max unique flavors for item</div>';
 
 function startSelectionScreen(
+  idToInsert,
   max_Items = 40,
   max_Flavors = window.defaultMaxFlavors,
   help = false
@@ -553,35 +629,38 @@ function startSelectionScreen(
     window.foodCounter["total"] = 0;
   }
   const helpDiv = help
-    ? "<h4>Based on your party size, please select a total of " +
+    ? "<h4>We recommend a total of " +
       max_Items +
-      " items</h4>"
+      " entrees to feed your party size.</h4>"
     : "";
 
   const HELPER_SCREEN = HELPER_SCREEN_DIV.slice()
     .replace("helpPlaceHolder", helpDiv)
     .replace("cardIdPlaceHolder", window.selectedFoodOptions["Id"]);
 
-  $("#top-message").append(HELPER_SCREEN);
+  $(idToInsert).append(HELPER_SCREEN);
 
   // need to pass in the id of the entree div
-  showEntreeOptions("#food-options");
+  showEntreeOptions("#entree-options", "#side-options");
 }
-
+window["TookOffLast"] = false;
 /*
  To avoid mutating the pageSettings dictionary of the menu, create new window dictionary to hold the details
  for the entree items;
  iterate throught entreeItems, holding these values and assign the values to the key value of index.
  if itemDictionary index is called, it will return the details for that item.
 */
-function showEntreeOptions(idOfEntreeDiv) {
+function showEntreeOptions(idOfEntreeDiv, idOfSideDiv) {
   window.itemDictionary = {};
+  PageSettings["entree"] = PageSettings["entree"].filter(function(element) {
+    return !element.hasOwnProperty("categories");
+  });
+  PageSettings["sides"] = PageSettings["sides"].filter(function(element) {
+    return !element.hasOwnProperty("categories");
+  });
+  var entreeItems = window.PageSettings["entree"];
+  var sideItems = window.PageSettings["sides"];
 
-  const entreeItems = window.PageSettings["entree"];
-  const categories = entreeItems.splice(-1);
-
-  const sideItems = window.PageSettings["sides"];
-  const sideCategories = sideItems.splice(-1);
   let itemDictIndex;
 
   $.each(entreeItems, function(index, value) {
@@ -589,9 +668,16 @@ function showEntreeOptions(idOfEntreeDiv) {
     window.itemDictionary[index] = value;
     itemDictIndex = index;
   });
-
-  window.itemDictionary["sides"] = buildSidesDict(sideItems);
-  insertSidesDiv("sides", idOfEntreeDiv);
+  // console.log(sideItems);
+  itemDictIndex = itemDictIndex + 1;
+  $.each(sideItems, function(index, value) {
+    index = index + itemDictIndex;
+    insertDivToOptions(idOfSideDiv, index, value.item);
+    window.itemDictionary[index] = value;
+  });
+  // window.itemDictionary["sides"] = buildSidesDict(sideItems);
+  // console.log(itemDictionary["sides"]);
+  // insertSidesDiv("sides", idOfEntreeDiv);
 }
 const buildSidesDict = function(listOfSides) {
   const newObject = {};
@@ -709,13 +795,13 @@ function showSelection(itemDictIndex) {
   span.onclick = function() {
     // if closed window without adding items, revert back to original cart.
     // resetFoodCounterAndCart(temp_food_count);
-    addSelectionToCart("", itemSelection.item)
+    addSelectionToCart("", itemSelection.item);
     modal.style.display = "none";
     $("#event-planner").empty();
   };
   done.onclick = () => {
     span.click();
-  }
+  };
   window.onclick = function(event) {
     if (event.target == modal) {
       // if closing without adding items, revert cart.
@@ -927,7 +1013,8 @@ function getAddToCartError(item, action) {
     window.foodCounter[item.name].flavors.includes(item.flavor);
 
   const atFlavorLimit =
-    window.foodCounter[item.name] && window.foodCounter[item.name].flavors.length === 4;
+    window.foodCounter[item.name] &&
+    window.foodCounter[item.name].flavors.length === 4;
 
   if (atOrderLimit) {
     return AT_ORDER_LIMIT_DIV;
@@ -1089,37 +1176,39 @@ function addSelectionToCart(windowArray, itemName) {
 }
 
 function startHelpScreen() {
-  // console.log("Help");
-  let numGuests = 0;
-  const numKids = window.eventVariables.numberOfPeople.kids
-  const numAdults = window.eventVariables.numberOfPeople.adults
-  if ( (numKids + numAdults) >= 8 && (0.5*numKids + numAdults) < 8 ){
-    numGuests = 8;
-  }else{
-    numGuests = (0.5*numKids) + numAdults;
-  }
-  let maxItems = Math.ceil(
-    (numGuests) /
-      parseInt(window.PageSettings.minsize)
+  saveNumberOfPeople(
+    "eventVariables",
+    'input[name="adults"]',
+    'input[name="kids"]'
   );
+  let numGuests = 0;
+  const numKids = window.eventVariables.numberOfPeople.kids;
+  const numAdults = window.eventVariables.numberOfPeople.adults;
+  if (numKids + numAdults >= 8 && 0.5 * numKids + numAdults < 8) {
+    numGuests = 8;
+  } else {
+    numGuests = 0.5 * numKids + numAdults;
+  }
+  let maxItems = Math.ceil(numGuests / parseInt(window.PageSettings.minsize));
   let maxFlavors = Math.min(maxItems, 4);
 
-  startSelectionScreen(maxItems, maxFlavors, true);
+  startSelectionScreen("#select-menu", maxItems, maxFlavors, true);
 }
 // calling this function will get JSON data about the menu and other settings for building page
 function initSettings(idOfMin) {
   const settings = sessionStorage.getItem("PageSettings");
 
-  if ( settings === null ){
+  if (settings === null) {
     $.get("/_get_menu", {}, function(data) {
       window.PageSettings = data;
       sessionStorage.setItem("PageSettings", JSON.stringify(data));
       $(idOfMin).append(data.minsize);
     });
-  }else {
-    window.PageSettings = JSON.parse( settings );
-  } if (window.editOrder) {
-    startSelectionScreen();
+  } else {
+    window.PageSettings = JSON.parse(settings);
+  }
+  if (window.editOrder) {
+    startSelectionScreen("#top-message");
     const checkOutButton = $("#checkoutButton");
     checkOutButton.html("Confirm Changes");
     checkOutButton
@@ -1133,8 +1222,6 @@ function initSettings(idOfMin) {
 
   // }
 }
-
-initSettings("#min1");
 
 function proceedToCheckout(myCart) {
   let itemCount = 0;
