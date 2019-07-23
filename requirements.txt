@@ -23,6 +23,7 @@ Flask-Session==0.3.1
 Flask-Silk==0.2
 Flask-SQLAlchemy==2.2
 future==0.16.0
+gspread==3.1.0
 gunicorn==19.9.0
 html5lib==0.999999999
 icdiff==1.9.1
@@ -41,6 +42,7 @@ mccabe==0.6.1
 natsort==5.1.0
 nbformat==4.4.0
 nltk==3.2.4
+oauth2client==4.1.3
 oauthlib==2.0.2
 olefile==0.44
 passlib==1.7.1

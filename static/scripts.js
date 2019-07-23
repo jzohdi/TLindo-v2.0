@@ -1,21 +1,3 @@
-/*
- SHUTDOWN OVER RIDE FOR DEVELOPMENT ONLY TAKE OUT BEFORE DEPOLOYMENT
-*/
-function shutDown(password) {
-  $.post($SCRIPT_ROOT + "/shutdown?pw=" + password, {}, function(
-    data,
-    textStatus
-  ) {});
-}
-const refresh = () => {
-  sessionStorage.removeItem("CURRENT_PAGE");
-};
-["#home-logo", "#user_logged_in", "#new-reservation"].forEach(element => {
-  $(element).on("click", () => {
-    refresh();
-  });
-});
-
 const helpSizeConversion = {
   "Taco Tray": 24,
   "Burrito Tray": 8,
@@ -31,6 +13,33 @@ const setPrices = function() {
   });
   // }
 };
+function initSettings(idOfMin) {
+  const settings = sessionStorage.getItem("PageSettings");
+
+  if (settings === null) {
+    $.get("/_get_menu", {}, function(data) {
+      window.PageSettings = data;
+      sessionStorage.setItem("PageSettings", JSON.stringify(data));
+      $(idOfMin).append(data.minsize);
+    });
+  } else {
+    window.PageSettings = JSON.parse(settings);
+  }
+  if (window.editOrder) {
+    startSelectionScreen();
+    const checkOutButton = $("#checkoutButton");
+    checkOutButton.html("Confirm Changes");
+    checkOutButton
+      .removeClass("col-xs-5")
+      .removeClass("col-sm-3")
+      .addClass("col-xs-12");
+    checkOutButton.attr("onclick", "confirmChanges()");
+  }
+
+  // }
+}
+
+initSettings("#min1");
 
 setPrices();
 
@@ -260,10 +269,10 @@ const setUpBackFromCart = function() {
       window.selectedFoodOptions.Id,
       message
     );
-    setPicker();
+    // setPicker();
     planEvent();
   } else if (document.getElementById("main-planner-page")) {
-    setPicker();
+    // setPicker();
     planEvent();
   }
 };
@@ -373,7 +382,7 @@ function Page(list_of_ids, divs, fade_out_divs, prev_exception = []) {
 const page1 = new Page(page1ToInsertIds, page1Divs, page1ToFade);
 
 page1.callBack = () => {
-  setPicker(window.eventVariables.date);
+  // setPicker(window.eventVariables.date);
   page2.run();
   // $("#goNext").on("click", () => {
   //   const eventDate = document.getElementById("datepicker").value;
@@ -580,7 +589,6 @@ const saveNumberOfPeople = (saveVariable, inputForAdults, inputForKids) => {
 /* *************************************************************************
    start menu selection screen
    window.selectedFoodOptions will keep track of the items chosen
-
 */
 const MODAL_DIV =
   '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
@@ -1217,7 +1225,6 @@ function initSettings(idOfMin) {
       .addClass("col-xs-12");
     checkOutButton.attr("onclick", "confirmChanges()");
   } else {
-    setUpBackFromCart();
   }
 
   // }

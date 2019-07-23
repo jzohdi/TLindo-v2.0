@@ -22,6 +22,7 @@ import datetime
 from pymongo import MongoClient
 import traceback
 from helpers import App_Actions
+from services import Email_Service, GSpread
 from tempfile import mkdtemp
 import string
 import random
@@ -31,6 +32,14 @@ from xlwt import Workbook
 import xlrd
 from copy import deepcopy as deep_copy
 import stripe
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials 
+from threading import Thread
+
+GSpread_dependencies = {'gspread' : gspread, "SAC" : ServiceAccountCredentials}
+
+Email_Service_dependencies = {'Thread' : Thread}
+Email_Service_dependencies["requests"] = requests
 
 App_Actions_dependencies = {'random' : random}
 App_Actions_dependencies['traceback'] = traceback
@@ -317,23 +326,6 @@ def get_listOfItems_fromExcel(wb, index):
 
     return all_items
 
-def add_note_to_order(user_orders, note, num):
-    try:
-        for index, order in enumerate(user_orders):
-            order_num = order.get('order_num')
-            if order_num == num or order_num == int(num):
-                if len(note) == 0 and 'special-note' in order:
-                    order.pop('special-note')
-                else:
-                    order['special-note'] = note
-                user_orders[index] = order
-                return user_orders
-
-        return []
-    except Exception as e:
-        log_exception("line 413, " + str(e) )
-        return []
-
 def getOrder_and_checkIfValidDate(list_of_orders, num):
     orders_list = json.loads(list_of_orders)
 
@@ -450,8 +442,12 @@ params = getKeys()
 
 (params, settings) = commit_settings(params)
 
-App_Actions = App_Actions(settings, **App_Actions_dependencies)
-settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', App_Actions.get_salt(25))
+Controllers = App_Actions(settings, **App_Actions_dependencies)
+Email_Service = Email_Service(settings, **Email_Service_dependencies)
+Sheets_Service = GSpread(**GSpread_dependencies)
+
+settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', Controllers.get_salt(25))
+
 def execute(statement, values = ("NA",), close = True):
     conn = False
     cur = False
@@ -567,21 +563,25 @@ def dated_url_for(endpoint, **values):
     return url_for(endpoint, **values)
 
 """"""
-@app.route('/')
+@app.route('/', methods=["POST", "GET"])
 def index():
+    # check for password in beta version, remove in final production
     pw = request.args.get('pw')
 
     if pw != settings.get('BETA_KEY') and not session.get('beta'):
         return "access denied :("
 
     session['beta'] = True
-
+    # if logged in and gotten to index, reroute to scheduled orders
     if 'admin' in session:
         return redirect(url_for('scheduled_orders'))
-
-    disabled = App_Actions.get_disabled_dates()
-    
-    return render_template('index.html', dates=disabled)
+        
+    # get disabled dates for date picker.
+    disabled = Controllers.get_disabled_dates()
+    menu = Controllers.connect_to_db(Controllers.get_menu_items)
+    if menu.get("status") and menu.get("return_value"):
+        menu = menu.get("return_value")        
+    return render_template('index.html', dates=disabled, menu=menu)
 
 @app.route('/user_orders', methods=["GET", "POST"])
 def user_orders():
@@ -592,15 +592,15 @@ def user_orders():
 
     user_key = session.get('user_id')
     kwargs = {'user_id' : user_key}
-    all_orders = App_Actions.connect_to_db(App_Actions.get_user_orders, kwargs)
+    all_orders = Controllers.connect_to_db(Controllers.get_user_orders, kwargs)
 
     if all_orders.get('status'):
 
         all_orders = all_orders.get("return_value")
-        (past_dates, upcoming_dates, errors) = App_Actions.split_list_of_orders(all_orders)
+        (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders)
 
-        past_dates_sorted = App_Actions.sort_list_of_dates(past_dates, "date", True)
-        upcoming_dates_sorted = App_Actions.sort_list_of_dates(upcoming_dates, "date")
+        past_dates_sorted = Controllers.sort_list_of_dates(past_dates, "date", True)
+        upcoming_dates_sorted = Controllers.sort_list_of_dates(upcoming_dates, "date")
 
         return render_template('userorders.html', admin=False, upcoming_orders = upcoming_dates_sorted, past_orders = past_dates_sorted)
     else:
@@ -616,7 +616,7 @@ def orderlookup():
         if len(confirmation_code) < 5:
             return render_template('orderlookup.html', error="Invalid Code")
         kwargs = {"confirmation_code" : confirmation_code}
-        user_order = App_Actions.connect_to_db(App_Actions.get_order_for_code, kwargs)
+        user_order = Controllers.connect_to_db(Controllers.get_order_for_code, kwargs)
         if user_order.get("status"):
             user_order = user_order.get("return_value")
             session['guest_code'] = confirmation_code
@@ -643,11 +643,11 @@ def change_password():
         return render_template('user_settings.html', error='Could not validate password')
     if new_password != confirm_new_password:
         return render_template('user_settings.html', error='Passwords do not match')
-    if not App_Actions.is_valid_password(new_password):
+    if not Controllers.is_valid_password(new_password):
         return render_template('user_settings.html', error='Could not validate password' )
     
     kwargs = {"user_id" : unique, "new_pass" : new_password, 'old_pass' : old_password}
-    change_pass_result = App_Actions.connect_to_db(App_Actions.change_user_pass, kwargs)
+    change_pass_result = Controllers.connect_to_db(Controllers.change_user_pass, kwargs)
     
     if not change_pass_result.get('status') or not change_pass_result.get('return_value'):
         return render_template("user_settings.html", error="Password could not be changed")
@@ -665,32 +665,26 @@ def forgotpassword():
 #        print(email)
         if not email:
             return render_template('Please provide email for a recovery link')
-        result = execute("""SELECT * FROM users WHERE email = %s
-                         """, (email,))
-        if len(result) != 1:
+        kwargs = {"email" : email}
+        does_user_exist = Controllers.connect_to_db(Controllers.user_exists, kwargs)
+
+        if not does_user_exist.get("status"):
+            return render_template("forgotpassword.html", error="Something went wrong finding email in our records.\n Please give us a call.")
+        if not does_user_exist.get("return_value"):
             return render_template('forgotpassword.html', error="Could not find email in records")
+        # generate reset password link and associated code
+        (set_new_pass_link, code) = Controllers.get_new_pass_link(email)
+        # add email and confirmation code to database with timestap
+        kwargs = {'email' : email, 'code' : code}
+        Controllers.connect_to_db(Controllers.add_pass_recovery, kwargs)
+        # start thread to send email as sending may take a minute if server is asleep.
+        thread_one = Thread(target = Email_Service.send_password_recovery, args=(email, set_new_pass_link), daemon=True)
+        thread_one.start()
 
-        user = result[0]
-        hash_code = get_salt(45)
-
-        set_new_pass_link = 'https://taco-lindo-catering.herokuapp.com'+'/password_recovery?code={}&recipient={}'.format(hash_code, email)
- 
-#        print(MESSAGE)
-        # did_message_send = send_email(email, SUBJECT, MESSAGE)
-        # if (did_message_send):
-        return render_template('forgotpassword.html', error="Resent link sent!")
-        """
-            current_time = str(datetime.datetime.now())
-            result = execute(""INSERT INTO passwordrecovery (code, email, timestamp) VALUES (%s, %s, %s)
-                             "", (hash_code, email, current_time,))
-            print(result)
-            
-        else:
-            return render_template('forgotpassword.html', error="Something went wrong.")
-#        print(hash_code)
-        """
+        return render_template('forgotpassword.html', error="Resent link sent! Valid for 24 hours, make sure to check spam folder.\n If you do not recieve an email soon, please give us a call.")
     else:
         return render_template('forgotpassword.html')
+
 @app.route('/password_recovery', methods=["POST", "GET"])
 def password_recovery():
     if not session.get('beta'):
@@ -699,36 +693,24 @@ def password_recovery():
     if request.method == "POST":
         code = session.get('recovery_code')
         email = session.get('recovery_email')
-        user_id = session.get('recovery_id')
-
-        valid_email_code = execute("""SELECT * FROM passwordrecovery WHERE code = %s
-                                      """, (code,))
-        if len(valid_email_code) != 1 or email != valid_email_code[0].get('email'):
-            print('1')
-            return render_template('forgotpassword.html', error = 'Something went wrong, please request a new link.')
 
         new_password = request.form.get('new-password')
         confirm_new_password = request.form.get('confirm-new-password')
 
         if not new_password or not confirm_new_password or new_password != confirm_new_password:
-            return render_template('password_recovery.html', error = 'Could not confirm new passowrd.')
+            return render_template('password_recovery.html', error = 'One or more fields were empty, or passwords did not match.')
 
-        if not len(new_password) >= 8 or not any([x.isdigit() for x in new_password]) \
-        or not any([x.isupper() for x in new_password]) or not any([x.islower() for x in new_password]):
+        if not Controllers.is_valid_password(new_password):
             return render_template('password_recovery.html', error = 'New password does not meet password requirements' )
+        kwargs = { 'email' : email, "new_pass" : new_password }
+        update_password = Controllers.connect_to_db(Controllers.update_user_password, kwargs)
+        if not update_password.get("status") or not update_password.get("return_value"):
+            return render_template("password_recovery.html", error="Something went wrong updateing user password")
 
-        hash_salt = get_salt(12)
-
-        pass_hash = pwd_context.hash(new_password + hash_salt)
-
-        result = execute(""" UPDATE users SET password = %s, salt = %s WHERE id = %s
-                         """, (pass_hash, hash_salt, user_id,))
-
-        session['user_id'] = user_id
+        session['user_id'] = update_password.get('return_value').get("_id")
         session.pop('recovery_code')
         session.pop('recovery_email')
-        session.pop('recovery_id')
-        return render_template('index.html')
+        return redirect( url_for('index') )
 
     else:
         code = request.args.get('code')
@@ -737,36 +719,18 @@ def password_recovery():
         if not code or not email:
             return render_template('forgotpassword.html', error="Could not retrieve new pass code")
 
-        match_code_to_database = execute("""SELECT * FROM passwordrecovery WHERE code = %s
-                                         """, (code,))
-        if len(match_code_to_database) != 1:
-            return render_template('forgotpassword.html', error="Could not perform recovery, please request a new link")
-
-        if not match_code_to_database[0].get('email') == email:
+        kwargs = {'code' : code, 'email' : email}
+        validate_url_credentials = Controllers.connect_to_db(Controllers.check_password_recovery, kwargs)
+        if not validate_url_credentials.get("status") or not validate_url_credentials.get("return_value"):
             return render_template('forgotpassword.html', error="Could authenticate email, please request a new link")
 
+        original_timestamp = validate_url_credentials.get("return_value")
 
-        confirm_user = execute("""SELECT * FROM users WHERE email = %s
-                        """, (email,))
-
-        if len(confirm_user) != 1:
-            print('2')
-            return render_template('forgotpassword.html', error = 'Something went wrong, please request a new link.')
-
-        user_id = confirm_user[0].get('id')
-        username = confirm_user[0].get('username')
-
-        request_timestamp = match_code_to_database[0].get('timestamp')
-        request_datetime = datetime.datetime.strptime(request_timestamp, '%Y-%m-%d %H:%M:%S.%f')
-
-        request_plus24hr = datetime.timedelta(hours = 24) + request_datetime
-        is_less_than24hours = request_plus24hr > datetime.datetime.now()
-
+        is_less_than24hours = Controllers.is_timestamp_within_24hr(original_timestamp)
+        
         if is_less_than24hours:
-            session['recovery_id'] = user_id
             session['recovery_code'] = code
             session['recovery_email'] = email
-            session['user_name'] = username
             return render_template('password_recovery.html')
         else:
             return render_template('forgotpassword.html', error='Link expired please request a new one.')
@@ -949,6 +913,11 @@ def place_order_in_db( user_id, order_to_add ):
                 (user_id, place_first_order,))
     return True
 
+@app.route("/disabled_dates", methods=["GET"])
+def disabled_dates():
+    (disabled_dates, max_amount_per_day) = Controllers.get_disabled_dates()
+    return jsonify( disabled_dates )
+
 @app.route('/change_contact_info/', methods=["POST"])
 def change_contact_info():
     if not session.get('beta'):
@@ -967,8 +936,9 @@ def change_contact_info():
         if not value and key != "Comments":
             return jsonify({'error': 'missing arguments'})
         to_update_obj[key.lower()] = value
+    
     kwargs = {"confirmation_code" : confirmation_code, "update_dict" : to_update_obj}
-    App_Actions.connect_to_db(App_Actions.update_contact_info, kwargs)
+    Controllers.connect_to_db(Controllers.update_contact_info, kwargs)
 
     return jsonify({'success' : "Contact Set!"})
 
@@ -1022,6 +992,7 @@ def commit_edit():
         return jsonify({'error' : 'success'})
     else:
         return jsonify({'error' : 'failed'})
+
 @app.route('/guest_login/', methods=["GET"])
 def guest_login():
     if not session.get('beta'):
@@ -1031,7 +1002,7 @@ def guest_login():
     if 'guest_code' in session:
         session.pop('guest_code')
 
-    guest_code = App_Actions.get_confirmation_code()
+    guest_code = Controllers.get_confirmation_code()
     session['guest_code'] = guest_code
 
     return jsonify({'code' : guest_code})
@@ -1047,7 +1018,7 @@ def request_login():
         return jsonify({'error' : 'Username or password not provided'})
 
     kwargs = {'username_or_email' : username_or_email, "password" : password }
-    verify_user = App_Actions.connect_to_db(App_Actions.login_user, kwargs)
+    verify_user = Controllers.connect_to_db(Controllers.login_user, kwargs)
 
     if not verify_user.get('status') or not verify_user.get("return_value"):
         return jsonify({'error' : "could not confirm username or password"})
@@ -1065,34 +1036,25 @@ def request_register():
     email = request.args.get("email")
     password = request.args.get("pass")
 
-    if not App_Actions.is_valid_password(password):
+    if not Controllers.is_valid_password(password):
             return jsonify({'pass_error' : 'could not validate password'})
+    
+    kwargs = {'username' : username, "email" : email, "password" : password }
+    register_user = Controllers.connect_to_db(Controllers.register_user, kwargs)
 
-    already_exists = execute("""
-                             SELECT * FROM users WHERE username = %s OR email = %s
-                             """, (username, email))
-    if len(already_exists) >= 1:
-        error_var = "username" if (username == already_exists[0]["username"]) else "email"
-        return jsonify({ 'error': error_var })
+    if not register_user.get('status'):
+        return jsonfiy({'error' : "Something went wrong attempting to register"})
 
-    hash_salt = get_salt(12)
+    register_user = register_user.get('return_value')
 
-    pass_hash = pwd_context.hash(password + hash_salt)
+    if hasattr(register_user, 'error'):
+        return jsonify({'error' : register_user.get("error")})
+    
+    # send thank you for registering email.
+    Email_Service.thank_for_sign_up(email, username)
 
-    result = execute("""
-                     INSERT INTO users (username, email, password, salt)
-                     VALUES (%s, %s, %s, %s)
-                     """,(username, email, pass_hash, hash_salt))
-
-    confirm_user_added = execute("""
-                          SELECT * FROM users WHERE username = %s
-                          """,(username,))
-    #print(confirm_user_added)
-
-    user_id_num = confirm_user_added[0]["id"]
-
-    session["user_id"] = user_id_num
-    session["user_name"] = confirm_user_added[0].get('username')
+    session["user_id"] = register_user.get("_id")
+    session["user_name"] = username
 
     if username == 'admin':
         session['admin'] = True
@@ -1117,7 +1079,7 @@ def login():
         provided_pass = request.form.get("password")
 
         kwargs = {'username_or_email' : username, 'password' : provided_pass}
-        verify_user = App_Actions.connect_to_db(App_Actions.login_user, kwargs)
+        verify_user = Controllers.connect_to_db(Controllers.login_user, kwargs)
         if not verify_user.get("status") or not verify_user.get("return_value"):
             return render_template('login.html', error="Invalid username or email/password.")
 
@@ -1151,28 +1113,32 @@ def register():
     if request.method == "POST":
 
         #check that all information has been provided
-        is_valid_form = App_Actions.validate_form(request.form)
+        is_valid_form = Controllers.validate_form(request.form)
+
         if not is_valid_form.get('return_valid').get("is_valid"):
             return render_template('register.html', error=is_valid_form.get('return_valid').get('message'))
         password = request.form.get("password")
-# validate password meets conditions
-        if not App_Actions.is_valid_password(passowrd):
+        # validate password meets conditions
+        if not Controllers.is_valid_password(passowrd):
             return render_template('register.html', error='could not validate password')
 
         username = request.form.get("username")
         email = request.form.get("email")
         # check to see if username has already been added to database
         kwargs = {'username' : username, "email" : email, "password" : password}
-        registered_user = App_Actions.connect_to_db(App_Actions.register_user, kwargs)
+        registered_user = Controllers.connect_to_db(Controllers.register_user, kwargs)
+
         if not registered_user.get('status'):
             return render_template('register.html', error = "Something went wrong.")
-        if hasattr(registered_user.get('return_value'), 'error'):
-            return render_template("register.html", error = registered_user.get('return_value').get('error'))
-        
-        print(registered_user.get('return_value'))
+        registered_user = registered_user.get('return_value')
 
-        session["user_id"] = registered_user.get("return_value").get("_id")
-        session["user_name"] = registered_user.get("return_value").get("username")
+        if hasattr(registered_user, 'error'):
+            return render_template("register.html", error = registered_user.get('error'))
+        
+        # send thank you for sign up email
+        Email_Service.thank_for_sign_up(email, username)
+        session["user_id"] = registered_user.get("_id")
+        session["user_name"] = registered_user.get("username")
 
         if registered_user.get("return_value").get("username") == 'admin':
             session['admin'] = True
@@ -1193,17 +1159,20 @@ def managedates():
     if "admin" not in session:
         return redirect(url_for('login'))
 
-    ( all_dates, max_val) = App_Actions.get_disabled_dates(True)
-    sorted_dates = App_Actions.sort_list_of_dates(all_dates)
+    ( all_dates, max_val) = Controllers.get_disabled_dates(True)
+    sorted_dates = Controllers.sort_list_of_dates(all_dates)
 
     if request.method == "POST":
         data = request.form.get("data")
         kwargs = {'dates' : data.split("/")}
+
         if data[0] != '':
+
             if 'disable' in request.form:
-                 App_Actions.connect_to_db(App_Actions.disable_dates, **kwargs)
+                 Controllers.connect_to_db(Controllers.disable_dates, kwargs)
+
             if 'enable' in request.form:      
-                App_Actions.connect_to_db(App_Actions.enable_dates, **kwargs)
+                Controllers.connect_to_db(Controllers.enable_dates, kwargs)
 
         return redirect(url_for("managedates"))
 
@@ -1225,95 +1194,41 @@ def menusetter():
         return redirect(url_for('login'))
 #############################################################################
     if request.method == "POST":
-
-        set_menu = []
-
-        if 'submit-entrees' in request.form:
-
-            columns = request.form.get("submit-entrees").split(",")
-            print(columns)
-            # we know that since there are 4 columns : this will iterate each
-            # entree set as each entree's input fields only differ by index num
-            # also ( -1 ) due to the submit button being part of form
-
-            for entree in range( int( len(request.form)/len(columns) ) ):
-
-                item_num = str(entree)
-                item_dict = {}
-                for column in columns:
-                    item_dict[column] = request.form.get(item_num + column)
-
-                set_menu.append(item_dict)
-
-                """item_dict = {'item' : request.form.get(item_num + 'item'),
-                             'flavors': request.form.get(item_num + 'flavors'),
-                             'sizes': request.form.get(item_num + 'sizes'),
-                             'description' : request.form.get(item_num + 'description')} """
-            set_menu.append({ 'categories' : [item.capitalize() for item in columns ]})
-            insert_menu = json.dumps(set_menu)
-
-            execute("""
-                    UPDATE menu SET entree = %s WHERE row = %s
-                    """,(insert_menu, MENU_VERSION, ))
-
-        elif 'submit-sides' in request.form:
-
-            columns = request.form.get("submit-sides").split(",")
-
-            for side in range( int( len(request.form)/len(columns) ) ):
-
-                item_num = str(side)
-                item_dict = {}
-                for column in columns:
-                    item_dict[column] = request.form.get("sides" + item_num + column)
-
-                set_menu.append(item_dict)
-
-            set_menu.append({ 'categories' : [item.capitalize() for item in columns ]})
-
-            insert_menu = json.dumps(set_menu)
-
-            execute("""
-                    UPDATE menu SET sides = %s WHERE row = %s
-                    """, (insert_menu, MENU_VERSION, ) )
-        elif 'submit-min' in request.form:
-            minimum = int(request.form.get("set_min"))
-            execute("""
-                    UPDATE menu SET minsize = %s WHERE row = %s
-                    """,(minimum, MENU_VERSION,))
-
-        return redirect(url_for('menusetter'))
-
-#############################################################################
-    full_menu = execute("""
-                        SELECT * FROM menu WHERE row = %s
-                        """,(MENU_VERSION,))[0]
-
-    entree_items = full_menu.get("entree")
-
-    if entree_items != None:
-        entree_items = json.loads(entree_items)
+        return redirect(url_for("menusetter"))
     else:
-        entree_items = []
+        # all_menu_items = Controllers.connect_to_db(Controllers.get_menu_items)
+        # if all_menu_items.get("status"):
+        #     return render_template("menusetter.html", admin=True, menu=all_menu_items.get("return_value"))
+        full_menu = execute("""
+                    SELECT * FROM menu WHERE row = %s
+                    """,(MENU_VERSION,))[0]
 
-    side_items = full_menu.get("sides")
+        entree_items = full_menu.get("entree")
 
-    if side_items != None:
-        side_items = json.loads(side_items)
-    else:
-        side_items = []
+        if entree_items != None:
+            entree_items = json.loads(entree_items)
+        else:
+            entree_items = []
 
-    min_size = full_menu.get("minsize")
+        side_items = full_menu.get("sides")
 
-    side_headers = side_items.pop().get("categories")
-    headers = entree_items.pop().get("categories")
+        if side_items != None:
+            side_items = json.loads(side_items)
+        else:
+            side_items = []
 
-    return render_template("menusetter.html", admin=True,
-                                           entreeMenu = entree_items,
-                                           sidesMenu = side_items,
-                                           min_size = min_size,
-                                           headers = headers,
-                                           sideHeaders = side_headers)
+        min_size = full_menu.get("minsize")
+
+        side_headers = side_items.pop().get("categories")
+        headers = entree_items.pop().get("categories")
+
+        return render_template("menusetter.html", admin=True,
+                                            entreeMenu = entree_items,
+                                            sidesMenu = side_items,
+                                            min_size = min_size,
+                                            headers = headers,
+                                            sideHeaders = side_headers)
+        # return render_template("menusetter.html", admin=True, error="Something went wrong.")
 
 @app.route('/scheduled_orders', methods=["GET", "POST"])
 def scheduled_orders():
@@ -1325,15 +1240,15 @@ def scheduled_orders():
     if "admin" not in session:
         return redirect(url_for('login'))
 
-    all_orders = App_Actions.connect_to_db(App_Actions.get_all_orders)
+    all_orders = Controllers.connect_to_db(Controllers.get_all_orders)
    
     if all_orders.get("status"):
         all_orders = all_orders.get("return_value")
         
-    (past_dates, upcoming_dates, errors) = App_Actions.split_list_of_orders(all_orders)
+    (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders)
 
-    past_dates_sorted = App_Actions.sort_list_of_dates(past_dates, "date", True)
-    upcoming_dates_sorted = App_Actions.sort_list_of_dates(upcoming_dates, "date")
+    past_dates_sorted = Controllers.sort_list_of_dates(past_dates, "date", True)
+    upcoming_dates_sorted = Controllers.sort_list_of_dates(upcoming_dates, "date")
 
     return render_template('scheduled_orders.html', admin=True, upcoming_orders = upcoming_dates_sorted, past_orders = past_dates_sorted)
 
@@ -1342,112 +1257,48 @@ def commit_note():
     if not session.get('beta'):
         return "access denied :("
 
-    user_id = request.form.get('user_id')
-    order_num = request.form.get('order_num')
+    orderId = request.form.get('orderId')
     special_note = request.form.get('note')
-
-    if not user_id or not order_num or not special_note:
+    
+    if not orderId or special_note == None:
         return jsonify({'error' : 'Something went wrong!'})
 
-    users_orders = execute("""SELECT orders FROM allorders WHERE id = %s
-                           """, (user_id,))
-    if len(users_orders) < 1:
-        return jsonify({'error' : 'Could not confirm user in database.'})
-    user_orders = ""
-    try:
-        user_orders = json.loads( users_orders[0].get('orders') )
-    except Exception as err:
-        log_exception(err)
-        return jsonify({'error' : 'Something went wrong.'})
+    kwargs = {'orderId' : orderId, "note" : special_note}
+    Controllers.connect_to_db(Controllers.set_order_special_note, kwargs)
 
-    initial_length = len(user_orders)
-    user_orders = add_note_to_order(user_orders, special_note, order_num)
-    final_length = len(user_orders)
-
-    # check that no data was lost during insertion of note.
-    if initial_length != final_length:
-        return jsonify({'error' : 'Aborted when checking data corruption.'})
-
-    final_user_orders = json.dumps(user_orders)
-    result = execute(""" UPDATE allorders SET orders = %s WHERE id = %s
-                     """, (final_user_orders, user_id))
-#    print(result)
-#    print(type(result))
     return jsonify({'succes' : ''})
+
 @app.route('/get_prices/', methods=["GET"])
 def get_prices():
     if not session.get('beta'):
         return "access denied :("
-    prices = execute("""
-                     SELECT * FROM menu
-                     """)
-    prices = prices[-1]
-    entrees = json.loads(prices.get("entree"))
-    sides = json.loads(prices.get('sides'))
-    prices = parse_menu_for_prices(entrees)
-    prices = add_sides_prices(prices, sides)
-    return jsonify({ 'entrees' : prices })
+    prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
+    if prices.get("status") and prices.get("return_value"):
+        return jsonify( prices.get("return_value") )
+    return jsonify({"Error" : prices.get("error")})
 
 @app.route('/_get_menu')
 def get_menu():
     if not session.get('beta'):
         return "access denied :("
-    menu = execute("""
-                   SELECT * FROM menu WHERE row = %s
-                   """,(MENU_VERSION,))[0]
-
-    raw_menu = json.loads(menu.get("entree"))
-    prices = parse_menu_for_prices(raw_menu)
-#    print(prices)
-    sides_menu = json.loads(menu.get("sides"))
-    prices = add_sides_prices(prices, sides_menu)
-#    print('prices with sides:', prices)
-    menu["pricing"] = prices
-
-    session["entree_prices"] = json.dumps(prices)
-
-    menu["entree"] = raw_menu
-    menu["sides"] = sides_menu
-    menu["minsize"] = str(menu.get("minsize"))
-
-    return jsonify(menu)
+    menu = Controllers.connect_to_db(Controllers.get_menu_items)
+    print(menu)
+    if menu.get("status") and menu.get('return_value'):
+        return jsonify({'Status': "Success", 'Menu' : menu.get('return_value') })
+    return jsonify({"Status" : "Failed"})
+    
 # define route for flask to get favicon in static folder
 # will not work during development
-@app.route('/upload_menu/', methods=["POST", "GET"])
-def load_file():
-    if not session.get('beta'):
-        return "access denied :("
-    if request.method == 'POST':
-        f = request.files['file']
-        try:
-            os.remove(f.filename)
-        except Exception as err:
-            print(err)
-        f.save(f.filename)
-        location = os.path.dirname(os.path.realpath(__file__)) + "/" + f.filename
-        wb = xlrd.open_workbook(location)
-        entrees = get_listOfItems_fromExcel(wb, 0)
-        sides = get_listOfItems_fromExcel(wb, 1)
-
-        result = execute("""UPDATE menu SET entree = %s, sides = %s WHERE row = %s
-                         """,(json.dumps(entrees), json.dumps(sides), MENU_VERSION,))
-        # print(session.get('user_id'))
-        return redirect( url_for("menusetter", admin=True) )
-    return 'waiting for file'
-
-@app.route('/download_menu/')
-def return_files():
-    if not session.get('beta'):
-        return "access denied :("
-    menu = execute(""" SELECT * FROM menu
-               """, ('N/A',))
-    filename = 'menu.xls'
-    save_xls( menu , filename)
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    try:
-        return send_file(dir_path+'/menu.xls')
-    except Exception as error:
-        log_exception(error)
+@app.route('/update_menu/', methods=["POST"])
+def update_menu():
+    result = Sheets_Service.read_menu()
+    if type(result) != type(['list']):
+        if hasattr(result, "Error"):
+            return jsonify({"Status" : "Failed" , "Message" : result.get("Error")})
+        return jsonify({"Status" : "Failed", "Message" : "Something went wrong reading google sheets."})
+    kwargs = {'list_of_menu' : result}
+    Controllers.connect_to_db(Controllers.update_menu_to_db, kwargs)
+    return jsonify({"Status" : "Success", "Message" : "Menu updated."})
 
 @app.route('/favicon.ico')
 def favicon():
@@ -1480,21 +1331,28 @@ def terms_and_conditions():
         return "access denied :("
     return render_template('terms_and_conditions.html')
 
+def parse_mapped_values(array_one, array_two):
+    title = array_one.pop(0)
+    map_title = array_two.pop(0)
+    mappings = []
+
+    if len(array_one) != len(array_two):
+        raise Exception("missing values in mapping {} : {}".format(title, map_title))
+    arrays_len = len(array_one)
+    keys = ("name" , map_title )
+    zipped_array = [[array_one[index], array_two[index]] for index in range(arrays_len)]
+
+    for values in zipped_array:
+        new_map_obj = {keys[0] : values[0], keys[1] : values[1]}
+        mappings.append(new_map_obj)
+    return mappings
+
 if __name__ == '__main__':
 
     app.debug = True
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
 
-    # result = execute(""" SELECT * FROM managedates WHERE row = %s
-    #                 """,('1',))
-    # print(result)
-#    result = execute(""" SELECT orders FROM allorders WHERE id =%s
-#                     """,('7',))
-#    result = json.loads( result[0].get('orders') )[-1].get('order')
-#    print(result)
-#    final_result = parse_items_resolution(result)
-#    print(final_result)
     """
     API_ENDPOINT = "https://sandbox.api.intuit.com/quickbooks/v4/payments/charges"
     API_KEY = ""

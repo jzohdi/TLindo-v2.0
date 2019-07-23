@@ -19,6 +19,7 @@ class App_Actions:
 
     def __init__(self, settings, random, traceback, MongoClient, datetime, pwd_context, string):
         self.CONFIRM_CODE_LENGTH = 8
+        self.hash_salt_length = 12
         self.random = random
         self.MongoClient = MongoClient
         self.environ = settings
@@ -142,19 +143,14 @@ class App_Actions:
     def password_recovery_db(self):
         return self.environ.get("PASSWORD_RECOVERY_DB")
 
-    def entrees_db(self):
-        return self.environ.get("ENTREES_DB")
-
-    def sides_db(self):
-        return self.environ.get("SIDES_DB")
+    def menu_db(self):
+        return self.environ.get("MENU_DB")
 
     def settings_db(self):
         return self.environ.get("SETTINGS_DB")
 
     def manage_dates_db(self):
         return self.environ.get("MANAGE_DATES_DB")
-
-    def error_db(self):
         return self.environ.get("ERROR_DB")
 
     def get_salt(self, N):
@@ -295,7 +291,7 @@ class App_Actions:
         find_user = collection.find_one({"email": email})
         if find_user:
             return {'error': 'User already exists with provided email.'}
-        hash_salt = self.get_salt(12)
+        hash_salt = self.get_salt(self.hash_salt_length)
         encryption = self.pwd_context.hash(password + hash_salt)
 
         user_id = self.get_next_Value(collection, 'id_values', 1)
@@ -317,3 +313,103 @@ class App_Actions:
         if hasattr(form, "password") and hasattr(form, "confirm-password"):
             if form.get("password") != form.get("confirm-password"):
                 return {'is_valid': False, "message": "Passwords did not match."}
+
+    def user_exists(self, mydb, email):
+        collection = mydb[self.users_db()]
+        find_user = collection.find_one({"email": email})
+        if find_user:
+            return True
+        return False
+
+    def get_new_pass_link(self, email):
+        hash_code = self.get_salt(45)
+        return ('https://taco-lindo-catering.herokuapp.com' + '/password_recovery?code={}&recipient={}'.format(hash_code, email), hash_code)
+
+    def add_pass_recovery(self, mydb, email, code):
+        collection = mydb[self.password_recovery_db()]
+
+        reset_password_obj = {'_id': email}
+        collection.find_one_and_delete(reset_password_obj)
+
+        reset_password_obj['code'] = code
+        reset_password_obj['timestamp'] = self.get_date_time()
+
+        result = collection.insert_one(reset_password_obj)
+        if result.inserted_id == email:
+            return True
+        return False
+
+    def check_password_recovery(self, mydb, code, email):
+        collection = mydb[self.password_recovery_db()]
+        find_email = collection.find_one({'_id': email})
+        if not find_email:
+            return False
+        if find_email.get("code") != code:
+            return False
+        return find_email.get("timestamp")
+
+    def is_timestamp_within_24hr(self, timestamp):
+        request_datetime = self.datetime.datetime.strptime(
+            timestamp, '%Y-%m-%d %H:%M:%S')
+        request_plus24hr = self.datetime.timedelta(hours=24) + request_datetime
+        return request_plus24hr > self.datetime.datetime.now()
+
+    def update_user_password(self, mydb, email, new_pass):
+        collection = mydb[self.users_db()]
+        confirm_user = collection.find_one({"email": email})
+        if not confirm_user:
+            return False
+        hash_salt = self.get_salt(self.hash_salt_length)
+        pass_hash = self.pwd_context.hash(new_pass + hash_salt)
+        update_dictionary = {"password": pass_hash, "salt": hash_salt}
+        collection.find_one_and_update({'email': email}, {
+            '$set': update_dictionary}, upsert=False)
+        return confirm_user
+
+    def set_order_special_note(self, mydb, orderId, note):
+        collection = mydb[self.orders_db()]
+        if note == "":
+            collection.find_one_and_update({"_id": orderId}, {
+                "$unset": {'special-note': 1}
+            })
+        else:
+            collection.find_one_and_update({"_id": orderId}, {
+                "$set": {"special-note": note}
+            }, upsert=True)
+
+    def get_menu_items(self, mydb):
+        collection = mydb[self.menu_db()]
+        result = collection.find()
+        return list(result)
+
+    def update_menu_to_db(self, mydb, list_of_menu):
+        collection = mydb[self.menu_db()]
+        collection.delete_many({})
+        for menu_item in list_of_menu:
+            collection.insert_one(menu_item)
+
+    def parse_menu_prices(self, mydb):
+        return_obj = {}
+        collection = mydb[self.menu_db()]
+        results = collection.find()
+
+        for result in results:
+
+            name = result.get('name')
+            item_obj = {}
+            sizes = result.get("size", result.get('sizes'))
+            if not sizes:
+                raise Exception(
+                    "helpers.py line 402. Could not get sizes for item: {}".format(name))
+
+            for size in sizes:
+                item_obj.update(size)
+            flavors = result.get("flavors", result.get("flavor"))
+            if flavors:
+                for flavor in flavors:
+                    item_obj.update({
+                        flavor.get("name"): flavor.get("Price", flavor.get("Count"))
+                    })
+            return_obj[name] = item_obj
+
+        return return_obj

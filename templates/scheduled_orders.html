@@ -64,16 +64,13 @@ block head %}
             </div>
             {% elif key == 'special-note' %}
             <div
-              id="{{ each_order.id }}{{ each_order.order_num }}notes"
+              id="{{ each_order._id }}notes"
               class="col-xs-12 special-notes-area"
             >
               <span style="text-transform: uppercase;" class="order-keys"
                 >{{ key }}:
               </span>
-              <textarea
-                id="{{ each_order.id }}{{ each_order.order_num }}textarea"
-                >{{ value }}</textarea
-              >
+              <textarea id="{{ each_order._id }}textarea">{{ value }}</textarea>
             </div>
             {% else %}
             <div class="col-sm-3">
@@ -84,7 +81,7 @@ block head %}
             </div>
             {% endif %} {% endfor %} {% if 'special-note' not in each_order %}
             <div
-              id="{{ each_order.id }}{{ each_order.order_num }}notes"
+              id="{{ each_order._id }}notes"
               class="col-xs-12 special-notes-area"
             ></div>
             {% endif %}
@@ -96,10 +93,10 @@ block head %}
             >
               <!-- prettier-ignore -->
               <div
-                onclick="takeNotes('{{ each_order.id  }}', '{{ each_order.order_num  }}')"
+                onclick="takeNotes('{{ each_order._id  }}')"
                 class="button button1"
               >
-                <span id="{{ each_order.id  }}{{ each_order.order_num  }}button">
+                <span id="{{ each_order._id  }}button">
                   Add Note</span
                 >
               </div>
@@ -308,40 +305,40 @@ block head %}
       };
     }
 
-    const reverteButtonAndTextarea = function(userIdAndOrderNum) {
-        $("#" + userIdAndOrderNum + "button").html("Add Note");
-        $("#" + userIdAndOrderNum + "notes").empty();
+    const reverteButtonAndTextarea = function(orderCode) {
+        $("#" + orderCode+ "button").html("Add Note");
+        $("#" + orderCode+ "notes").empty();
     };
 
     const TEXT_AREA_DIV =
       '<span style="text-transform: uppercase;" class="order-keys">SPECIAL-NOTES:</span>' +
       '<textarea id="idPlaceholder"></textarea>';
 
-    const takeNotes = function(userId, userNum) {
-      const userIdAndOrderNum = userId + userNum;
-      const orderTextArea = $("#" + userIdAndOrderNum + "notes");
+    const takeNotes = function(orderCode) {
+      const orderCodeAndOrderNum = orderCode;
+      const orderTextArea = $("#" + orderCode + "notes");
 
       const textareaExists = orderTextArea.html().length > 0;
       if (textareaExists) {
-        const textArea = $("#" + userIdAndOrderNum + "textarea");
+        const textArea = $("#" + orderCode + "textarea");
         const textValue = textArea.val();
+
         if (textValue.length === 0) {
-          reverteButtonAndTextarea(userIdAndOrderNum);
-        } else {
-          commitNote(userId, userNum, textValue);
+          reverteButtonAndTextarea(orderCode);
         }
+        commitNote(orderCode, textValue);
+
       } else {
-        const replaceId = userIdAndOrderNum + "textarea";
+        const replaceId = orderCode + "textarea";
         const FINAL_DIV = TEXT_AREA_DIV.replace("idPlaceholder", replaceId);
         orderTextArea.html(FINAL_DIV);
-        $("#" + userIdAndOrderNum + "button").html("Click to Submit");
+        $("#" + orderCode + "button").html("Click to Submit");
       }
     };
 
-    const commitNote = function(id, orderNum, noteToCommit) {
+    const commitNote = function(orderId, noteToCommit) {
       $.post("/commit_special_note/", {
-        user_id: id,
-        order_num: orderNum,
+        orderId: orderId,
         note: noteToCommit
       }).done(function(data) {
         if (data.hasOwnProperty('error') ) {

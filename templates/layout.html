@@ -94,11 +94,7 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id %}
-            <script type="text/javascript">
-              sessionStorage.setItem("logged_in", "true");
-              window.id = "{{session.user_id}}";</script
-            >{% if admin %}
+            {% if session.user_id %} {% if admin %}
             <ul id="nav-list" class="nav navbar-nav menu">
               {#<!-- <li><a href="#" class="titles main-nav-item">Past Orders</a></li> -->#}
               <li>
@@ -344,10 +340,8 @@
       }
     });
   </script>
-  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
-  <script type="text/javascript">
-    getDevice();
-  </script>
+  <script src="{{ url_for('static', filename='MyScripts/scripts.js') }}"></script>
+  <script type="text/javascript"></script>
   <style>
     .glyphicon-cog {
       font-size: 25px;

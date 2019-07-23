@@ -9,465 +9,54 @@ head %}
   <div id="modal-holder"></div>
 
   <div class="row">
-    <div class="main-card question-titles col-xs-12">
-      <div class="header-size question-titles order-keys">
-        Entrees included here will be included in menu options
-      </div>
-      <form action="{{ url_for('menusetter') }}" method="post">
-        <fieldset>
-          <table id="menu-setter-table" class="menu-table">
-            <tr>
-              {% for header in headers %}
-              <th>{{ header }}</th>
-              {% endfor %}
-            </tr>
-            {% for menuItem in entreeMenu %} {% set outer_loop = loop %}
-            <tr>
-              {% for key, value in menuItem.items() %}
-              <td>
-                <input
-                  id="{{ outer_loop.index - 1 }}{{ key }}"
-                  type="text"
-                  name="{{ outer_loop.index - 1 }}"
-                  autocomplete="off"
-                  class="form-input-box"
-                  value="{{ value }}"
-                />
-              </td>
-              {% endfor %}
-            </tr>
-            {% endfor %}
-          </table>
-
-          <div class="row">
-            <div class="col-xs-2">
-              <div
-                onclick="addRow('#menu-setter-table', '', '#entree-submit')"
-                class="button button1 question-titles add-row-button"
-              >
-                Add Row
-              </div>
-            </div>
-            <div class="col-xs-2 col-xs-offset-8">
-              <div
-                onclick="deleteRow('#menu-setter-table', '')"
-                class="button button1 question-titles delete-row-button"
-              >
-                Delete Row
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-xs-2">
-              <div
-                onclick="addCol('#menu-setter-table', '', '#entree-submit', '#newCol1')"
-                class="button button1 question-titles add-row-button"
-              >
-                Add Col
-              </div>
-            </div>
-            <div class="col-xs-2 col-xs-offset-8">
-              <div
-                onclick="deleteCol('#menu-setter-table', '', '#entree-submit')"
-                class="button button1 question-titles delete-row-button"
-              >
-                Delete Col
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-xs-2">
-              <input
-                style="width: 100%;"
-                id="newCol1"
-                placeholder="new column name"
-              />
-            </div>
-          </div>
-          <div class="form-group">
-            <button
-              id="entree-submit"
-              name="submit-entrees"
-              class="submit-button button button1"
-              type="submit"
-            >
-              Submit
-            </button>
-          </div>
-        </fieldset>
-      </form>
-    </div>
+    <iframe
+      style="min-height: 50vh; width: 100%;"
+      src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSOUriLIUDYfw5WFU2TjAJhbi6lQqxbl5ZuyLZ9DuNMlhbjs7cU5FzuML9rUfBJSce_EQVOKVdLQTzo/pubhtml?widget=true&amp;headers=false"
+    ></iframe>
   </div>
   <div class="row">
-    <div class="main-card question-titles col-xs-12">
-      <div class="header-size question-titles order-keys">
-        Sides included here will be included in menu options
-      </div>
-      <form action="{{ url_for('menusetter') }}" method="post">
-        <fieldset>
-          <table id="menu-setter-table2" class="menu-table">
-            <tr>
-              {% for sHeader in sideHeaders %}
-              <th>{{ sHeader }}</th>
-              {% endfor %}
-            </tr>
-            {% for sidesItem in sidesMenu %} {% set outer_loop = loop %}
-            <tr>
-              {% for key, value in sidesItem.items() %}
-              <td>
-                <input
-                  id="sides{{ outer_loop.index - 1 }}{{ key }}"
-                  type="text"
-                  name="sides{{ outer_loop.index - 1 }}"
-                  autocomplete="off"
-                  class="form-input-box"
-                  value="{{ value }}"
-                />
-              </td>
-              {% endfor %}
-            </tr>
-            {% endfor %}
-          </table>
-
-          <div class="row">
-            <div class="col-xs-2">
-              <div
-                onclick="addRow('#menu-setter-table2', 'sides', '#sides-submit')"
-                class="button button1 question-titles add-row-button"
-              >
-                Add Row
-              </div>
-            </div>
-            <div class="col-xs-2 col-xs-offset-8">
-              <div
-                onclick="deleteRow('#menu-setter-table2', '')"
-                class="button button1 question-titles delete-row-button"
-              >
-                Delete Row
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-xs-2">
-              <div
-                onclick="addCol('#menu-setter-table2', 'sides', '#sides-submit', '#newCol2')"
-                class="button button1 question-titles add-row-button"
-              >
-                Add Col
-              </div>
-            </div>
-            <div class="col-xs-2 col-xs-offset-8">
-              <div
-                onclick="deleteCol('#menu-setter-table2', 'sides', '#sides-submit')"
-                class="button button1 question-titles delete-row-button"
-              >
-                Delete Col
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-xs-2">
-              <input
-                style="width: 100%;"
-                id="newCol2"
-                placeholder="new column name"
-              />
-            </div>
-          </div>
-          <div class="form-group">
-            <button
-              id="sides-submit"
-              name="submit-sides"
-              class="submit-button button button1"
-              type="submit"
-            >
-              Submit
-            </button>
-          </div>
-        </fieldset>
-      </form>
+    <div id="open-sheet" class="col-xs-6 col-md-4 button button1">
+      Open Sheet
     </div>
-  </div>
-  <div class="row">
-    <div class="question-titles col-xs-3 main-card">
-      <form action="{{ url_for('menusetter') }}" method="post">
-        <p class='order-keys'style="font-size: 80%;">Minimum #</p>
-        <input
-          value="{{ min_size }}"
-          style="width: 60%; min-width: 30px; text-align: center;"
-          type="text"
-          name="set_min"
-        />
-        <button
-          name="submit-min"
-          style="margin-top:2px; margin-left: -3px;"
-          class="submit-button button button1"
-          type="submit"
-        >
-          Submit
-        </button>
-      </form>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12 main-card question-titles">
-      <h3 class="order-keys">Import/Export Menu</h3>
-      {#<!-- <input
-        class="button button1"
-        type="file"
-        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      /> -->#}
-      <div class="input-group">
-        <label class="input-group-btn">
-          <form
-          id='upload-menu'
-            action="https://taco-lindo-catering.herokuapp.com/upload_menu/"
-            method="POST"
-            enctype="multipart/form-data"
-          >
-          <span style='float:left;'class="btn btn-primary">
-            Browse&hellip;
-            <input type="file" name="file" style="display: none;" multiple />
-          </span>
-        </label>
-        <input type="text" class="form-control" readonly />
-      </div>
-      <div class="submit-menu-div">
-          <button type="submit" class="button button1">Submit File</button>
-      </div>
-    </form>
-      <div class="download-menu-div">
-        <a href="/download_menu/" target="blank"
-          ><button class="button button1">Download Excel</button></a
-        >
-      </div>
-    </div>
+    <div id="update-menu" class="col-xs-6 col-md-4 button button1">Update</div>
   </div>
 </div>
 <script type="text/javascript">
-  if (
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    )
-  ) {
-    window.device = "mobile";
-  } else {
-    window.device = "desk";
-  }
-  function setUploadHref(){
-    $('#upload-menu').attr('href', window.location.href.replace("menusetter", "upload_menu/"))
-  }
-  setUploadHref();
-  function addModalTo(elementID) {
-    $("*[id*=" + elementID + "]:visible").each(function() {
-      let $id = $(this).attr("id");
-      // console.log($id);
-      $(this).attr("onclick", "showModal('#modal-holder', '" + $id + "')");
-    });
-  }
-
-  addModalTo("description");
-
-  function showModal(tempId, idNum) {
-    let id_of_element = idNum;
-    if (typeof id_of_element === "number") {
-      id_of_element = id_of_element.toString();
-    }
-    let modalDiv =
-      '<div id="myModal" class="modal"><div id="add-modal-content" class="menu-modal ' +
-      'col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">' +
-      '<span class="close">X</span><textarea id="modal-text" name="descript-text" class="menu-text"></textarea></div></div>';
-    $(tempId).append(modalDiv);
-
-    let modal = document.getElementById("myModal");
-    let text_area = document.getElementById("modal-text");
-    let text_target = document.getElementById(id_of_element);
-    let span = document.getElementsByClassName("close")[0];
-    let done = document.getElementById("done");
-
-    text_area.value = text_target.value;
-
-    modal.style.display = "block";
-
-    text_area.focus();
-
-    text_area.oninput = function() {
-      text_target.value = text_area.value;
-    };
-
-    span.onclick = function() {
-      modal.style.display = "none";
-      $(tempId).empty();
-    };
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-        $(tempId).empty();
-      }
-    };
-  }
-  function addCol(idOfTable, name_prefix, submit_id, inputIdForColName) {
-    inputIdForColName = inputIdForColName.replace("#", "");
-    let new_col_name = document.getElementById(inputIdForColName).value;
-
-    let $rows_count = $(idOfTable + " tr").length;
-    let headerElement = "<th>" + new_col_name + "</th>";
-
-    let headerRow = $(idOfTable + " tr:first");
-    headerRow.append(headerElement);
-
-    let lowerCaseName = new_col_name.toLocaleLowerCase();
-    let x = 0;
-    let inputDiv;
-    let $rows = $(idOfTable + " tbody tr")
-      .not(":first")
-      .each(function(index) {
-        inputDiv =
-          '<td><input style = "width: 100%;" type="text" name = "' +
-          name_prefix +
-          index.toString() +
-          lowerCaseName +
-          '" autocomplete="off" class="form-input-box"></td>';
-        $(this).append(inputDiv);
-      });
-    getTitlesToValues(idOfTable, submit_id);
-  }
-
-  function deleteCol(idOfTable, prefix, submit_Id) {
-    $(idOfTable + " th:last-child, " + idOfTable + " td:last-child")
-      .empty()
-      .remove();
-
-    getTitlesToValues(idOfTable, submit_Id);
-  }
-
-  function addRow(idOfTable, name_prefix, submit_id) {
-    let titles = $(idOfTable + " tbody tr th");
-    let menuList = [];
-
-    $.each(titles, function(element) {
-      value = titles[element].innerHTML.toLocaleLowerCase();
-      menuList.push(value);
-    });
-
-    let count = $(idOfTable + " tr").length - 1;
-    count = count.toString();
-    let table_row_div = "<tr>";
-    $.each(menuList, function(element) {
-      table_row_div += getColumnStringForRow(
-        name_prefix,
-        count,
-        menuList[element]
-      );
-    });
-    table_row_div += "</tr>";
-
-    $(idOfTable).append(table_row_div);
-    addModalTo("description");
-    getTitlesToValues(idOfTable, submit_id);
-  }
-
-  function getColumnStringForRow(prefix, count, column_name) {
-    return (
-      '<td><input id="' +
-      prefix +
-      count +
-      column_name +
-      '" type="text" name="' +
-      prefix +
-      count +
-      column_name +
-      '" autocomplete="off" class="form-input-box"/></td>'
+  $("#open-sheet").on("click", function() {
+    const newWindow = window.open(
+      "https://docs.google.com/spreadsheets/d/13022bkp6y0FPJu_J2ze0qOtqmZj5GGoInf3vTZs4W4o/edit#gid=0",
+      "_blank"
     );
-  }
-  function deleteRow(idOfTable) {
-    let count = $(idOfTable + " tr").length - 1;
-    if (count >= 2) {
-      $(idOfTable + " tr:last").remove();
-    }
-  }
-
-  function setColumnInputNames(idOfTable, listOfColumns) {
-    let column_name;
-    let name;
-    let $rows = $(idOfTable + " tbody tr td");
-    for (let index = 0; index < $rows.length; index++) {
-      column_name = listOfColumns[index % listOfColumns.length];
-      name = $($rows[index])
-        .find("input")
-        .attr("name");
-      if (!name.includes(column_name)) {
-        name = name + column_name;
-        $($rows[index])
-          .find("input")
-          .attr("name", name);
-      }
-      if (window.device == "mobile") {
-        if (column_name != "description") addModalTo(column_name);
-      }
-    }
-  }
-
-  function getTitlesToValues(idOfTable, idOfSubmit) {
-    let text = "";
-    let titles = $(idOfTable + " tbody tr th");
-    let menuList = [];
-
-    $.each(titles, function(element) {
-      value = titles[element].innerHTML.toLocaleLowerCase();
-      text += value + ",";
-      menuList.push(value);
-    });
-    // console.log(menuList);
-
-    $(idOfSubmit).attr("value", text.substring(0, text.length - 1));
-
-    setColumnInputNames(idOfTable, menuList);
-  }
-  getTitlesToValues("#menu-setter-table", "#entree-submit");
-  getTitlesToValues("#menu-setter-table2", "#sides-submit");
-
-  $(function() {
-    // We can attach the `fileselect` event to all file inputs on the page
-    $(document).on("change", ":file", function() {
-      var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input
-          .val()
-          .replace(/\\/g, "/")
-          .replace(/.*\//, "");
-      input.trigger("fileselect", [numFiles, label]);
-    });
-
-    // We can watch for our custom `fileselect` event like this
-    $(document).ready(function() {
-      $(":file").on("fileselect", function(event, numFiles, label) {
-        var input = $(this)
-            .parents(".input-group")
-            .find(":text"),
-          log = numFiles > 1 ? numFiles + " files selected" : label;
-
-        if (input.length) {
-          input.val(log);
-        } else {
-          if (log) alert(log);
+    newWindow.focus();
+  });
+  $("#update-menu").on("click", function() {
+    $("#update-menu").css({ "pointer-events": "none" });
+    $.post("/update_menu/")
+      .done(function(response) {
+        if (response.Status == "Success") {
+          alert(response.Message);
+          location.reload();
+        } else if (response.Status == "Failed") {
+          alert(response.Message);
         }
+        $("#update-menu").css({ "pointer-events": "" });
+      })
+      .fail(function() {
+        alert("Something went wrong.");
       });
-    });
   });
 </script>
 <style>
   /* input[type="file"] {
-    display: inline;
-    float: left;
-  } */
-  @media (max-width:991px){
-    .main-card{
-          margin: 10px 0px !important;
+      display: inline;
+      float: left;
+    } */
+  @media (max-width: 991px) {
+    .main-card {
+      margin: 10px 0px !important;
     }
   }
   .btn-file {
-
     position: relative;
     overflow: hidden;
   }
