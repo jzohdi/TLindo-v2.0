@@ -24,9 +24,14 @@ head %}
           id="datepicker"
         />
       </div>
+      <h4 class="order-keys">
+        If your date is unavailable or less than 24 hours in advance, give us a
+        call:
+      </h4>
+      <a style="color:#0d034c;" href="tel:+1-856-214-3413">(856)-214-3413</a>
     </div>
   </div>
-  <div id="need-phone" class="row normalize-height">
+  <!-- <div id="need-phone" class="row normalize-height">
     <div id="card3" class="col-md-10 col-md-offset-1 main-card fade-in-right">
       <h4>
         If your date is unavailable or less than 24 hours in advance, give us a
@@ -34,8 +39,8 @@ head %}
       </h4>
       <a style="color:#0d034c;" href="tel:+1-856-214-3413">(856)-214-3413</a>
     </div>
-  </div>
-  <div id="people-num" class="row normalize-height">
+  </div> -->
+  <!-- <div id="people-num" class="row normalize-height">
     <div id="card4" class="col-md-10 col-md-offset-1 main-card fade-in-left">
       <h4>How many people will be at your event?</h4>
       <div class="form-group">
@@ -50,14 +55,45 @@ head %}
         </h5>
       </div>
     </div>
-  </div>
+  </div> -->
   <div id="select-menu" class="row normalize-height">
     <div
       id="card2"
-      class="col-md-10 col-md-offset-1 main-card fade-in-left helper-screen question-titles"
+      class="col-md-10 col-md-offset-1 main-card fade-in-left helper-screen"
     >
-      <h4 id="number-rec"></h4>
-      <div class="row">
+      <div id="card9" class="col-xs-12 fade-in-right ">
+        <div class="row">
+          <div class="col-sm-6">
+            <h4>
+              <span class="order-keys">Not sure how much to order?</span>
+              Enter the number of people, then click Amount Help button below to
+              display helper messages on the menu.
+            </h4>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <h5>
+                Adults:
+                <input id="numAdults" name="adults" class="form-control" />
+              </h5>
+            </div>
+            <div class="form-group">
+              <h5>
+                &nbsp;&nbsp;&nbsp;&nbsp;Kids:
+                <input id="numKids" name="kids" class="form-control" />
+              </h5>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button id="amount-help" class="button button1 fade-in-right">
+            Amount Help
+          </button>
+        </div>
+      </div>
+
+      <div class="row main-menu-box">
+        <h4 id="number-rec"></h4>
         <div class="col-md-4">
           <h3 class="main-menu-headers">Entrees</h3>
           <div id="entree" class="row"></div>
@@ -65,7 +101,9 @@ head %}
           <div id="side" class="row"></div>
         </div>
         <div id="selected-food" class="col-md-8">
-          <h3 class="main-menu-headers">Selected Items</h3>
+          <h3 class="main-menu-headers">
+            Selected Items
+          </h3>
           <div id="my-cart" class="row"></div>
         </div>
       </div>
@@ -79,23 +117,39 @@ head %}
   </div>
   <div id="next-button" class="row normalize-height hidden"></div>
   <div id="help-or-no" class="row normalize-height">
-    <div id="card9" class="col-md-10 col-md-offset-1 main-card fade-in-right ">
-      <h4>
-        Not sure how much to order? We'd love to help!
-      </h4>
-      <h4>
-        Click the button below to show or hide helper messages on the menu.
-      </h4>
-    </div>
+    <!-- <div id="card9" class="col-md-10 col-md-offset-1 main-card fade-in-right ">
+      <div class="col-sm-6">
+        <h4>
+          <span class="order-keys">Not sure how much to order?</span> We'd love
+          to help!
+        </h4>
+        <h4>
+          Enter the number of people, the click on
+          <span style="white-space: nowrap;" class="order-keys"
+            >"show/hide amount"</span
+          >
+          button to display helper messages on the menu.
+        </h4>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <h5>
+            Adults: <input id="numAdults" name="adults" class="form-control" />
+          </h5>
+        </div>
+        <div class="form-group">
+          <h5>
+            &nbsp;&nbsp;&nbsp;&nbsp;Kids:
+            <input id="numKids" name="kids" class="form-control" />
+          </h5>
+        </div>
+      </div>
+      <div id="amount-help" class="col-sm-6 button button1 fade-in-right">
+        <h4>Show Amount Help</h4>
+      </div>
+    </div> -->
   </div>
-  <div id="help-or-no-buttons" class="row normalize-height">
-    <div
-      id="amount-help"
-      class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 button button1 main-card fade-in-right"
-    >
-      <h4>Show Amount Help</h4>
-    </div>
-  </div>
+  <div id="help-or-no-buttons" class="row normalize-height"></div>
 </div>
 <script src="{{ url_for('static', filename='datepicker.js') }}"></script>
 
@@ -174,13 +228,15 @@ head %}
     }
 
     getHeader = function(){
-      let description = "";
+      let description = "<ul>";
       if( this.environ.hasOwnProperty("description") ){
-        if ( this.environ.description != "" ){
-          description = this.environ.description
+        if ( this.environ.description.length > 0 ){
+          $.each(this.environ.description, function(index, element) {
+            description += `<li>${element}</li>`;
+          })
         }
       }
-      return description + '<p class="please-select-from">Please choose from options:</p>';
+      return description + '</ul><p class="please-select-from">Please choose from options:</p>';
 
     }
   }
@@ -233,18 +289,13 @@ head %}
         return true;
       }
       maxFlavors = Math.min(maxFlavors, maxItems);
-      console.log(`maxItems : ${maxItems}`);
       if ( this.alreadyAtMaxFlavorLimit(selectionItemObject, maxFlavors) ){
-        console.log("at flavor limit")
         return false;
       }else if ( !help ){
-        console.log("got here help? : " + help )
         return true;
       }
       const toLimitCount = this.getCountOfItemsToLimit();
-      console.log(toLimitCount)
       if ( toLimitCount >= maxItems ){
-        console.log("at cart limit")
         return false;
       }
       return true;
@@ -314,6 +365,7 @@ head %}
       this.currentItem = null;
       this.help = false;
       this.validGuests = false;
+      this.environ = {}
     }
 
     run = function(){
@@ -333,7 +385,7 @@ head %}
           // show current items of this in cart to modal
           MyApp.showSelectedFood('#modal-cart', itemName);
 
-          attachAddToCartControlls(MyApp, itemName, type);
+          MyApp.attachAddToCartControlls(itemName, type);
 
           const close = document.getElementsByClassName('close')[0];
 
@@ -344,19 +396,34 @@ head %}
       }
     }
 
-    showSelectedFood = function(idOfTarget, itenName = undefined, errorMessage = ""){
+    showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
       const MyApp = this;
       // draw the selection to the cart
       let showSelectedFood = errorMessage + this.foodCounter.pickNumberOfItemsMessage(this.maxItems, this.help);
-      showSelectedFood += this.foodCounter.toString(itenName);
+      showSelectedFood += this.foodCounter.toString(itemName);
       $(idOfTarget).html(showSelectedFood);
 
       // add controllers for the increase count and decrease count
       const incButtons = document.getElementsByClassName("increase");
       for ( let x = 0; x < incButtons.length; x++ ){
         incButtons[x].addEventListener("click", function(){
-          MyApp.foodCounter.cart[this.id].count += 1;
-          MyApp.showSelectedFood(idOfTarget, itenName);
+          // MyApp.foodCounter.cart[this.id].count += 1;
+          const selectionItemObject = deepCopy(MyApp.foodCounter.cart[this.id]);
+          selectionItemObject.count = 1;
+          let errorMessage = '';
+          let targetId = '#my-cart';
+          if ( MyApp.foodCounter.canAddItemToCart(selectionItemObject, MyApp.maxFlavors, MyApp.maxItems, selectionItemObject.type, MyApp.help) ){
+          // add the item to the card and re draw selection.
+            MyApp.foodCounter.addItemToCart(selectionItemObject);
+          }
+          errorMessage = MyApp.foodCounter.getAddToCartError(selectionItemObject, MyApp.maxFlavors, MyApp.maxItems);
+          if( $("#modal-cart").html() != undefined ){
+            targetId = "#modal-cart"
+          }
+          MyApp.showSelectedFood(targetId, itemName, errorMessage);
+          if ( errorMessage.includes("cart limit") ){
+            attachAddMore();
+          }
         })
       }
 
@@ -368,27 +435,33 @@ head %}
           if ( MyApp.foodCounter.cart[this.id].count == 0 ){
             MyApp.foodCounter.cart.splice(this.id, 1);
           }
-          MyApp.showSelectedFood(idOfTarget, itenName);
+          MyApp.showSelectedFood(idOfTarget, itemName);
         })
       }
     }
+
+    attachAddToCartControlls = function(itemName, type){
+      const MyApp = this;
+      $("#addToCart").on('click', function(){
+        // create item object.
+        const selectionItemObject = getSelectedOptions(itemName, type)
+        // if can add it to cart
+        if ( MyApp.foodCounter.canAddItemToCart(selectionItemObject, MyApp.maxFlavors, MyApp.maxItems, type, MyApp.help) ){
+          // add the item to the card and re draw selection.
+          MyApp.foodCounter.addItemToCart(selectionItemObject);
+          MyApp.showSelectedFood('#modal-cart', itemName)
+        }else{
+          const errorMessage = MyApp.foodCounter.getAddToCartError(selectionItemObject, MyApp.maxFlavors, MyApp.maxItems);
+          MyApp.showSelectedFood('#modal-cart', itemName, errorMessage);
+            if ( errorMessage.includes("cart limit") ){
+              attachAddMore();
+            }
+        }
+      });
+    }
+
   }
 
-  function attachAddToCartControlls(MyApp, itemName, type){
-    $("#addToCart").on('click', function(){
-      // create item object.
-      const selectioItemObject = getSelectedOptions(itemName, type)
-      // if can add it to cart
-      if ( MyApp.foodCounter.canAddItemToCart(selectioItemObject, MyApp.maxFlavors, MyApp.maxItems, type, MyApp.help) ){
-        // add the item to the card and re draw selection.
-        MyApp.foodCounter.addItemToCart(selectioItemObject);
-        MyApp.showSelectedFood('#modal-cart', itemName)
-      }else{
-        const errorMessage = MyApp.foodCounter.getAddToCartError(selectioItemObject, MyApp.maxFlavors, MyApp.maxItems);
-        MyApp.showSelectedFood('#modal-cart', itemName, errorMessage);
-      }
-    });
-  }
   const getSelectedOptions = function(nameOfItem, itemType){
     const $selected = $(".select-setting");
     const thisItem = { count: 1, name: nameOfItem, type: itemType };
@@ -406,7 +479,18 @@ head %}
     return thisItem;
   }
   const app = new App({{ menu | tojson }});
+
   app.run();
+
+  const attachAddMore = function(){}
+  $("#add-more").on('click', function(){
+    app.maxItems += 1;
+    if ( $("#modal-cart").html() == undefined ){
+      app.showSelectedFood('#my-cart');
+    }else{
+      app.showSelectedFood('#modal-cart');
+    }
+  });
 
   $('#checkoutButton').on('click', function(){
     const date = $('#datepicker').val();
@@ -426,15 +510,24 @@ head %}
     let numAdults = $('#numAdults').val()
     let numKids = $('#numKids').val()
 
+    if( numAdults === '' ) numAdults = 0;
+    if( numKids === '') numKids = 0;
+
     if( isNaN(numAdults) || isNaN(numKids) ){
       app.validGuests = false;
     }else{
-      if ( (numKids + numAdults) >= 8 && (0.5*numKids + numAdults) < 8 ){
+      app.environ.Adults = parseInt(numAdults);
+      app.environ.Kids = parseInt(numKids);
+      if ( (app.environ.Kids + app.environ.Adults) >= 8 && (0.5*app.environ.Kids + app.environ.Adults) < 8 ){
         numGuests = 8;
       }else{
-        numGuests = (0.5*numKids) + numAdults;
+        numGuests = (0.5*app.environ.Kids) + app.environ.Adults;
       }
       app.maxItems = Math.ceil( numGuests / parseInt(DEFAULT_MIN) );
+      const numberRec = $('#number-rec');
+      if ( numberRec.html() !== '' ){
+        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees.`) ;
+      }
       app.validGuests = true;
     }
   }
@@ -447,12 +540,22 @@ head %}
     setAppMaxItems();
   })
 
-    $('#amount-help').on('click', function(){
-      if ( app.help == false && app.validGuests == false){
+  $('#amount-help').on('click', function(){
+    if ( app.help == false && app.validGuests == false){
       alert('Please enter a valid number of guests.');
+    }else {
+      const numberRec = $("#number-rec");
+      if ( numberRec.html() === '' ){
+        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees.`) ;
       }else {
-      app.help = !app.help;
+        numberRec.empty()
       }
-    })
+      app.help = !app.help;
+      app.showSelectedFood('#my-cart');
+      $('#amount-help').toggleClass(function(){
+        return 'focused-button';
+      });
+    }
+  })
 </script>
 {% endblock %}

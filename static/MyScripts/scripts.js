@@ -60,6 +60,9 @@ function setPicker(
 function setDatePicker(selectDate, finalArrayOfDates) {
   let ele = document.getElementById("datepicker");
   if (ele) {
+    $("#datepicker").on("change", function() {
+      sessionStorage.setItem("date", $("#datepicker").val());
+    });
     var $input = $("#datepicker").pickadate({
       today: ""
     });
@@ -112,8 +115,8 @@ const createModal = (someIdOnPage, content) => {
 };
 
 const MAIN_MODAL_CONTENT =
-  "<h4> ItemNamePlaceholder: </h4>" +
-  "<h4> HeaderPlaceholder </h4>" +
+  "<h2> ItemNamePlaceholder: </h2>" +
+  "<p> HeaderPlaceholder </p>" +
   "<div class='selection row'> SelectionPlaceholder <div id='addToCart'" +
   "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
   '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
@@ -127,7 +130,7 @@ const ADD_MORE_MESSAGE =
 
 const AT_ORDER_LIMIT_DIV =
   '<div id="limit-message"style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">' +
-  'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' +
+  'Currently at order limit <div id="add-more" class="button button1 want-more-button">Want to add to order?' +
   ADD_MORE_MESSAGE +
   "</div>";
 

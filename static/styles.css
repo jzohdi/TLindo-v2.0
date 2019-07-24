@@ -262,11 +262,27 @@ footer {
   -o-animation-duration: 0.6s;
   -ms-animation-duration: 0.6s;
   animation-duration: 0.6s;
-  /*overflow: hidden;*/
+  overflow: hidden;
   -webkit-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
   -moz-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
   -o-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
   transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+}
+#amount-help {
+  float: right;
+  padding: 3px;
+  border: 2px solid;
+}
+.focused-button {
+  background-color: #fbbb13 !important;
+}
+#card9 {
+  /* border: 2px solid;
+  border-radius: 11px; */
+  padding: 20px;
+}
+.main-menu-box {
+  margin-top: 20px;
 }
 #goBack,
 #goNext {

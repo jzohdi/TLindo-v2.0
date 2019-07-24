@@ -36,7 +36,7 @@ class GSpread:
         self.client = gspread.authorize(
             SAC.from_json_keyfile_name("credentials.json", self.scope))
         self.title = "Taco Lindo Menu"
-        self.single_value_keys = {"name", "description", "type"}
+        self.single_value_keys = {"name", "type"}
         self.to_map = {'sizes', 'flavors', 'size', 'flavor', 'protein', 'meat'}
         self.strict = ("name", "type")
 
