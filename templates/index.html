@@ -295,6 +295,7 @@ head %}
         return true;
       }
       const toLimitCount = this.getCountOfItemsToLimit();
+      console.log(toLimitCount);
       if ( toLimitCount >= maxItems ){
         return false;
       }
@@ -326,7 +327,7 @@ head %}
       let count = 0;
       for ( const itemInCart of this.cart ){
         if ( this.toLimit.has(itemInCart.type) ){
-            count += itemInCart.count;
+          count += itemInCart.count;
         }
       }
       return count;
@@ -362,7 +363,7 @@ head %}
       this.foodCounter = new FoodCounter();
       this.maxItems = 20;
       this.maxFlavors = 4;
-      this.currentItem = null;
+      this.currentItem = ''
       this.help = false;
       this.validGuests = false;
       this.environ = {}
@@ -390,6 +391,7 @@ head %}
           const close = document.getElementsByClassName('close')[0];
 
           close.addEventListener('click', function(){
+            MyApp.currentItem = '';
             MyApp.showSelectedFood('#my-cart')
           });
         });
@@ -399,7 +401,12 @@ head %}
     showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
       const MyApp = this;
       // draw the selection to the cart
+      console.log("got here only " + this.currentItem)
       let showSelectedFood = errorMessage + this.foodCounter.pickNumberOfItemsMessage(this.maxItems, this.help);
+      if ( this.currentItem != '' && !this.toLimit.has(this.menu[this.currentItem].environ.type ) ){
+        console.log("hereee");
+        showSelectedFood = '';
+      }
       showSelectedFood += this.foodCounter.toString(itemName);
       $(idOfTarget).html(showSelectedFood);
 
@@ -416,7 +423,10 @@ head %}
           // add the item to the card and re draw selection.
             MyApp.foodCounter.addItemToCart(selectionItemObject);
           }
-          errorMessage = MyApp.foodCounter.getAddToCartError(selectionItemObject, MyApp.maxFlavors, MyApp.maxItems);
+          // only show error if the item type is type to limit number.
+          if( MyApp.toLimit.has( selectionItemObject.type ) ){
+            errorMessage = MyApp.foodCounter.getAddToCartError(selectionItemObject, MyApp.maxFlavors, MyApp.maxItems);
+          }
           if( $("#modal-cart").html() != undefined ){
             targetId = "#modal-cart"
           }
@@ -482,15 +492,17 @@ head %}
 
   app.run();
 
-  const attachAddMore = function(){}
-  $("#add-more").on('click', function(){
-    app.maxItems += 1;
-    if ( $("#modal-cart").html() == undefined ){
-      app.showSelectedFood('#my-cart');
-    }else{
-      app.showSelectedFood('#modal-cart');
-    }
-  });
+  const attachAddMore = function(){
+    $("#add-more").on('click', function(){
+      app.maxItems += 1;
+      if ( $("#modal-cart").html() == undefined ){
+        app.showSelectedFood('#my-cart');
+      }else{
+        app.showSelectedFood('#modal-cart');
+      }
+    });
+  }
+
 
   $('#checkoutButton').on('click', function(){
     const date = $('#datepicker').val();

@@ -138,7 +138,7 @@ const AT_FLAVOR_LIMIT_DIV =
   '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Sorry, you have reached the max number of unique flavors for item</div>';
 
 const PICK_NUMBER_MORE_ITEMS =
-  '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">( Select numberPlaceholder more items )</div>';
+  '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">( Select numberPlaceholder more entrees )</div>';
 
 const ITEM_HTML_FOR_LIST =
   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
