@@ -242,13 +242,16 @@ head %}
   }
 
   class FoodCounter{
-    constructor(){
+    constructor(app){
       this.cart = []
       this.toLimit = new Set(["Entree", "entree"]);
+      this.parentApp = app;
+      this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
     }
 
     addItemToCart = function(itemToAdd){
       for ( const itemInCart of this.cart ){
+        // if item is the same as another item except for the count, append 1 to the count.
           if ( objectsAreEqual(itemInCart, itemToAdd, ['count'])){
             itemInCart.count = itemInCart.count + 1;
             return;
@@ -360,7 +363,7 @@ head %}
         this.menu[menuItem.name] = new MenuItem(menuItem);
       }
       this.toLimit = new Set(["Entree", "entree"]);
-      this.foodCounter = new FoodCounter();
+      this.foodCounter = new FoodCounter(this);
       this.maxItems = 20;
       this.maxFlavors = 4;
       this.currentItem = ''
@@ -401,10 +404,8 @@ head %}
     showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
       const MyApp = this;
       // draw the selection to the cart
-      console.log("got here only " + this.currentItem)
       let showSelectedFood = errorMessage + this.foodCounter.pickNumberOfItemsMessage(this.maxItems, this.help);
       if ( this.currentItem != '' && !this.toLimit.has(this.menu[this.currentItem].environ.type ) ){
-        console.log("hereee");
         showSelectedFood = '';
       }
       showSelectedFood += this.foodCounter.toString(itemName);
@@ -538,7 +539,7 @@ head %}
       app.maxItems = Math.ceil( numGuests / parseInt(DEFAULT_MIN) );
       const numberRec = $('#number-rec');
       if ( numberRec.html() !== '' ){
-        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees.`) ;
+        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees of the smallest size.`) ;
       }
       app.validGuests = true;
     }
@@ -558,16 +559,88 @@ head %}
     }else {
       const numberRec = $("#number-rec");
       if ( numberRec.html() === '' ){
-        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees.`) ;
+        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees of the smallest size.`) ;
       }else {
         numberRec.empty()
       }
       app.help = !app.help;
+      app.foodCounter.cart = reverseResolutionOfItems(app.foodCounter.cart, app.help);
       app.showSelectedFood('#my-cart');
       $('#amount-help').toggleClass(function(){
         return 'focused-button';
       });
     }
   })
+
+  const reverseResolutionOfItems = function(orginalCart, help){
+    const newCart = []
+    orginalCart.forEach( function(element){
+      if ( hasCountProperty(element) ){
+        const arrayOfResolution = ( help ) ? convertToSmallerSizes(element) :  convertToLargerSizes( element );
+        arrayOfResolution.forEach(function(newResItem){
+            newCart.push(newResItem);
+        });
+      }else{
+        newCart.push(element);
+      }
+    });
+    return reconcileCart(newCart);
+  }
+  const reconcileCart = function(oldCart){
+    for ( let curIndex = 0; curIndex < oldCart.length ; curIndex++ ){
+      for ( let checkIndex = curIndex + 1; checkIndex < oldCart.length; checkIndex++ ){
+        if ( objectsAreEqual( oldCart[curIndex], oldCart[checkIndex], ['count']) ){
+          oldCart[curIndex].count += oldCart[checkIndex].count;
+          oldCart.splice(checkIndex, 1);
+          checkIndex -= 1;
+        }
+      }
+    }
+    return oldCart;
+  }
+  const hasCountProperty = function(name){
+    for ( const sizeKey of app.foodCounter.possibleSizeKeys ) {
+      if ( app.menu[name.name].environ.hasOwnProperty(sizeKey) ){
+        // console.log( this.parentApp.menu[name.name][sizeKey][0]);
+        if ( app.menu[name.name].environ[sizeKey][0].hasOwnProperty("Count") || app.menu[name.name].environ[sizeKey][0].hasOwnProperty("count") ){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  const convertToSmallerSizes = function(itemObject){
+    const newResArray = []
+    let count = 0;
+    const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
+    const itemSize = itemObject[sizeKey];
+    const arrayOfItemSizes = app.menu[itemObject.name].environ.sizes;
+    let minSize = {'Count' : 100 }
+    arrayOfItemSizes.forEach( function(object){
+      if ( parseInt(object.Count) < minSize.Count ){
+        minSize= object
+      }
+    });
+    const thisItemCount = arrayOfItemSizes.find( function(element){
+      return element.name == itemSize;
+    });
+    const copyOfItem = deepCopy(itemObject);
+    copyOfItem[sizeKey] = minSize.name;
+    copyOfItem['count'] = ( parseInt(thisItemCount.Count) / parseInt(minSize.Count) ) * itemObject.count;
+    newResArray.push(copyOfItem);
+    return newResArray;
+  }
+  const convertToLargerSizes = function(itemObject){
+    const newResArray = []
+    const sizeKey = itemObject.hasCountProperty("size") ? "size" : "portion";
+    const itemSize = itemObject[sizeKey];
+    const copyOfSizes = deepCopy(app.menu[itemObject.name].sizes);
+    while ( copyOfSizes.length > 0 ){
+      const currentLargestSize = Math.max.apply(Math, copyOfSizes.map(function(object) { return object.Count; }))
+      copyOfSizes = copyOfSizes.filter( function(object){ object.Count != currentLargestSize });
+
+    }
+
+  }
 </script>
 {% endblock %}
