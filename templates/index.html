@@ -116,39 +116,7 @@ head %}
     </div>
   </div>
   <div id="next-button" class="row normalize-height hidden"></div>
-  <div id="help-or-no" class="row normalize-height">
-    <!-- <div id="card9" class="col-md-10 col-md-offset-1 main-card fade-in-right ">
-      <div class="col-sm-6">
-        <h4>
-          <span class="order-keys">Not sure how much to order?</span> We'd love
-          to help!
-        </h4>
-        <h4>
-          Enter the number of people, the click on
-          <span style="white-space: nowrap;" class="order-keys"
-            >"show/hide amount"</span
-          >
-          button to display helper messages on the menu.
-        </h4>
-      </div>
-      <div class="col-sm-6">
-        <div class="form-group">
-          <h5>
-            Adults: <input id="numAdults" name="adults" class="form-control" />
-          </h5>
-        </div>
-        <div class="form-group">
-          <h5>
-            &nbsp;&nbsp;&nbsp;&nbsp;Kids:
-            <input id="numKids" name="kids" class="form-control" />
-          </h5>
-        </div>
-      </div>
-      <div id="amount-help" class="col-sm-6 button button1 fade-in-right">
-        <h4>Show Amount Help</h4>
-      </div>
-    </div> -->
-  </div>
+  <div id="help-or-no" class="row normalize-height"></div>
   <div id="help-or-no-buttons" class="row normalize-height"></div>
 </div>
 <script src="{{ url_for('static', filename='datepicker.js') }}"></script>
@@ -165,6 +133,7 @@ head %}
     constructor(itemDictionary){
       this.environ = itemDictionary;
       this.notSelectKeys = new Set(["name" , "description", "_id", "type"]);
+      this.toLimit = new Set(["Entree", "entree"]);
     }
 
     button = function(){
@@ -179,16 +148,16 @@ head %}
     target = function(){
       return "#" + this.environ.type.toLowerCase();
     }
-    getModalContent = function(){
+    getModalContent = function(help){
       let content =  MAIN_MODAL_CONTENT
       .replace("ItemNamePlaceholder", this.environ.name)
       .replace("HeaderPlaceholder", this.getHeader())
-      .replace("SelectionPlaceholder", this.getSelection())
+      .replace("SelectionPlaceholder", this.getSelection(help))
       .replace("namePlaceholder", this.environ.name)
       .replace("idPlaceholder", "modal-cart")
       return content
     }
-    getSelection = function(){
+    getSelection = function(help){
       let content = ""
       for (const key in this.environ ) {
         if ( this.notSelectKeys.has(key) ){
@@ -198,19 +167,25 @@ head %}
           this.environ.hasOwnProperty(key) &&
           this.environ[key].length > 1
         ) {
-          content += this.getSelectDiv(key, this.environ[key]);
+          content += this.getSelectDiv(key, this.environ[key], help);
           }
         }
       return content;
     }
 
-    getSelectDiv = function(key, array) {
+    getSelectDiv = function(key, array, help) {
       if ( !typeof(array) ){
         return "";
       }
       key = this.trimKey(key);
       let content = `<div class='col-sm-6 col-md-4'> Choose ${key} :  <select class='select-setting'>`
-
+      // if asking for help, and the item is of entree type, and the key is the size. only return option for the smallest size
+      if ( help && this.toLimit.has(this.environ.type) && key == 'size'){
+        const sizeKey = ( this.environ.hasOwnProperty("sizes") ) ? 'sizes' : 'size';
+        const currentLargestSize = Math.min.apply(Math, this.environ[sizeKey].map(function(object) { return object.Count; }))
+        const value = this.environ[sizeKey].find( function(object) { return object.Count == currentLargestSize })
+        return content + `<option value='${key}'>${value.name.trim()}</option></select></div>`;
+      }
       $.each(array, function(index, value) {
         if ( typeof(value) == 'object' && value.hasOwnProperty('name') ){
           value = value.name;
@@ -242,8 +217,8 @@ head %}
   }
 
   class FoodCounter{
-    constructor(app){
-      this.cart = []
+    constructor(cart, app){
+      this.cart = cart;
       this.toLimit = new Set(["Entree", "entree"]);
       this.parentApp = app;
       this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
@@ -270,7 +245,7 @@ head %}
           newDiv += `<small class="my-cart-key" >${itemObject[key]}"</small>,`;
         }
         else if (key != "count") {
-          newDiv += `<span class="my-cart-key"> ${itemObject[key]}</span><strong class="order-keys">|</strong>`;
+          newDiv += `<span class="my-cart-key"> ${itemObject[key]}</span><strong class="order-keys"> | </strong>`;
         }
       }
       return newDiv + "</div>";
@@ -298,7 +273,6 @@ head %}
         return true;
       }
       const toLimitCount = this.getCountOfItemsToLimit();
-      console.log(toLimitCount);
       if ( toLimitCount >= maxItems ){
         return false;
       }
@@ -357,13 +331,13 @@ head %}
   }
 
   class App{
-    constructor(menu){
+    constructor(cart, menu){
       this.menu = {}
       for ( const menuItem of menu ){
         this.menu[menuItem.name] = new MenuItem(menuItem);
       }
       this.toLimit = new Set(["Entree", "entree"]);
-      this.foodCounter = new FoodCounter(this);
+      this.foodCounter = new FoodCounter(cart, this);
       this.maxItems = 20;
       this.maxFlavors = 4;
       this.currentItem = ''
@@ -385,7 +359,7 @@ head %}
           MyApp.currentItem = itemName;
           const type = MyApp.menu[itemName].environ.type;
           // create modal
-          createModal('#modalHolder', menuClass.getModalContent() );
+          createModal('#modalHolder', menuClass.getModalContent(MyApp.help) );
           // show current items of this in cart to modal
           MyApp.showSelectedFood('#modal-cart', itemName);
 
@@ -489,7 +463,11 @@ head %}
     });
     return thisItem;
   }
-  const app = new App({{ menu | tojson }});
+  let cart = []
+  if ( sessionStorage.getItem("cart") != undefined ){
+    cart = JSON.parse( sessionStorage.getItem("cart") );
+  }
+  const app = new App(cart, {{ menu | tojson }});
 
   app.run();
 
@@ -525,12 +503,20 @@ head %}
 
     if( numAdults === '' ) numAdults = 0;
     if( numKids === '') numKids = 0;
-
     if( isNaN(numAdults) || isNaN(numKids) ){
       app.validGuests = false;
     }else{
+
+      if ( numAdults + numKids === 0 ){
+        validGuests = false;
+        return;
+      }
+
       app.environ.Adults = parseInt(numAdults);
       app.environ.Kids = parseInt(numKids);
+      sessionStorage.setItem("numAdults", numAdults);
+      sessionStorage.setItem("numKids", numKids);
+
       if ( (app.environ.Kids + app.environ.Adults) >= 8 && (0.5*app.environ.Kids + app.environ.Adults) < 8 ){
         numGuests = 8;
       }else{
@@ -552,7 +538,12 @@ head %}
   $('#numKids').on('input', function(){
     setAppMaxItems();
   })
-
+  if ( sessionStorage.getItem("numAdults") != undefined ){
+    $("#numAdults").val(sessionStorage.getItem("numAdults") );
+  }
+  if ( sessionStorage.getItem("numKids") != undefined ){
+    $("#numKids").val( sessionStorage.getItem("numKids") );
+  }
   $('#amount-help').on('click', function(){
     if ( app.help == false && app.validGuests == false){
       alert('Please enter a valid number of guests.');
@@ -618,7 +609,7 @@ head %}
     let minSize = {'Count' : 100 }
     arrayOfItemSizes.forEach( function(object){
       if ( parseInt(object.Count) < minSize.Count ){
-        minSize= object
+        minSize = object
       }
     });
     const thisItemCount = arrayOfItemSizes.find( function(element){
@@ -632,15 +623,31 @@ head %}
   }
   const convertToLargerSizes = function(itemObject){
     const newResArray = []
-    const sizeKey = itemObject.hasCountProperty("size") ? "size" : "portion";
+    const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
     const itemSize = itemObject[sizeKey];
-    const copyOfSizes = deepCopy(app.menu[itemObject.name].sizes);
+    let copyOfSizes = deepCopy(app.menu[itemObject.name].environ.sizes);
+    const thisItemCount = copyOfSizes.find( function(element){
+      return element.name == itemSize;
+    })
+    let totalPieces = parseInt(thisItemCount.Count) * itemObject.count;
     while ( copyOfSizes.length > 0 ){
       const currentLargestSize = Math.max.apply(Math, copyOfSizes.map(function(object) { return object.Count; }))
-      copyOfSizes = copyOfSizes.filter( function(object){ object.Count != currentLargestSize });
-
+      const sizeObjectWithCurrentLargestSize = copyOfSizes.find( function(object){
+        return object.Count == currentLargestSize;
+      })
+      if ( totalPieces >= sizeObjectWithCurrentLargestSize.Count ){
+        const newItem = deepCopy(itemObject);
+        newItem.count = 0;
+        newItem.size = sizeObjectWithCurrentLargestSize.name;
+        while ( totalPieces >= parseInt(sizeObjectWithCurrentLargestSize.Count) ){
+          newItem.count += 1;
+          totalPieces -= parseInt(sizeObjectWithCurrentLargestSize.Count);
+        }
+        newResArray.push(newItem);
+      }
+      copyOfSizes = copyOfSizes.filter( function(object){ return object.Count != currentLargestSize });
     }
-
+    return newResArray;
   }
 </script>
 {% endblock %}
