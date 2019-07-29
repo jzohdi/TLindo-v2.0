@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 class Email_Service:
     def __init__(self, settings, Thread, requests):
         self.environ = settings
@@ -15,8 +14,7 @@ class Email_Service:
         AUTH = self.environ.get("AUTH")
         data = {"AUTH": AUTH, "recipient": recipient, "link": link}
         result = self.requests.get(ENDPOINT, data=data)
-        print(result.json())
-        return result
+        return result.json()
 
     def thank_for_sign_up(self, recipient, username):
         ENDPOINT = self.environ.get("EMAIL_SERVER_BASE_URI") + self.sign_up_uri
@@ -24,15 +22,34 @@ class Email_Service:
         data = {"AUTH": AUTH, 'recipient': recipient, "user_name": username}
         result = self.requests.get(ENDPOINT, data=data)
         print(result.json())
-        return result
+        return result.json()
+
+    def placed_order_email(self, recipient, order, confirmation_code):
+        ENPOINT = self.environ.get(
+            "EMAIL_SERVER_BASE_URI") + self.order_placed_uri
+        AUTH = self.environ.get("AUTH")
+        str_order = self.prettify(order)
+        data = {"AUTH": AUTH, "recipient": recipient,
+                'order': str_order, 'confirmation_code': confirmation_code}
+        result = self.requests.get(ENPOINT, data=data)
+        print(result.json())
+        return result.json()
+
+    def prettify(self, order_dict):
+        final_string = "\n"
+        for key, value in order_dict.items():
+            finalString = finalString + key + ": " + str(value) + "\n"
+        return final_string
 
 
 class GSpread:
     def __init__(self, gspread, SAC):
         self.gspread = gspread
         self.SAC = SAC
-        self.scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
-                      "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+        self.scope = ["https://spreadsheets.google.com/feeds",
+                      'https://www.googleapis.com/auth/spreadsheets',
+                      "https://www.googleapis.com/auth/drive.file",
+                      "https://www.googleapis.com/auth/drive"]
         self.client = gspread.authorize(
             SAC.from_json_keyfile_name("credentials.json", self.scope))
         self.title = "Taco Lindo Menu"
@@ -52,7 +69,9 @@ class GSpread:
 
                 all_item_values = sheet.get_all_values()
                 all_items_parsed.append(
-                    self.parse_sheet_for_item(new_id, all_item_values, sheet_name))
+                    self.parse_sheet_for_item(new_id,
+                                              all_item_values,
+                                              sheet_name))
                 new_id = new_id + 1
         return all_items_parsed
 
@@ -90,7 +109,9 @@ class GSpread:
                 item_to_add[title] = value[1:]
         is_valid_item = self.validate_item(item_to_add)
         if not is_valid_item.get("Status"):
-            return {"Error": is_valid_item.get("Message").replace("sheet_name", sheet_name)}
+            return {"Error":
+                    is_valid_item.get("Message").replace(
+                        "sheet_name", sheet_name)}
         return item_to_add
 
     def parse_mapped_values(self, array_one, array_two):
@@ -116,7 +137,6 @@ class GSpread:
         for title in self.strict:
             if title not in item_obj or item_obj[title] == "":
                 return {"Status": False, "Message": (
-                    "Error parsing sheet: sheet_name, missing one or more fields: "
-                    + str(self.strict))
-                }
+                    "Error parsing sheet: sheet_name, " +
+                    "missing one or more fields: " + str(self.strict))}
         return {"Status": True}

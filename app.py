@@ -8,7 +8,8 @@ import datetime
 import os
 import sys
 from flask import (Flask, flash, redirect, render_template, request,
-                   session, url_for, jsonify, send_from_directory, send_file )
+                   session, url_for, jsonify, 
+                   send_from_directory, send_file)
 import requests
 from passlib.apps import custom_app_context as pwd_context
 from flask_session import Session
@@ -27,89 +28,30 @@ from tempfile import mkdtemp
 import string
 import random
 from werkzeug import secure_filename
-#import xlwt
+# import xlwt
 from xlwt import Workbook
 import xlrd
 from copy import deepcopy as deep_copy
 import stripe
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials 
+from oauth2client.service_account import ServiceAccountCredentials
 from threading import Thread
+from email.utils import parseaddr
+import phonenumbers
 
-GSpread_dependencies = {'gspread' : gspread, "SAC" : ServiceAccountCredentials}
+GSpread_dependencies = {'gspread': gspread, "SAC": ServiceAccountCredentials}
 
-Email_Service_dependencies = {'Thread' : Thread}
+Email_Service_dependencies = {'Thread': Thread}
 Email_Service_dependencies["requests"] = requests
 
-App_Actions_dependencies = {'random' : random}
+App_Actions_dependencies = {'random': random}
 App_Actions_dependencies['traceback'] = traceback
 App_Actions_dependencies['MongoClient'] = MongoClient
 App_Actions_dependencies['datetime'] = datetime
 App_Actions_dependencies['pwd_context'] = pwd_context
 App_Actions_dependencies['string'] = string
-"""
-###############################################################################
-######################### HELPER FUNCTIONS ####################################
-###############################################################################
-"""
-##############################################################################
-###################### function that sorts managedates table by date  ########
-def sort_managedates():
-
-    dates_json = execute("""SELECT * FROM managedates WHERE row = %s""",(MENU_VERSION,))[0].get("dates")
-    dates = json.loads(dates_json)
-
-    all_dates = [date.get('day') for date in dates]
-
-    date_keys = dict( ( dates[index]['day'], index) for index in range( len(dates) ) )
-    sort_dates = sorted(all_dates, key=lambda x: datetime.datetime.strptime(x, '%d %B, %Y'))
-
-    final_sorted = []
-
-    for date in sort_dates:
-        final_sorted.append(dates[date_keys[date]])
-
-    final_sorted = json.dumps(final_sorted)
-
-    if dates_json != final_sorted:
-        execute("""UPDATE managedates SET dates = %s WHERE row = %s""",(final_sorted, MENU_VERSION,))
-    else:
-        print("already sorted")
-
-def reconcile_managedates(order_date, cost):
-    manage_dates = execute("""
-                     SELECT * FROM managedates WHERE row = %s
-                     """,(MENU_VERSION,))[0]
-
-    max_val = manage_dates.get("max")
-    current_disabled = json.loads(manage_dates.get("disabled") )
-    current_dates = json.loads(manage_dates.get("dates") )
-
-    if order_date in current_disabled:
-        return False
-
-    if order_date not in current_dates:
-        disabled = False
-        if cost >= max_val:
-            disabled = True
-            current_disabled.append(order_date)
-        current_dates[order_date] = { 'sum' : str(cost), 'disabled' : str(disabled)}
-    else:
-        new_sum = float(current_dates[order_date].get('sum')) + cost
-        current_dates[order_date]['sum'] = new_sum
-        if new_sum >= max_val:
-            current_dates[order_date]['disabled'] = str(True)
-
-    execute("""UPDATE managedates SET dates = %s, disabled = %s WHERE row = %s""",
-            (json.dumps(current_dates), json.dumps(current_disabled), MENU_VERSION,))
-    return True
 
 ###################################################################################
-def format_amount_to_cents(original_amount):
-    if type(original_amount) == type('string'):
-        original_amount = float(original_amount)
-    original_amount *= 100
-    return int(original_amount)
 
 def log_exception(message):
     with open('error_log.txt', 'a+') as file:
@@ -223,12 +165,6 @@ def confirm_order_price(order_string, current_prices):
 #    print(order_total, "  ", order_items_list)
     return (round(order_total, 2), order_items_list )
 
-def get_sorted_dates( dictionary_in ):
-
-    dates_list = [key for key in dictionary_in]
-    sort_dates = list(sorted(dates_list, key=lambda x: datetime.datetime.strptime(x, '%d %B, %Y')))
- #   print(sort_dates)
-    return sort_dates
 
 def parse_menu_for_prices(raw_menu):
     new_object = {}
@@ -758,30 +694,21 @@ def confirmCart():
 def order_placed():
     if not session.get('beta'):
         return "access denied :("
-    last_order = session.get('recent_order')
-    try:
-        last_order = json.loads(last_order)
-    except:
-        if 'user_id' not in session:
-            return redirect(url_for('orderlookup'))
-        else:
-            return redirect(url_for('user_orders'))
-    name = last_order.get('name')
-    date = last_order.get('date')
-    phone = last_order.get('phone')
-    email = last_order.get('email')
-    address = last_order.get('address')
-    order = last_order.get('order')
-    comments = last_order.get('comments')
-    total = last_order.get('price')
-    paid = last_order.get('paid')
-    confirm_code = 'guest_code' in session
-    confirmation_code = session.get('user_name') if 'user_name' in session else session.get('guest_code')
+    confirmation_code = session.get("order_code")
 
-    return render_template('order_placed.html', name = name, date = date, phone = phone,
-                                           email = email, address = address, order = order,
-                                           comments = comments, total = total, code = confirmation_code,
-                                           confirm_code = confirm_code, paid = paid)
+    if not confirmation_code:
+        return redirect(url_for('user_orders'))
+
+    kwargs = {"confirmation_code": confirmation_code}
+    order = Controllers.connect_to_db(Controllers.get_order_for_code, kwargs)
+    if not order:
+        return render_template('order_placed.html', error="Something went wrong. Could not retrieve order.")
+    order = order.get('return_value')
+    print(order)
+    total = order.pop("price")
+    paid = order.pop("paid")
+    comments = order.pop("comments")
+    return render_template('order_placed.html', order=order, total=total, paid = paid, comments=comments)
 
 def format_order_message( order_info ):
     to_return = ''
@@ -796,44 +723,62 @@ def charge():
     if not session.get('beta'):
         return "access denied :("
 
-    if 'user_id' not in session and 'guest_code' not in session:
+    if 'user_id' not in session and 'confirmation_code' not in session:
         return jsonify({'error' : 'must log in or continue as guest'})
+    # if user is logged in get user_id else set to False
+    user_id = session.get('user_id') if 'user_id' in session else False
+    # there will be confirmation code in session if the user requested guest login, else generate new code.
+    confirmation_code = session.get("confirmation_code")
+    if not confirmation_code:
+        confirmation_code =  Controllers.generate_confirmation_code()
 
-    user_id = str( session.get('user_id') ) if 'user_id' in session else session.get('guest_code')
-
-    order_information = { 'name' : request.form.get('name'),
+    order_information = { '_id' : confirmation_code,
+                         'name' : request.form.get('name'),
                          'date' : request.form.get('date'),
                          'phone' : request.form.get('phone'),
                          'email' : request.form.get('email'),
                          'address' : request.form.get('address'),
                          'order' : request.form.get('order'),
-                         'comments' : request.form.get('notes'),
-                         'id' : user_id,
-                         'order_num' : 1 }
+                         'comments' : request.form.get('notes')}
+
+    validate_phone = phonenumbers.parse("+1" + order_information.get('phone'), "US")
+    if not phonenumbers.is_valid_number(validate_phone):
+        return jsonify({"error": "Given phone number is not valid"})
+
+    billing_address = json.loads( request.form.get("billing") )
+
     if None in order_information.values():
         return jsonify({'error' : 'Some information missing from order'})
 
-    current_prices = get_prices_from_db()
-    (order_information["price"], order_information['order']) = confirm_order_price(order_information.get('order'), current_prices)
-
-    if not order_information.get('price'):
+    current_prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
+    if current_prices.get("status"):
+        current_prices = current_prices.get("return_value")
+    else:
+        return jsonify({"error" : "there was a problem verifying your cart total."})
+    # print(current_prices)
+    (order_information["price"], order_information['order']) = Controllers.validate_order( order_information['order'], current_prices)
+    if not order_information.get('price') or not order_information.get('order'):
         return jsonify({'error' : 'could not confirm order pricing'})
 
-    email = request.form.get('email')
-    """
-    SUBJECT = PLACE_ORDER_SUBJECT
-    MESSAGE = format_order_message(order_information)
-    did_message_send = send_email(email, SUBJECT, MESSAGE)
-    """
+    recipient_email = request.form.get('email')
+    is_valid_email = parseaddr(recipient_email)
+    if not is_valid_email[0] == '' and is_valid_email[1] == '':
+        return jsonify({'error': "Email address not valid."})    
+    
     stripe.api_key = settings.get("STRIPE_KEY")
     token = request.form['stripeToken']
 
     try:
         charge = stripe.Charge.create(
-        amount= format_amount_to_cents(order_information['price']),
-        currency='usd',
-        description='Test Charge',
-        source=token, )
+            amount = Controllers.format_amount_to_cents(order_information['price']),
+            currency='usd',
+            description='Charge for :{}'.format(confirmation_code),
+            receipt_email=recipient_email,
+            statement_descriptor="order code: {}".format(confirmation_code),
+            metadata={
+                'address': billing_address.get('street') + " " + billing_address.get("city") + ", " + billing_address.get('zip')
+                },
+            source=token )
 
         amount_charged = charge.get("amount", "Charge was not processed")
         didPay = charge.get('paid')
@@ -841,13 +786,20 @@ def charge():
             return jsonify({"error" : "charge could not be complete"})
         order_information['paid'] = "$" + str(amount_charged)[:-2] + "."+ str(amount_charged)[-2:]
 
-        result = reconcile_managedates(order_information.get("date"), order_information.get("price"))
-        if not result:
-            log_exception("could not reconcile dates with amount place")
+        kwargs = {'date' : order_information.get("date"), 'order_total' :  order_information.get("price")}
+        Controllers.connect_to_db(Controllers.reconcile_managedates, kwargs)
+        if user_id:
+            confirmation_code_to_user_kwargs = {'user_id' : user_id, 'confirmation_code' : confirmation_code}
+            Controllers.connect_to_db( Controllers.add_confirmation_code_to_user, confirmation_code_to_user_kwargs)
+        
+        add_order_to_db_kwargs = {'order' : order_information }
+        Controllers.connect_to_db(Controllers.add_order_to_db, add_order_to_db_kwargs)
+        # email placed order to user.
+        Email_Service.placed_order_email(recipient_email, order_information, confirmation_code)
 
-        place_order_in_db( user_id, order_information )
-        session['recent_order'] = json.dumps(order_information)
+        session['order_code'] = order_information['_id']
         return jsonify({'success' : 'success'})
+
     except stripe.error.CardError as e:
       # Since it's a decline, stripe.error.CardError will be caught
       body = e.json_body
@@ -860,29 +812,42 @@ def charge():
       print("Message is: %s" % err.get('message'))
 
     except stripe.error.RateLimitError as e:
-      # Too many requests made to the API too quickly
-      log_exception(str(e) + ' Too many requests made to API too quickly')
-      return jsonify({'error' : "Our servers are currently over used please try again later."})
+        traceback.print_exc()
+        # Too many requests made to the API too quickly
+        Controllers.log_error(str(e) + ' Too many requests made to API too quickly')
+        return jsonify({'error' : "Our servers are currently over used please try again later."})
+
     except stripe.error.InvalidRequestError as e:
-      # Invalid parameters were supplied to Stripe's API
-      log_exception(str(e) + ' Invalid parameters were passed to Stripe API')
-      return jsonify({'error' : 'There was a problem processing your payment, no charge was made.'})
+        traceback.print_exc()
+        # Invalid parameters were supplied to Stripe's API
+        Controllers.log_error(str(e) + ' Invalid parameters were passed to Stripe API')
+        return jsonify({'error' : 'There was a problem processing your payment, no charge was made.'})
+
     except stripe.error.AuthenticationError as e:
-      # Authentication with Stripe's API failed
-      # (maybe you changed API keys recently)
-      log_exception(str(e) + ' Stripe API athentication failed, check API keys')
-      return jsonify({'error' : "Stripe authentication failed."})
+        traceback.print_exc()
+        # Authentication with Stripe's API failed
+        # (maybe you changed API keys recently)
+        Controllers.log_error(str(e) + ' Stripe API athentication failed, check API keys')
+        return jsonify({'error' : "Stripe authentication failed."})
+
     except stripe.error.APIConnectionError as e:
-      # Network communication with Stripe failed
-      return jsonify({'error' : 'Network Communication error, no charge was made.'})
+        traceback.print_exc()
+        # Network communication with Stripe failed
+        Controllers.log_error( str(e) + 'Network Communication error, no charge was made.')
+        return jsonify({'error' : 'Network Communication error, no charge was made.'})
+
     except stripe.error.StripeError as e:
-      # Display a very generic error to the user, and maybe send
-      # yourself an email
-      return jsonify({'error' : 'There was a problem processing your payment, no charge was made.'})
+        traceback.print_exc()
+        # Display a very generic error to the user, and maybe send
+        # yourself an email
+        Controllers.log_error( str(e) + "There was a problem processing the payment, no charge was made.")
+        return jsonify({'error' : 'There was a problem processing your payment, no charge was made.'})
+
     except Exception as e:
-      # Something else happened, completely unrelated to Stripe
-      log_exception(str(e) + ' There was a payment processing error unrelated to Stripe')
-      return jsonify({'error' : 'There was a problem processing your payment, no charge was made.'})
+        traceback.print_exc()
+        # Something else happened, completely unrelated to Stripe
+        Controllers.log_error(str(e) + ' There was a payment processing error unrelated to Stripe')
+        return jsonify({'error' : 'There was a problem processing your payment, no charge was made.'})
 
 def place_order_in_db( user_id, order_to_add ):
     if 'guest_code' in session:
@@ -972,7 +937,7 @@ def commit_edit():
         return "access denied :("
 
     order = request.form.get('order')
-    current_prices = get_prices_from_db()
+    current_prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
     (order_total, order) = confirm_order_price(order, current_prices)
 
     user_id = str(session.get('user_id'))
@@ -1002,17 +967,17 @@ def guest_login():
     if 'guest_code' in session:
         session.pop('guest_code')
 
-    guest_code = Controllers.get_confirmation_code()
-    session['guest_code'] = guest_code
+    guest_code = Controllers.generate_confirmation_code()
+    session['confirmation_code'] = guest_code
 
     return jsonify({'code' : guest_code})
 
-@app.route('/request_login/', methods=["GET"])
+@app.route('/request_login/', methods=["POST"])
 def request_login():
     if not session.get('beta'):
         return "access denied :("
-    username_or_email = request.args.get('username', '')
-    password = request.args.get('pass', '')
+    username_or_email = request.form.get('username', '')
+    password = request.form.get('pass', '')
 
     if username_or_email == ''  or password == '':
         return jsonify({'error' : 'Username or password not provided'})
@@ -1024,21 +989,24 @@ def request_login():
         return jsonify({'error' : "could not confirm username or password"})
     
     session["user_id"] = verify_user.get("return_value")
-    session["user_name"] = username
+    session["user_name"] = username_or_email
 
-    return jsonify({ 'username' : username, 'id' : users[0]["id"]})
+    return jsonify({ 'username' : username_or_email, 'id' : verify_user.get("return_value")})
 
 @app.route('/request_register/', methods=["GET"])
 def request_register():
     if not session.get('beta'):
         return "access denied :("
-    username = request.args.get("username")
-    email = request.args.get("email")
-    password = request.args.get("pass")
+    username = request.form.get("username")
+    email = request.form.get("email")
+    password = request.form.get("pass")
 
     if not Controllers.is_valid_password(password):
             return jsonify({'pass_error' : 'could not validate password'})
-    
+    is_valid_email = parseaddr(email)
+    if not is_valid_email[0] == '' and is_valid_email[1] == '':
+        return jsonify({'error': "Email address not valid."})
+
     kwargs = {'username' : username, "email" : email, "password" : password }
     register_user = Controllers.connect_to_db(Controllers.register_user, kwargs)
 
@@ -1051,14 +1019,13 @@ def request_register():
         return jsonify({'error' : register_user.get("error")})
     
     # send thank you for registering email.
-    Email_Service.thank_for_sign_up(email, username)
-
+    response = Email_Service.thank_for_sign_up(email, username)
     session["user_id"] = register_user.get("_id")
     session["user_name"] = username
 
     if username == 'admin':
         session['admin'] = True
-    return jsonify({ 'username' : username, 'id' :  user_id_num})
+    return jsonify({ 'username' : username, 'id' :  register_user.get("_id")})
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -1124,6 +1091,9 @@ def register():
 
         username = request.form.get("username")
         email = request.form.get("email")
+        is_valid_email = validate_email(email, verify=True)
+        if not is_valid_email:
+            return jsonify({'error': "Email address not valid."})        
         # check to see if username has already been added to database
         kwargs = {'username' : username, "email" : email, "password" : password}
         registered_user = Controllers.connect_to_db(Controllers.register_user, kwargs)

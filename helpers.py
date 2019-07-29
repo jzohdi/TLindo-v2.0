@@ -17,7 +17,8 @@ def parse_dictionary(dictionaries):
 
 class App_Actions:
 
-    def __init__(self, settings, random, traceback, MongoClient, datetime, pwd_context, string):
+    def __init__(self, settings, random, traceback, MongoClient,
+                 datetime, pwd_context, string):
         self.CONFIRM_CODE_LENGTH = 8
         self.hash_salt_length = 12
         self.random = random
@@ -29,8 +30,11 @@ class App_Actions:
         self.string = string
 
     def connect_db(self):
-        clientString = self.environ.get('MONGO_STRING').format(self.environ.get(
-            'MONGO_USER'), self.environ.get('MONGO_USER_PW'), 'retryWrites=true', 'w=majority')
+        clientString = self.environ.get('MONGO_STRING').format(
+            self.environ.get('MONGO_USER'),
+            self.environ.get('MONGO_USER_PW'),
+            'retryWrites=true',
+            'w=majority')
         return self.MongoClient(clientString)
 
     def connect_to_db(self, method, kwargs=None):
@@ -48,14 +52,25 @@ class App_Actions:
 
         except Exception as err:
             print(self.traceback.print_exc())
-            error_collection = mydb[self.environ.get("ERROR_DB")]
-            error_collection.insert_one(
-                {'error': str(err), 'date/time': self.get_date_time()})
+            self.log_error(str(err))
             return_value['error'] = str(err)
         finally:
             if client:
                 client.close()
             return return_value
+
+    def log_error(self, error):
+        client = None
+        try:
+            client = self.connect_db()
+            database = self.environ.get("DB_NAME")
+            mydb = client[database]
+            error_collection = mydb[self.environ.get("ERROR_DB")]
+            error_collection.insert_one(
+                {'error': str(error), 'date/time': self.get_date_time()})
+        finally:
+            if client:
+                client.close()
 
     def update_contact_info(self, mydb, confirmation_code, update_dict):
         collection = mydb[self.orders_db()]
@@ -83,7 +98,8 @@ class App_Actions:
         for confirmation_code in user_confirmation_codes:
             order_info = collection.find_one({'_id': confirmation_code})
             if not order_info:
-                raise Exception("Could not find order information for confirmation code: {}".format(
+                raise Exception(("Could not find order information " +
+                                 "for confirmation code: {}").format(
                     confirmation_code))
             return_value.append(order_info)
         return return_value
@@ -96,8 +112,11 @@ class App_Actions:
             return []
         confirmation_codes = result.get("confirmation_codes")
         if not confirmation_codes:
-            raise Exception("No confirmation codes found in user, user_id: {}. full user object: {}".format(
-                str(user_id), str(result)))
+            raise Exception(("No confirmation codes found in user, " +
+                             "user_id: {}. full user object: {}").format(
+                str(user_id),
+                str(result))
+            )
         return confirmation_codes
 
     def generate_confirmation_code(self):
@@ -115,7 +134,9 @@ class App_Actions:
         return self.datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def get_code_string(self, length):
-        return ''.join(["%s" % random.randint(0, 9) for num in range(0, length)])
+        return ''.join(["%s" % random.randint(0, 9)
+                        for num
+                        in range(0, length)])
 
     def is_code_already_used(self, my_collection, confirmation_code):
         result = my_collection.find_one({"_id": confirmation_code})
@@ -154,8 +175,10 @@ class App_Actions:
         return self.environ.get("ERROR_DB")
 
     def get_salt(self, N):
-        return ''.join(self.random.SystemRandom().choice(self.string.ascii_lowercase +
-                                                         self.string.ascii_uppercase + self.string.digits) for _ in range(N))
+        return ''.join(self.random.SystemRandom()
+                       .choice(self.string.ascii_lowercase +
+                               self.string.ascii_uppercase +
+                               self.string.digits) for _ in range(N))
 
     def find_disabled_dates(self, mydb, all):
         return_arr = []
@@ -184,11 +207,14 @@ class App_Actions:
 
     def get_disabled_dates(self, all=False):
         kwargs = {'all': all}
-        return self.connect_to_db(self.find_disabled_dates, kwargs).get("return_value")
+        return self.connect_to_db(self.find_disabled_dates,
+                                  kwargs).get("return_value")
 
-    def sort_list_of_dates(self, list_of_dates, default_key="_id", reverse=False):
-        return sorted(list_of_dates, key=lambda x: self.datetime.datetime.strptime(
-            x.get(default_key), '%d %B, %Y'), reverse=reverse)
+    def sort_list_of_dates(self, list_of_dates, default_key="_id",
+                           reverse=False):
+        return sorted(list_of_dates,
+                      key=lambda x: self.datetime.datetime.strptime(
+                          x.get(default_key), '%d %B, %Y'), reverse=reverse)
 
     def disable_dates(self, mydb, dates):
         collection = mydb[self.manage_dates_db()]
@@ -250,7 +276,8 @@ class App_Actions:
             return False
 
     def user_can_edit(self, date_time_obj):
-        return date_time_obj > self.datetime.datetime.today() + self.datetime.timedelta(hours=24)
+        return date_time_obj > (self.datetime.datetime.today() +
+                                self.datetime.timedelta(hours=24))
 
     def change_user_pass(self, mydb, user_id, old_pass, new_pass):
         collection = mydb[self.users_db()]
@@ -263,16 +290,20 @@ class App_Actions:
         encrypted = self.pwd_context.hash(new_pass + hash_salt)
 
         collection.find_one_and_update({'_id': user_id},
-                                       {'$set': {"password": encrypted}}, upsert=False)
+                                       {'$set': {"password": encrypted}},
+                                       upsert=False)
         return True
 
     def verify_password(self, user_object, password):
-        return self.pwd_context.verify(password + user_object['salt'], user_object['password'])
+        return self.pwd_context.verify(password + user_object['salt'],
+                                       user_object['password'])
 
     def login_user(self, mydb, username_or_email, password):
         collection = mydb[self.users_db()]
         find_user = collection.find_one({"$or":
-                                         [{'username': username_or_email}, {"email": username_or_email}]})
+                                         [{'username': username_or_email},
+                                          {"email": username_or_email}]
+                                         })
         if not find_user:
             return False
         if not self.verify_password(find_user, password):
@@ -280,8 +311,10 @@ class App_Actions:
         return find_user.get("_id")
 
     def is_valid_password(self, password):
-        return len(password) >= 8 or not any([x.isdigit() for x in password]) \
-            or not any([x.isupper() for x in password]) or not any([x.islower() for x in password])
+        return (len(password) >= 8 or
+                not any([x.isdigit() for x in password]) or
+                not any([x.isupper() for x in password]) or
+                not any([x.islower() for x in password]))
 
     def register_user(self, mydb, username, email, password):
         collection = mydb[self.users_db()]
@@ -307,12 +340,16 @@ class App_Actions:
     def validate_form(self, form):
         for key, value in form.items():
             if not key:
-                return {"is_valid": False, "message": "Something went wrong, missing key."}
+                return {"is_valid": False, "message":
+                        "Something went wrong, missing key."}
             if not value:
-                return {"is_valid": False, "message": "Must provide {}".format(key)}
+                return {"is_valid": False, "message":
+                        "Must provide {}".format(key)}
+
         if hasattr(form, "password") and hasattr(form, "confirm-password"):
             if form.get("password") != form.get("confirm-password"):
-                return {'is_valid': False, "message": "Passwords did not match."}
+                return {'is_valid': False,
+                        "message": "Passwords did not match."}
 
     def user_exists(self, mydb, email):
         collection = mydb[self.users_db()]
@@ -323,7 +360,10 @@ class App_Actions:
 
     def get_new_pass_link(self, email):
         hash_code = self.get_salt(45)
-        return ('https://taco-lindo-catering.herokuapp.com' + '/password_recovery?code={}&recipient={}'.format(hash_code, email), hash_code)
+        return ('https://taco-lindo-catering.herokuapp.com' +
+                '/password_recovery?code={}&recipient={}'.format(hash_code,
+                                                                 email),
+                hash_code)
 
     def add_pass_recovery(self, mydb, email, code):
         collection = mydb[self.password_recovery_db()]
@@ -394,22 +434,114 @@ class App_Actions:
         results = collection.find()
 
         for result in results:
-
             name = result.get('name')
+            # print(str(result) + " - parsing this time now.")
             item_obj = {}
-            sizes = result.get("size", result.get('sizes'))
+            sizes = self.find_key_value(
+                result, ["size", "sizes", "portion", "portion"])
             if not sizes:
-                raise Exception(
-                    "helpers.py line 402. Could not get sizes for item: {}".format(name))
-
+                error_message = ("helpers.py line 402. " +
+                                 "Could not get sizes for item: {}")
+                raise Exception(error_message.format(name))
+            # print(sizes)
             for size in sizes:
-                item_obj.update(size)
-            flavors = result.get("flavors", result.get("flavor"))
+                # print("\n size : " + str(size) + "\n")
+                values = list(size.values())
+                # print(values)
+                if len(values) == 2:
+                    item_obj.update({values[0].strip(): values[1].strip()})
+                else:
+                    item_obj.update(size)
+            flavors = self.find_key_value(result,
+                                          ["flavors", "flavor",
+                                           'protein', "meat"])
             if flavors:
                 for flavor in flavors:
                     item_obj.update({
-                        flavor.get("name"): flavor.get("Price", flavor.get("Count"))
+                        flavor.get("name").strip():
+                        self.find_key_value(flavor,
+                                            ["Price", "Count",
+                                             "price", "count"]).strip()
                     })
             return_obj[name] = item_obj
-
         return return_obj
+
+    def find_key_value(self, dictionary, arrayOfKeys):
+        while arrayOfKeys:
+            key = arrayOfKeys.pop(0)
+            if dictionary.get(key):
+                return dictionary[key]
+
+        return False
+
+    def validate_order(self, array_of_order, prices_dictionary):
+        total = 0.00
+        array_of_order = json.loads(array_of_order)
+
+        for index, order_item in enumerate(array_of_order):
+            item_cost = self.price_item(order_item, prices_dictionary)
+            if not item_cost:
+                return (None, None)
+            total = total + item_cost
+            order_item['cost'] = item_cost
+            array_of_order[index] = order_item
+        return (total, array_of_order)
+
+    def price_item(self, order_item, prices_dictionary):
+        base_cost = 1.00
+        item_name = order_item.get('name')
+        if not item_name:
+            return False
+        flavor = self.find_key_value(
+            order_item, ["flavors", "flavor", 'protein', "meat"])
+        if flavor:
+            base_cost = base_cost * float(prices_dictionary[item_name][flavor])
+        size = self.find_key_value(
+            order_item, ["size", "sizes", "portion", "portion"]
+        )
+        if size:
+            base_cost = base_cost * float(prices_dictionary[item_name][size])
+        else:
+            return False
+        return float(base_cost * order_item['count'])
+
+    def format_amount_to_cents(self, original_amount):
+        if type(original_amount) == 'string':
+            original_amount = float(original_amount)
+        original_amount *= 100
+        return int(original_amount)
+
+    def reconcile_managedates(self, mydb, date, order_total):
+        collection = mydb[self.manage_dates_db()]
+        max_val = collection.find_one({'_id': "max_day_sum"})
+        if not max_val:
+            max_val = 2000
+        else:
+            max_val = max_val.get('value')
+        date_is_in_db = collection.find_one({"_id": date})
+
+        if not date_is_in_db:
+            disabled = order_total >= max_val
+            new_obj = {'_id': date,
+                       'sum': order_total,
+                       'disabled': str(disabled)}
+            collection.insert_one(new_obj)
+            return True
+        new_sum = date_is_in_db.get("sum") + order_total
+        disabled = new_sum >= max_val
+        collection.find_one_and_update({"_id": date},
+                                       {"$set": {'sum': new_sum,
+                                                 "disabled": str(disabled)}})
+        return True
+
+    def add_confirmation_code_to_user(self, mydb, user_id, confirmation_code):
+        collection = mydb[self.users_db()]
+        collection.update_one({"_id": user_id},
+                              {'$push':
+                               {"confirmation_codes": confirmation_code}})
+        return True
+
+    def add_order_to_db(self, mydb, order):
+        collection = mydb[self.orders_db()]
+        collection.insert_one(order)
+        return True
