@@ -52,8 +52,8 @@ head %}
               Contact:
               <!-- prettier-ignore -->
               <div
-                id="{{ each_order['order_num'] }}EditContact"
-                onclick="editContact('#modal-holder', '{{ each_order.order_num }}')"
+                id="{{ each_order['_id'] }}EditContact"
+                onclick="editContact('#modal-holder', '{{ each_order._id }}')"
                 class="button button1 edit-order-button"
               >
                 <span class="glyphicon glyphicon-pencil"></span>Edit Contact
@@ -64,7 +64,7 @@ head %}
               <h4 class="order-keys">Order:</h4>
               {% if each_order['editable'] %}
               <div
-                id="{{ each_order['order_num'] }}"
+                id="{{ each_order['_id'] }}"
                 onclick="editOrder(this)"
                 class="button button1 edit-order-button"
               >
@@ -78,7 +78,7 @@ head %}
                   order_item.items() %} {% if order_item_key == 'count' %}
                   <strong>Quantity: </strong>{{ order_item_value }}
                   {% elif order_item_key == 'cost' %}
-                  <strong>Price: </strong>{{ order_item_value }}
+                  <strong>Price: </strong>${{ order_item_value }}
                   {% else %}
                   <strong>{{ order_item_key }}: </strong> {{ order_item_value }}
                   {% endif %} {% endfor %}
@@ -86,14 +86,18 @@ head %}
                 {% endfor %}
               </div>
             </div>
+            {% elif key == '_id' %}
+            <div class="col-sm-3">
+              <span style="text-transform: uppercase;" class="order-keys"
+                >Confirmation Code: </span
+              ><span id="{{ each_order['_id'] }}{{ key }}"> {{ value }}</span>
+            </div>
             {% elif key != 'editable' %}
 
             <div class="col-sm-3">
               <span style="text-transform: uppercase;" class="order-keys"
                 >{{ key }}: </span
-              ><span id="{{ each_order['order_num'] }}{{ key }}">
-                {{ value }}</span
-              >
+              ><span id="{{ each_order['_id'] }}{{ key }}"> {{ value }}</span>
             </div>
             {% endif %}{% endfor %}
           </div>
@@ -150,8 +154,7 @@ head %}
       </div>
     </div>
   </div>
-  <script src="{{ url_for('static', filename='compiled/userOrders.js')}}">
-  </script>
+  <script src="{{ url_for('static', filename='userOrders.js')}}"></script>
 </div>
 <style>
   .glyphicon-pencil {

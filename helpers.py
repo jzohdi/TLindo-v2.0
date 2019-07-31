@@ -545,3 +545,24 @@ class App_Actions:
         collection = mydb[self.orders_db()]
         collection.insert_one(order)
         return True
+
+    def validate_user_placed_confirmation_code(self, user_id,
+                                               confirmation_code):
+        kwargs = {"user_id": user_id}
+        list_of_codes = self.connect_to_db(
+            self.get_user_confirmation_codes, kwargs)
+        if not list_of_codes.get("status"):
+            return False
+        list_of_codes = list_of_codes.get("return_value")
+        if confirmation_code in list_of_codes:
+            return True
+        else:
+            return False
+
+    def get_user_confirmation_codes(self, mydb, user_id):
+        collection = mydb[self.users_db()]
+        find_user = collection.find_one({"_id": user_id})
+        if not find_user:
+            return []
+        else:
+            return find_user.get("confirmation_codes")

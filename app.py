@@ -58,17 +58,6 @@ def log_exception(message):
         file.write(message + ' ' + str(datetime.datetime.now()) + '\n')
         file.close()
 
-def get_prices_from_db():
-    prices = execute("""SELECT * FROM menu
-                     """)
-    prices = prices[-1]
-    entrees = json.loads(prices.get("entree"))
-    all_prices =  parse_menu_for_prices(entrees)
-
-    sides = json.loads(prices.get('sides'))
-    all_prices = add_sides_prices(all_prices, sides)
-    return all_prices
-
 def validate_date(date_string):
     try:
         key = datetime.datetime.strptime(date_string, '%d %B, %Y')
@@ -533,7 +522,7 @@ def user_orders():
     if all_orders.get('status'):
 
         all_orders = all_orders.get("return_value")
-        (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders)
+        (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders, True)
 
         past_dates_sorted = Controllers.sort_list_of_dates(past_dates, "date", True)
         upcoming_dates_sorted = Controllers.sort_list_of_dates(upcoming_dates, "date")
@@ -776,7 +765,7 @@ def charge():
             receipt_email=recipient_email,
             statement_descriptor="order code: {}".format(confirmation_code),
             metadata={
-                'address': billing_address.get('street') + " " + billing_address.get("city") + ", " + billing_address.get('zip')
+                'address': billing_address.get('street') + " " + billing_address.get("city")
                 },
             source=token )
 
@@ -896,7 +885,6 @@ def change_contact_info():
     #   return jsonify({'error' : "missing arguments"})
     to_update_obj = {}
     confirmation_code = request.form.get('confirmation_code')
-
     for key, value in request.form.items():
         if not value and key != "Comments":
             return jsonify({'error': 'missing arguments'})
@@ -907,6 +895,12 @@ def change_contact_info():
 
     return jsonify({'success' : "Contact Set!"})
 
+@app.route("/set_edit_order_num/", methods=["POST"])
+def set_edit_order_num():
+    confirm_code = request.form.get("confirmation_code")
+    session["confirmation_code"] = confirm_code
+    return jsonify({"Success" : "Confirmation code set." })
+
 @app.route('/edit_order', methods=["POST", "GET"])
 def edit_order():
     if not session.get('beta'):
@@ -915,21 +909,31 @@ def edit_order():
     if 'user_id' not in session:
         return redirect( url_for('login') )
 
-    user_id = str(session.get('user_id'))
-    order_num = request.args.get('order_num')
+    confirmation_code = session.get("confirmation_code")
+    if not confirmation_code:
+        return redirect( url_for("user_orders")
+        )
+    user_id = session.get("user_id")
 
-    orders = execute(""" SELECT orders FROM allorders WHERE id = %s
-                     """, (user_id,))
-
-    all_users_orders = orders[0].get('orders')
-
-    order_to_edit = getOrder_and_checkIfValidDate(all_users_orders, order_num)
-
-    if order_to_edit == None:
+    confirmation_code_matches_user = Controllers.validate_user_placed_confirmation_code(user_id, confirmation_code)
+    if not confirmation_code_matches_user:
+        print("code did not match user: " + user_id)
+        return redirect( url_for("user_orders"))
+    
+    kwargs = {'confirmation_code' : confirmation_code}
+    order_to_edit = Controllers.connect_to_db(Controllers.get_order_for_code, kwargs)
+   
+    if not order_to_edit.get("status"):
         return redirect( url_for('user_orders'))
+    order_to_edit = order_to_edit.get("return_value")
 
-    session['edit_order_num'] = order_num
-    return render_template('edit_order.html', order = order_to_edit)
+    menu = Controllers.connect_to_db(Controllers.get_menu_items)
+    if menu.get("status") and menu.get("return_value"):
+        menu = menu.get("return_value")           
+    else:
+        return render_template("error_page.html")
+    # if we could not retrieve the menu, then the page cannot be used. Show only error page. 
+    return render_template('edit_order.html', order = order_to_edit.get("order"), menu=menu)
 
 @app.route('/commit_order_edit/', methods=["POST"])
 def commit_edit():
@@ -1322,14 +1326,3 @@ if __name__ == '__main__':
     app.debug = True
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
-    """
-    API_ENDPOINT = "https://sandbox.api.intuit.com/quickbooks/v4/payments/charges"
-    API_KEY = ""
-
-
-    result = requests.post('http://httpbin.org/post')
-    print(result.body)
-    """
-    #app.add_url_rule('/favicon.ico',
-    #            redirect_to=url_for('static', filename='favicon.ico'))

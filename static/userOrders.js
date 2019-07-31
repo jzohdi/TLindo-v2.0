@@ -16,7 +16,23 @@ function showPast() {
 
 function editOrder(div) {
   const num = $(div).attr("id");
-  location.href = "/edit_order?order_num=" + num;
+  const form = document.createElement("form");
+  const hiddenInput = document.createElement("input");
+  hiddenInput.setAttribute("type", "hidden");
+  hiddenInput.setAttribute("name", "confirmation_code");
+  hiddenInput.setAttribute("value", num);
+  form.appendChild(hiddenInput);
+  $.post("/set_edit_order_num/", $(form).serialize())
+    .done(function(response) {
+      if (response.hasOwnProperty("error")) {
+        alert("There was an issue connecting.");
+      } else {
+        location.href = "/edit_order";
+      }
+    })
+    .fail(function() {
+      alert("There is a problem with the connecting.");
+    });
 }
 const CONTACT_MODAL_DIV =
   '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
@@ -28,9 +44,7 @@ function editContact(modalTagId, orderNum) {
   const valuesDict = {};
   const listOfKeys = ["Name", "Phone", "Address", "Email", "Comments"];
   listOfKeys.forEach(function(value) {
-    valuesDict[value] = $("#" + orderNum + value.toLowerCase())
-      .html()
-      .trim();
+    valuesDict[value] = $("#" + orderNum + value.toLowerCase()).html();
   });
   // console.log(valuesDict);
   let modalDiv = CONTACT_MODAL_DIV.replace(
@@ -60,26 +74,22 @@ function editContact(modalTagId, orderNum) {
     }
   };
 
-  document
-    .getElementById("done-button")
-    .addEventListener("click", function() {
-      const build_contact_dict = { order_num: orderNum };
-      listOfKeys.forEach(function(value, index) {
-        const input_value = $("#" + value).val();
-        build_contact_dict[value] = input_value;
-      });
-      // console.log(build_contact_dict);
-      $.post("/change_contact_info/", build_contact_dict).done(function(
-        data
-      ) {
-        if (data.error != "Contact Set!") {
-          alert("Something went wrong " + data.error);
-        } else {
-          location.reload();
-          span.click();
-    }
+  document.getElementById("done-button").addEventListener("click", function() {
+    const build_contact_dict = { confirmation_code: orderNum };
+    listOfKeys.forEach(function(value, index) {
+      const input_value = $("#" + value).val();
+      build_contact_dict[value] = input_value;
+    });
+    // console.log(build_contact_dict);
+    $.post("/change_contact_info/", build_contact_dict).done(function(data) {
+      if (data.hasOwnProperty("Error")) {
+        alert("Something went wrong " + data.error);
+      } else {
+        location.reload();
+        span.click();
+      }
+    });
   });
-});
 }
 
 const CONTACT_MODAL_FORM =
@@ -91,10 +101,7 @@ const CONTACT_FORM_DONE_BUTTON =
 function getContactModal(orderNum, valuesDict, listOfLabels) {
   let modalFormToReturn = "";
   listOfLabels.forEach(function(value, index) {
-    modalFormToReturn += CONTACT_MODAL_FORM.replace(
-      "labelPlaceholder",
-      value
-    )
+    modalFormToReturn += CONTACT_MODAL_FORM.replace("labelPlaceholder", value)
       .replace("valuePlaceholder", valuesDict[value])
       .replace("key", value);
   });
