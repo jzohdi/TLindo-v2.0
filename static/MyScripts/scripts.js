@@ -2,20 +2,20 @@ const BASE_ROOT = "/static/MyScripts/";
 
 // const MAIN_CARD_WIDTH = "col-md-10 col-md-offset-1";
 
-const script1 = $.getScript(BASE_ROOT + "helpers.js");
+// const script1 = $.getScript(BASE_ROOT + "helpers.js");
 
-$.when(script1).done(function() {});
+// $.when(script1).done(function() {});
 function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));
 }
-function objectsAreEqual(objectOne, objectTwo, arrayToExclude = []) {
-  const o1 = deepCopy(objectOne);
-  const o2 = deepCopy(objectTwo);
-  for (const key of arrayToExclude) {
-    delete o1[key];
-    delete o2[key];
+
+function objectsAreEqual(o1, o2, arrayToExclude = []) {
+  const keys = new Set(Object.keys(o1).concat(Object.keys(o2)));
+  arrayToExclude.forEach(key => keys.delete(key));
+  for (const key of keys) {
+    if (!(o1[key] === o2[key])) return false;
   }
-  return JSON.stringify(o1) == JSON.stringify(o2);
+  return true;
 }
 /*
  SHUTDOWN OVER RIDE FOR DEVELOPMENT ONLY TAKE OUT BEFORE DEPOLOYMENT

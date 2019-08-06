@@ -334,10 +334,7 @@ block head %}
         .replace("countPlaceholder", itemObject.count);
 
       for (const key in itemObject) {
-        if (key === "cost"){
-          newDiv += `<small class="my-cart-key" >${itemObject[key]}"</small>`;
-        }
-        else if (key != "count") {
+        if (key != "count") {
           newDiv += `<span class="my-cart-key"> ${itemObject[key]}</span><strong class="order-keys"> | </strong>`;
         }
       }
@@ -470,8 +467,8 @@ block head %}
   }
 
   getPricesAsync();
-  const main = function(){
 
+  const main = function(){
   
   const backToMenu = function(){
     sessionStorage.setItem("cart", JSON.stringify(app.foodCounter.cart) );
@@ -784,8 +781,7 @@ const parseAddress = function() {
 };
 const hasBillingAddress = function(){
   return ($('input[name="billingAddress"]')[0].value === '' &&
-          $('input[name="billingCity"]')[0].value === '' &&
-          $('input[name="billingZipcode"]')[0].value === '' );
+          $('input[name="billingCity"]')[0].value === '')
 }
 const getBillingAddress = function() {
   const billingObj = {}
@@ -796,7 +792,6 @@ const getBillingAddress = function() {
   }else {
     billingObj["street"] = $('input[name="billingAddress"]')[0].value
     billingObj["city"] = $('input[name="billingCity"]')[0].value;
-    billingObj["zip"] = $('input[name="billingZipcode"]')[0].value;
   }
   return JSON.stringify(billingObj);
 };
@@ -850,7 +845,7 @@ $.each( toEnforceInputs, function(index, element){
   });
 })
 }
-</script>2
+</script>
 <style>
   @media (max-width: 320px) {
     .col-xs-custom-offset-2 {

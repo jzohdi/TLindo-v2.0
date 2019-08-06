@@ -273,7 +273,7 @@ head %}
       }
 
       canAddItemToCart = function(selectionItemObject, maxFlavors, maxItems, type, help){
-        if ( !this.toLimit.has(type) ){
+        if ( !this.toLimit.has(type) || !this.parentApp.help ){
           return true;
         }
         maxFlavors = Math.min(maxFlavors, maxItems);
@@ -295,7 +295,7 @@ head %}
           return AT_FLAVOR_LIMIT_DIV;
         }
         const toLimitCount = this.getCountOfItemsToLimit()
-        if ( toLimitCount >= maxItems ){
+        if ( toLimitCount >= maxItems && this.parentApp.help){
           return AT_ORDER_LIMIT_DIV;
         }
         return "";

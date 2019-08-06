@@ -172,7 +172,9 @@ class App_Actions:
 
     def manage_dates_db(self):
         return self.environ.get("MANAGE_DATES_DB")
-        return self.environ.get("ERROR_DB")
+
+    def modified_orders_db(self):
+        return self.environ.get("ORDER_VERSIONS")
 
     def get_salt(self, N):
         return ''.join(self.random.SystemRandom()
@@ -193,7 +195,8 @@ class App_Actions:
                 max_day_val = date_object.get("value")
                 continue
             if self.is_date_passed(date_string):
-                collection.remove_one({"_id": date_string})
+                pass  # this was delete_one before,
+                # but idea: want to keep all totals from each day in db
             elif all:
                 return_arr.append(date_object)
             elif date_object.get("disabled") == "True":
@@ -435,7 +438,6 @@ class App_Actions:
 
         for result in results:
             name = result.get('name')
-            # print(str(result) + " - parsing this time now.")
             item_obj = {}
             sizes = self.find_key_value(
                 result, ["size", "sizes", "portion", "portion"])
@@ -566,3 +568,21 @@ class App_Actions:
             return []
         else:
             return find_user.get("confirmation_codes")
+
+    def log_old_order(self, mydb, order_info):
+        collection = mydb[self.modified_orders_db()]
+        collection.insert_one({'confirmation_code': order_info.get("_id"),
+                               "order": order_info.get("order"),
+                               'modified_date': self.datetime.datetime.now()})
+
+    def update_order(self, mydb, id, new_order):
+        collection = mydb[self.orders_db()]
+        collection.find_one_and_update({"_id": id},
+                                       {"$set": new_order}, upsert=False)
+
+    def format_order_message(self, order_info):
+        to_return = ''
+        for key, value in order_info.items():
+            if key != 'id' and key != 'order_num':
+                to_return += str(key).capitalize() + ': ' + str(value) + "\n"
+        return to_return

@@ -5,6 +5,7 @@ head %}
 </script>
 
 {% endblock %} {% block main %}
+<div id="modalHolder"></div>
 <div id="main-planner-page" class="container">
   <div id="select-menu" class="row normalize-height">
     <div
@@ -32,11 +33,17 @@ head %}
           <div id="my-cart" class="row"></div>
         </div>
       </div>
+      <div style="text-align: center;">
+        <h4>New Total: $<span id="cart-total"></span></h4>
+      </div>
+      <div style="text-align: center;">
+        <h4>Already Paid: {{ order.paid }}</h4>
+      </div>
       <div
         id="checkoutButton"
         class="button button1 checkout-button col-xs-5 col-sm-3"
       >
-        Checkout
+        Confirm Changes
       </div>
     </div>
   </div>
@@ -142,11 +149,13 @@ head %}
   }
 
   class FoodCounter{
-    constructor(cart, app){
+    constructor(cart, app, pricesDict){
       this.cart = cart.map(function(itemObject){ delete itemObject.cost; return itemObject });
       this.toLimit = new Set(["Entree", "entree"]);
       this.parentApp = app;
       this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
+      this.possibleCostKeys = [...this.possibleSizeKeys, "flavor", "flavors", "meat", "protein"]
+      this.prices = pricesDict;
     }
 
     addItemToCart = function(itemToAdd){
@@ -166,24 +175,26 @@ head %}
         .replace("countPlaceholder", itemObject.count);
 
       for (const key in itemObject) {
-        if (key === "cost"){
-          newDiv += `<small class="my-cart-key" >${itemObject[key]}"</small>,`;
-        }
-        else if (key != "count") {
+        if (key != "count") {
           newDiv += `<span class="my-cart-key"> ${itemObject[key]}</span><strong class="order-keys"> | </strong>`;
         }
       }
-      return newDiv + "</div>";
+      return newDiv;
     }
 
     toString = function(itemName = null){
+      let total = 0.00;
       let cartToString = "";
       const self = this;
       this.cart.forEach( function(itemInCart, index) {
         if ( !itemName || itemInCart.name == itemName ){
           cartToString += self.getHtmlForItem(itemInCart, index);
+          const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);;
+          cartToString +=  `<small class="my-cart-key">$${itemPrice}</small></div>`;
+          total += parseFloat(itemPrice);
         }
       })
+      $('#cart-total').html(total.toFixed(2));
       return cartToString;
     }
 
@@ -222,17 +233,41 @@ head %}
       }
       return false;
     }
+    getPriceForItem = function(itemToGetPricesFrom){
+      let total = 1.00;
+      const itemName = itemToGetPricesFrom.name;
+      const keysToCalculateCost = this.getCostKeys(itemToGetPricesFrom);
+
+      const thisItemPriceDict = this.prices[ itemName ];
+      for ( const key of keysToCalculateCost ){
+        const priceDictKeyValue = parseFloat( thisItemPriceDict[key] )
+        total *= priceDictKeyValue.toFixed(2);
+      }
+      total *= itemToGetPricesFrom['count'].toFixed(2);
+      return total
+
+    }
+
+    getCostKeys = function(itemObject){
+      const keysFoundInItemObject = [];
+      for ( const possibleCostKey of this.possibleCostKeys ){
+        if ( itemObject.hasOwnProperty(possibleCostKey) ){
+          keysFoundInItemObject.push(itemObject[possibleCostKey]);
+        }
+      }
+      return keysFoundInItemObject;
+    }
 
   }
 
   class App{
-    constructor(cart, menu){
+    constructor(cart, menu, pricesDict){
       this.menu = {}
       for ( const menuItem of menu ){
         this.menu[menuItem.name] = new MenuItem(menuItem);
       }
       this.toLimit = new Set(["Entree", "entree"]);
-      this.foodCounter = new FoodCounter(cart, this);
+      this.foodCounter = new FoodCounter(cart['order'], this, pricesDict);
       this.maxItems = 20;
       this.maxFlavors = 4;
       this.currentItem = ''
@@ -339,13 +374,36 @@ head %}
     });
     return thisItem;
   }
+  let app = null;
 
-  const app = new App( {{order | tojson }}, {{ menu | tojson }});
+  const getPricesAsync = function(){
+    const response = fetch("/get_prices/").then(function(response) {
+      return response.json();
+    }).then(function(myJson) {
+        app = new App( {{ order | tojson }}, {{ menu | tojson }}, myJson);
+        app.run();
+        main(); }).catch( (error)=> {
+        location.reload()
+       });
+  }
 
-  app.run();
+  getPricesAsync();
 
-  $('#checkoutButton').on('click', function(){
-    alert("Please select a date before continuing to check out.");
+  const main = () => {
+    $('#checkoutButton').on('click', function(){
+      const form = document.createElement("form");
+      const hiddenInput = document.createElement("input");
+      hiddenInput.setAttribute("type", "hidden");
+      hiddenInput.setAttribute("name", "order");
+      hiddenInput.setAttribute("value", JSON.stringify(app.foodCounter.cart));
+      form.appendChild(hiddenInput)
+      $.post('/commit_order_edit/', $(form).serialize() )
+      .done( data => { if ( data.hasOwnProperty('error')){
+        alert("Something went wrong.")
+      }else{
+        location.href = "/user_orders";
+      } } ) ;
   });
+  }
 </script>
 {% endblock %}
