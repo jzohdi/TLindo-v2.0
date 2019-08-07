@@ -45,51 +45,13 @@ App_Actions_dependencies['datetime'] = datetime
 App_Actions_dependencies['pwd_context'] = pwd_context
 App_Actions_dependencies['string'] = string
 
-
-def commit_settings(params):
-    new_obj = {}
-    if params:
-        for_connection = ["HOST", "DB", "PW", "USER", "PORT"]
-        for connection in for_connection:
-            new_obj[connection] = params[connection]
-        return (new_obj, params)
-    else:
-        environment = [
-                'BETA_KEY', 'DATABASE_URL', 'DB',
-                'EMAIL_ADDRESS', 'HOST', 'PASSWORD',
-                'PORT', 'PW', 'SHUTDOWN', 'STRIPE_KEY', 'USER', 'SECRET_KEY']
-        for variable in environment:
-            new_obj[variable] = os.environ.get(variable)
-        return new_obj
-
-params = getKeys()
-
-(params, settings) = commit_settings(params)
+settings = getKeys(os)
 
 Controllers = App_Actions(settings, **App_Actions_dependencies)
 Email_Service = Email_Service(settings, **Email_Service_dependencies)
 Sheets_Service = GSpread(**GSpread_dependencies)
 
 settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', Controllers.get_salt(25))
-
-
-def config():
-    db = {
-        'host': settings.get('HOST', None),
-        'db': settings.get('DB', None),
-        'user': settings.get('USER', None),
-        'port': settings.get('PORT', None),
-        'pw': settings.get('PW', None)}
-
-    return db
-
-POSTGRES = config()
-params = {
-        'host': POSTGRES['host'],
-        'dbname': POSTGRES['db'],
-        'user': POSTGRES['user'],
-        'password': POSTGRES['pw']
-        }
 
 app = Flask(__name__)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -109,19 +71,13 @@ app.config.update({
     'SECRET_KEY': os.environ.get('SECRET_KEY', settings.get('SECRET_KEY'))
 })
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://%(user)s:\
-%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES)
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
 
 if app.config["DEBUG"]:
     @app.after_request
     def after_request(response):
         response.headers["Cache-Control"] = (
-                                            "no-cache, no-store," +
-                                            " must-revalidate")
+            "no-cache, no-store," +
+            " must-revalidate")
         response.headers["Expires"] = 0
 
         response.headers["Pragma"] = "no-cache"
@@ -152,6 +108,7 @@ def dated_url_for(endpoint, **values):
 
     # endpoint = endpoint + root if root not in endpoint else endpoint
     return url_for(endpoint, **values)
+
 
 """"""
 
@@ -191,20 +148,21 @@ def user_orders():
     if all_orders.get('status'):
 
         all_orders = all_orders.get("return_value")
-        (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders, True)
+        (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(
+            all_orders, True)
 
         past_dates_sorted = Controllers.sort_list_of_dates(
-                                                        past_dates,
-                                                        "date", True)
+            past_dates,
+            "date", True)
         upcoming_dates_sorted = Controllers.sort_list_of_dates(
-                                                        upcoming_dates,
-                                                        "date")
+            upcoming_dates,
+            "date")
 
         return render_template(
-                                'userorders.html',
-                                admin=False,
-                                upcoming_orders=upcoming_dates_sorted,
-                                past_orders=past_dates_sorted)
+            'userorders.html',
+            admin=False,
+            upcoming_orders=upcoming_dates_sorted,
+            past_orders=past_dates_sorted)
     else:
         return redirect(url_for('logout'))
 
@@ -221,8 +179,8 @@ def orderlookup():
 
         kwargs = {"confirmation_code": confirmation_code}
         user_order = Controllers.connect_to_db(
-                                            Controllers.get_order_for_code,
-                                            kwargs)
+            Controllers.get_order_for_code,
+            kwargs)
         if user_order.get("status"):
             user_order = user_order.get("return_value")
             session['guest_code'] = confirmation_code
@@ -259,7 +217,7 @@ def change_password():
     kwargs = {"user_id": unique, "new_pass": new_password,
               'old_pass': old_password}
     change_pass_result = Controllers.connect_to_db(
-                                    Controllers.change_user_pass, kwargs)
+        Controllers.change_user_pass, kwargs)
 
     if not change_pass_result.get('status') or not change_pass_result.get('return_value'):
         return render_template("user_settings.html",
@@ -281,7 +239,7 @@ def forgotpassword():
 
         kwargs = {"email": email}
         does_user_exist = Controllers.connect_to_db(
-                                    Controllers.user_exists, kwargs)
+            Controllers.user_exists, kwargs)
 
         if not does_user_exist.get("status"):
             return render_template("forgotpassword.html",
@@ -335,7 +293,7 @@ def password_recovery():
 
         kwargs = {'email': email, "new_pass": new_password}
         update_password = Controllers.connect_to_db(
-                            Controllers.update_user_password, kwargs)
+            Controllers.update_user_password, kwargs)
 
         if not update_password.get("status") or not update_password.get("return_value"):
             return render_template("password_recovery.html",
@@ -357,7 +315,7 @@ def password_recovery():
 
         kwargs = {'code': code, 'email': email}
         validate_url_credentials = Controllers.connect_to_db(
-                                Controllers.check_password_recovery, kwargs)
+            Controllers.check_password_recovery, kwargs)
         if not validate_url_credentials.get("status") or not validate_url_credentials.get("return_value"):
             return render_template('forgotpassword.html',
                                    error=("Could authenticate email, "
@@ -365,7 +323,8 @@ def password_recovery():
 
         original_timestamp = validate_url_credentials.get("return_value")
 
-        is_less_than24hours = Controllers.is_timestamp_within_24hr(original_timestamp)
+        is_less_than24hours = Controllers.is_timestamp_within_24hr(
+            original_timestamp)
 
         if is_less_than24hours:
             session['recovery_code'] = code
@@ -465,7 +424,8 @@ def charge():
         error_message = "there was a problem verifying your cart total."
         return jsonify({"error": error_message})
 
-    (order_information["price"], order_information['order']) = Controllers.validate_order(order_information['order'], current_prices)
+    (order_information["price"], order_information['order']) = Controllers.validate_order(
+        order_information['order'], current_prices)
 
     if not order_information.get('price') or not order_information.get('order'):
         return jsonify({'error': 'could not confirm order pricing'})
@@ -489,7 +449,7 @@ def charge():
             metadata={
                 'address': billing_address.get('street') +
                         " " + billing_address.get("city")
-                },
+            },
             source=token)
 
         amount_charged = charge.get("amount", "Charge was not processed")
@@ -497,7 +457,8 @@ def charge():
         if not didPay:
             return jsonify({"error": "charge could not be complete"})
 
-        order_information['paid'] = "$" + str(amount_charged)[:-2] + "." + str(amount_charged)[-2:]
+        order_information['paid'] = "$" + \
+            str(amount_charged)[:-2] + "." + str(amount_charged)[-2:]
 
         kwargs = {'date': order_information.get("date"),
                   'order_total': order_information.get("price")}
@@ -669,14 +630,16 @@ def commit_edit():
         return jsonify({'error': 'Could not get confirmation code for order.'})
 
     kwargs = {'confirmation_code': confirmation_code}
-    order_information = Controllers.connect_to_db(Controllers.get_order_for_code, kwargs).get("return_value")
+    order_information = Controllers.connect_to_db(
+        Controllers.get_order_for_code, kwargs).get("return_value")
 
     kwargs = {'order_info': order_information}
     Controllers.connect_to_db(Controllers.log_old_order, kwargs)
     if not current_prices.get("status"):
         return jsonify({"error": "Could not verify your new total."})
     current_prices = current_prices.get("return_value")
-    (order_information["price"], order_information['order']) = Controllers.validate_order(new_order, current_prices)
+    (order_information["price"], order_information['order']
+     ) = Controllers.validate_order(new_order, current_prices)
 
     if not order_information.get('price') or not order_information.get('order'):
         return jsonify({'error': 'could not confirm order pricing'})
@@ -736,13 +699,14 @@ def request_register():
     password = request.form.get("pass")
 
     if not Controllers.is_valid_password(password):
-            return jsonify({'pass_error': 'could not validate password'})
+        return jsonify({'pass_error': 'could not validate password'})
     is_valid_email = parseaddr(email)
     if not is_valid_email[0] == '' and is_valid_email[1] == '':
         return jsonify({'error': "Email address not valid."})
 
     kwargs = {'username': username, "email": email, "password": password}
-    register_user = Controllers.connect_to_db(Controllers.register_user, kwargs)
+    register_user = Controllers.connect_to_db(
+        Controllers.register_user, kwargs)
 
     if not register_user.get('status'):
         error_message = "Something went wrong attempting to register"
@@ -839,7 +803,8 @@ def register():
             return jsonify({'error': "Email address not valid."})
         # check to see if username has already been added to database
         kwargs = {'username': username, "email": email, "password": password}
-        registered_user = Controllers.connect_to_db(Controllers.register_user, kwargs)
+        registered_user = Controllers.connect_to_db(
+            Controllers.register_user, kwargs)
 
         if not registered_user.get('status'):
             return render_template('register.html',
@@ -927,8 +892,10 @@ def scheduled_orders():
 
     (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders)
 
-    past_dates_sorted = Controllers.sort_list_of_dates(past_dates, "date", True)
-    upcoming_dates_sorted = Controllers.sort_list_of_dates(upcoming_dates, "date")
+    past_dates_sorted = Controllers.sort_list_of_dates(
+        past_dates, "date", True)
+    upcoming_dates_sorted = Controllers.sort_list_of_dates(
+        upcoming_dates, "date")
 
     return render_template('scheduled_orders.html',
                            admin=True,
@@ -1023,6 +990,7 @@ def terms_and_conditions():
     if not session.get('beta'):
         return "access denied :("
     return render_template('terms_and_conditions.html')
+
 
 if __name__ == '__main__':
 

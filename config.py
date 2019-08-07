@@ -1,13 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov  8 16:16:09 2018
 
-@author: jakez
-"""
-def getKeys():
+def getKeys(os):
     try:
         dotenv = '.env.ini'
-
         with open(dotenv, 'r') as file:
             content = file.readlines()
 
@@ -17,5 +11,11 @@ def getKeys():
             file.close()
         return env_vars
     except:
-        return False
-#    os.environ.update({"SECRET_KEY" : })
+        new_obj = {}
+        environment = [
+            'BETA_KEY', 'DATABASE_URL', 'DB',
+            'EMAIL_ADDRESS', 'HOST', 'PASSWORD',
+            'PORT', 'PW', 'SHUTDOWN', 'STRIPE_KEY', 'USER', 'SECRET_KEY']
+        for variable in environment:
+            new_obj[variable] = os.environ.get(variable)
+        return new_obj
