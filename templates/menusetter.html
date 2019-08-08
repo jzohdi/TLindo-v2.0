@@ -18,7 +18,9 @@ head %}
     <div id="open-sheet" class="col-xs-6 col-md-4 button button1">
       Open Sheet
     </div>
-    <div id="update-menu" class="col-xs-6 col-md-4 button button1">Update</div>
+    <div id="update-menu" class="col-xs-6 col-md-4 button button1">
+      Update Menu
+    </div>
   </div>
 </div>
 <script type="text/javascript">
@@ -29,8 +31,14 @@ head %}
     );
     newWindow.focus();
   });
-  $("#update-menu").on("click", function() {
-    $("#update-menu").css({ "pointer-events": "none" });
+  const updateMenuButton = $("#update-menu");
+  const loadingString =
+    '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
+
+  updateMenuButton.on("click", function() {
+    const preLoadingHtml = updateMenuButton.html();
+    updateMenuButton.css({ "pointer-events": "none" });
+    updateMenuButton.html(loadingString);
     $.post("/update_menu/")
       .done(function(response) {
         if (response.Status == "Success") {
@@ -39,10 +47,12 @@ head %}
         } else if (response.Status == "Failed") {
           alert(response.Message);
         }
-        $("#update-menu").css({ "pointer-events": "" });
+        updateMenuButton.css({ "pointer-events": "" });
+        updateMenuButton.html(preLoadingHtml);
       })
       .fail(function() {
         alert("Something went wrong.");
+        updateMenuButton.html(preLoadingHtml);
       });
   });
 </script>
@@ -74,6 +84,62 @@ head %}
     background: white;
     cursor: inherit;
     display: block;
+  }
+  .lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin-left: 5% !important;
+  }
+  .lds-ellipsis div {
+    position: absolute;
+    top: 13px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #0d034c;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
+  .lds-ellipsis div:nth-child(1) {
+    left: 6px;
+    animation: lds-ellipsis1 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(2) {
+    left: 6px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(3) {
+    left: 26px;
+    animation: lds-ellipsis2 0.6s infinite;
+  }
+  .lds-ellipsis div:nth-child(4) {
+    left: 45px;
+    animation: lds-ellipsis3 0.6s infinite;
+  }
+  @keyframes lds-ellipsis1 {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes lds-ellipsis3 {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+  @keyframes lds-ellipsis2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(19px, 0);
+    }
   }
 </style>
 {% endblock %}

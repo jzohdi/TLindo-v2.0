@@ -615,8 +615,8 @@ head %}
       return false;
     }
     const convertToSmallerSizes = function(itemObject){
+      console.log('item to make to smaller resolution', itemObject)
       const newResArray = []
-      let count = 0;
       const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
       const itemSize = itemObject[sizeKey];
       const arrayOfItemSizes = app.menu[itemObject.name].environ.sizes;
@@ -626,12 +626,15 @@ head %}
           minSize = object
         }
       });
+      console.log("This is the min size object 1", minSize)
       const thisItemCount = arrayOfItemSizes.find( function(element){
         return element.name == itemSize;
       });
+      console.log("This is the min size object 1", thisItemCount)
       const copyOfItem = deepCopy(itemObject);
       copyOfItem[sizeKey] = minSize.name;
       copyOfItem['count'] = ( parseInt(thisItemCount.Count) / parseInt(minSize.Count) ) * itemObject.count;
+      console.log("This is the copy of the item", copyOfItem);
       newResArray.push(copyOfItem);
       return newResArray;
     }
