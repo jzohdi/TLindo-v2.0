@@ -809,7 +809,7 @@ START OF MENU SELECTION FOR USER
 
 #modal-cart {
   text-align: left;
-  font-size: 14px;
+  font-size: calc(22px - 0.5vw);
   padding-left: 5%;
 }
 @media (max-width: 376px) {
