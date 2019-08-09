@@ -159,7 +159,7 @@ head %}
       '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
       '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
       const DEFAULT_MIN = 8;
-      const setAppMaxItems = function(){
+      const setAppMaxItems = function(app){
         let numGuests;
         let numAdults = $('#numAdults').val()
         let numKids = $('#numKids').val();
@@ -171,7 +171,7 @@ head %}
         }else{
 
           if ( numAdults + numKids === 0 ){
-            validGuests = false;
+            app.validGuests = false;
             return;
           }
 
@@ -191,14 +191,13 @@ head %}
           app.validGuests = true;
         }
       }
-      class MenuItem{
-        constructor(itemDictionary){
-          this.environ = itemDictionary;
-          this.notSelectKeys = new Set(["name" , "description", "_id", "type"]);
-          this.toLimit = new Set(["Entree", "entree"]);
-        }
+      function MenuItem(itemDictionary){
+        this.environ = itemDictionary;
+        this.notSelectKeys = new Set(["name" , "description", "_id", "type"]);
+        this.toLimit = new Set(["Entree", "entree"]);
 
-        button = function(){
+
+        this.button = function(){
           if ( !MOBILE_MODE ){
               return `<div id="${this.getId()}"
                     class="entree-item col-xs-10 col-xs-offset-1 entree-options">
@@ -211,13 +210,13 @@ head %}
                       ${this.environ.name}
                   </div>`;
         }
-        getId = function(){
+        this.getId = function(){
           return this.environ.name.replace(/\s/g,'-').replace("&", "and");
         }
-        target = function(){
+        this.target = function(){
           return "#" + this.environ.type.toLowerCase();
         }
-        getModalContent = function(help){
+        this.getModalContent = function(help){
           let content =  MAIN_MODAL_CONTENT
           .replace("ItemNamePlaceholder", this.environ.name)
           .replace("HeaderPlaceholder", this.getHeader())
@@ -226,7 +225,7 @@ head %}
           .replace("idPlaceholder", "modal-cart")
           return content
         }
-        getSelection = function(help){
+        this.getSelection = function(help){
           let content = ""
           for (const key in this.environ ) {
             if ( this.notSelectKeys.has(key) ){
@@ -242,7 +241,7 @@ head %}
           return content;
         }
 
-        getSelectDiv = function(key, array, help) {
+        this.getSelectDiv = function(key, array, help) {
           if ( !typeof(array) ){
             return "";
           }
@@ -264,14 +263,14 @@ head %}
           content += "</select></div>";
           return content;
         }
-        trimKey = function(key) {
+        this.trimKey = function(key) {
           if (key.slice(-1) == "s") {
             key = key.slice(0, -1);
           }
           return key;
         }
 
-        getDescriptionList = function(){
+        this.getDescriptionList = function(){
           let description = "<ul>";
           if( this.environ.hasOwnProperty("description") ){
             if ( this.environ.description.length > 0 ){
@@ -282,7 +281,7 @@ head %}
           }
           return description
         }
-        getHeader = function(){
+        this.getHeader = function(){
           if ( MOBILE_MODE ){
             return this.getDescriptionList() + '</ul><p class="please-select-from">Please choose from options:</p>';
           }else{
@@ -292,15 +291,14 @@ head %}
         }
       }
 
-      class FoodCounter{
-        constructor(cart, app){
-          this.cart = cart;
-          this.toLimit = new Set(["Entree", "entree"]);
-          this.parentApp = app;
-          this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
-        }
+      function FoodCounter(cart, app){
+        this.cart = cart;
+        this.toLimit = new Set(["Entree", "entree"]);
+        this.parentApp = app;
+        this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
 
-        addItemToCart = function(itemToAdd){
+
+        this.addItemToCart = function(itemToAdd){
           for ( const itemInCart of this.cart ){
             // if item is the same as another item except for the count, append 1 to the count.
               if ( objectsAreEqual(itemInCart, itemToAdd, ['count'])){
@@ -311,7 +309,7 @@ head %}
           this.cart.push(itemToAdd);
         }
 
-        getHtmlForItem = function( itemObject, index ) {
+        this.getHtmlForItem = function( itemObject, index ) {
             const appendValueParams = index.toString();
             let newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams)
             .replace("countPlaceholder", itemObject.count);
@@ -327,7 +325,7 @@ head %}
           return newDiv + "</div>";
         }
 
-        toString = function(itemName = null){
+        this.toString = function(itemName = null){
           let cartToString = "";
           const self = this;
           this.cart.forEach( function(itemInCart, index) {
@@ -338,7 +336,7 @@ head %}
           return cartToString;
         }
 
-        canAddItemToCart = function(selectionItemObject, maxFlavors, maxItems, type, help){
+        this.canAddItemToCart = function(selectionItemObject, maxFlavors, maxItems, type, help){
           if ( !this.toLimit.has(type) || !this.parentApp.help ){
             return true;
           }
@@ -355,7 +353,7 @@ head %}
           return true;
         }
 
-        getAddToCartError = function(selectionItemObject, maxFlavors, maxItems){
+        this.getAddToCartError = function(selectionItemObject, maxFlavors, maxItems){
           maxFlavors = Math.min(maxFlavors, maxItems);
           if ( this.alreadyAtMaxFlavorLimit(selectionItemObject, maxFlavors) ){
             return AT_FLAVOR_LIMIT_DIV;
@@ -367,7 +365,7 @@ head %}
           return "";
 
         }
-        pickNumberOfItemsMessage = function( maxItems , help ){
+        this.pickNumberOfItemsMessage = function( maxItems , help ){
           if ( help ){
             const numberOfItemsToPick = maxItems - this.getCountOfItemsToLimit();
             return PICK_NUMBER_MORE_ITEMS.replace("numberPlaceholder", numberOfItemsToPick.toString() );
@@ -376,7 +374,7 @@ head %}
           }
         }
 
-        getCountOfItemsToLimit = function(){
+        this.getCountOfItemsToLimit = function(){
           let count = 0;
           for ( const itemInCart of this.cart ){
             if ( this.toLimit.has(itemInCart.type) ){
@@ -386,7 +384,7 @@ head %}
           return count;
         }
 
-        alreadyAtMaxFlavorLimit = function(itemObj, appMaxFlavors){
+        this.alreadyAtMaxFlavorLimit = function(itemObj, appMaxFlavors){
           const countedFlavors = new Set([itemObj.flavor]);
           let flavorCount = 1
           for ( const itemInCart of this.cart ){
@@ -406,23 +404,21 @@ head %}
 
       }
 
-      class App{
-        constructor(cart, menu){
-          this.menu = {}
-          for ( const menuItem of menu ){
-            this.menu[menuItem.name] = new MenuItem(menuItem);
-          }
-          this.toLimit = new Set(["Entree", "entree"]);
-          this.foodCounter = new FoodCounter(cart, this);
-          this.maxItems = 20;
-          this.maxFlavors = 4;
-          this.currentItem = ''
-          this.help = false;
-          this.validGuests = false;
-          this.environ = {}
+      function App(cart, menu){
+        this.menu = {}
+        for ( const menuItem of menu ){
+          this.menu[menuItem.name] = new MenuItem(menuItem);
         }
+        this.toLimit = new Set(["Entree", "entree"]);
+        this.foodCounter = new FoodCounter(cart, this);
+        this.maxItems = 20;
+        this.maxFlavors = 4;
+        this.currentItem = ''
+        this.help = false;
+        this.validGuests = false;
+        this.environ = {}
 
-        run = function(){
+        this.run = function(){
           if ( this.foodCounter.cart.length > 0 ){
             this.showSelectedFood('#my-cart');
           }
@@ -454,7 +450,7 @@ head %}
           }
         }
 
-        showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
+        this.showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
           const MyApp = this;
           // draw the selection to the cart
           let showSelectedFood = errorMessage + this.foodCounter.pickNumberOfItemsMessage(this.maxItems, this.help);
@@ -504,7 +500,7 @@ head %}
           }
         }
 
-        attachAddToCartControlls = function(itemName, type){
+        this.attachAddToCartControlls = function(itemName, type){
           const MyApp = this;
           $("#addToCart").on('click', function(){
             // create item object.
@@ -554,15 +550,6 @@ head %}
         $("#numKids").val( urlParams["kids"] );
       }
       const app = new App(cart, {{ menu | tojson }});
-      if ( urlParams.hasOwnProperty("help") ){
-        app.help = urlParams.help;
-        setAppMaxItems();
-        $('#amount-help').toggleClass(function(){
-            return 'focused-button';
-        });
-        const numberRec = $("#number-rec");
-        numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees of the smallest size.`) ;
-      }
       app.run();
 
       const attachAddMore = function(){
@@ -591,18 +578,18 @@ head %}
       });
 
       $('#numAdults').on('input', function(){
-        const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+        const paramsDictionary = {"cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
         urlEncodeParams(paramsDictionary);
-        setAppMaxItems();
+        setAppMaxItems(app);
       });
 
       $('#numKids').on('input', function(){
-        const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+        const paramsDictionary = {"cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
         urlEncodeParams(paramsDictionary);
-        setAppMaxItems();
+        setAppMaxItems(app);
       })
 
-      setAppMaxItems();
+      setAppMaxItems(app);
       $('#amount-help').on('click', function(){
         if ( app.help == false && app.validGuests == false){
           alert('Please enter a valid number of guests.');
@@ -713,7 +700,7 @@ head %}
     }
 
     window.addEventListener('click', function(){
-      const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+      const paramsDictionary = {"cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
       urlEncodeParams(paramsDictionary);
     })
   </script>

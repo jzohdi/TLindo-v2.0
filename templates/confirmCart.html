@@ -326,17 +326,15 @@ block head %}
     '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
   const DEFAULT_MIN = 8;
   const LOADING_HTML= `<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
-  class FoodCounter{
-    constructor(cart, app , pricesDict){
-      this.cart = cart;
-      this.toLimit = new Set(["Entree", "entree"]);
-      this.parentApp = app;
-      this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
-      this.possibleCostKeys = [...this.possibleSizeKeys, "flavor", "flavors", "meat", "protein"]
-      this.prices = pricesDict;
-    }
+  function FoodCounter(cart, app , pricesDict){
+    this.cart = cart;
+    this.toLimit = new Set(["Entree", "entree"]);
+    this.parentApp = app;
+    this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
+    this.possibleCostKeys = [...this.possibleSizeKeys, "flavor", "flavors", "meat", "protein"]
+    this.prices = pricesDict;
 
-    getHtmlForItem = function( itemObject, index ) {
+    this.getHtmlForItem = function( itemObject, index ) {
         const appendValueParams = index.toString();
         let newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams)
         .replace("countPlaceholder", itemObject.count);
@@ -349,7 +347,7 @@ block head %}
       return newDiv;
     }
 
-    toString = function(itemName = null){
+    this.toString = function(itemName = null){
       let total = 0.00;
       let cartToString = "";
       const self = this;
@@ -365,7 +363,7 @@ block head %}
       return cartToString;
     }
 
-    getPriceForItem = function(itemToGetPricesFrom){
+    this.getPriceForItem = function(itemToGetPricesFrom){
       let total = 1.00;
       const itemName = itemToGetPricesFrom.name;
       const keysToCalculateCost = this.getCostKeys(itemToGetPricesFrom);
@@ -380,7 +378,7 @@ block head %}
 
     }
 
-    getCostKeys = function(itemObject){
+    this.getCostKeys = function(itemObject){
       const keysFoundInItemObject = [];
       for ( const possibleCostKey of this.possibleCostKeys ){
         if ( itemObject.hasOwnProperty(possibleCostKey) ){
@@ -391,25 +389,23 @@ block head %}
     }
   }
 
-  class App{
-    constructor(cart, pricesDict){
-      this.toLimit = new Set(["Entree", "entree"]);
-      this.foodCounter = new FoodCounter(cart, this, pricesDict);
-      this.maxItems = 20;
-      this.maxFlavors = 4;
-      this.currentItem = ''
-      this.help = false;
-      this.validGuests = false;
-      this.environ = {}
-      this.total = 0;
-      this.billingSame = false;
-    }
+  function App(cart, pricesDict){
+    this.toLimit = new Set(["Entree", "entree"]);
+    this.foodCounter = new FoodCounter(cart, this, pricesDict);
+    this.maxItems = 20;
+    this.maxFlavors = 4;
+    this.currentItem = ''
+    this.help = false;
+    this.validGuests = false;
+    this.environ = {}
+    this.total = 0;
+    this.billingSame = false;
 
-    run = function(){
+    this.run = function(){
       this.showSelectedFood('#my-cart');
     }
 
-    showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
+    this.showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
       const MyApp = this;
       // draw the selection to the cart
       let showSelectedFood = this.foodCounter.toString(itemName);

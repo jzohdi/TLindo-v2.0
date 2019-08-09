@@ -841,7 +841,7 @@ START OF MENU SELECTION FOR USER
 }
 #my-cart {
   text-align: left;
-  font-size: 14px;
+  font-size: calc(22px - 0.5vw);
 }
 @media (max-width: 376px) {
   #my-cart div .span {

@@ -61,26 +61,24 @@ head %}
     "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
     '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
     ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
-  class MenuItem{
-    constructor(itemDictionary){
-      this.environ = itemDictionary;
-      this.notSelectKeys = new Set(["name" , "description", "_id", "type"]);
-      this.toLimit = new Set(["Entree", "entree"]);
-    }
+  function MenuItem(itemDictionary){
+    this.environ = itemDictionary;
+    this.notSelectKeys = new Set(["name" , "description", "_id", "type"]);
+    this.toLimit = new Set(["Entree", "entree"]);
 
-    button = function(){
+    this.button = function(){
       return `<div id="${this.getId()}"
                 class="entree-item col-xs-12 col-sm-6 col-md-12 entree-options">
                   ${this.environ.name}
               </div>`;
     }
-    getId = function(){
+    this.getId = function(){
       return this.environ.name.replace(/\s/g,'-').replace("&", "and");
     }
-    target = function(){
+    this.target = function(){
       return "#" + this.environ.type.toLowerCase();
     }
-    getModalContent = function(help){
+    this.getModalContent = function(help){
       let content =  MAIN_MODAL_CONTENT
       .replace("ItemNamePlaceholder", this.environ.name)
       .replace("HeaderPlaceholder", this.getHeader())
@@ -89,7 +87,7 @@ head %}
       .replace("idPlaceholder", "modal-cart")
       return content
     }
-    getSelection = function(help){
+    this.getSelection = function(help){
       let content = ""
       for (const key in this.environ ) {
         if ( this.notSelectKeys.has(key) ){
@@ -105,7 +103,7 @@ head %}
       return content;
     }
 
-    getSelectDiv = function(key, array, help) {
+    this.getSelectDiv = function(key, array, help) {
       if ( !typeof(array) ){
         return "";
       }
@@ -127,14 +125,14 @@ head %}
       content += "</select></div>";
       return content;
     }
-    trimKey = function(key) {
+    this.trimKey = function(key) {
       if (key.slice(-1) == "s") {
         key = key.slice(0, -1);
       }
       return key;
     }
 
-    getHeader = function(){
+    this.getHeader = function(){
       let description = "<ul>";
       if( this.environ.hasOwnProperty("description") ){
         if ( this.environ.description.length > 0 ){
@@ -148,17 +146,16 @@ head %}
     }
   }
 
-  class FoodCounter{
-    constructor(cart, app, pricesDict){
-      this.cart = cart.map(function(itemObject){ delete itemObject.cost; return itemObject });
-      this.toLimit = new Set(["Entree", "entree"]);
-      this.parentApp = app;
-      this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
-      this.possibleCostKeys = [...this.possibleSizeKeys, "flavor", "flavors", "meat", "protein"]
-      this.prices = pricesDict;
-    }
+  function FoodCounter(cart, app, pricesDict){
+    this.cart = cart.map(function(itemObject){ delete itemObject.cost; return itemObject });
+    this.toLimit = new Set(["Entree", "entree"]);
+    this.parentApp = app;
+    this.possibleSizeKeys = ['size', 'sizes', 'portion', 'portions'];
+    this.possibleCostKeys = [...this.possibleSizeKeys, "flavor", "flavors", "meat", "protein"]
+    this.prices = pricesDict;
 
-    addItemToCart = function(itemToAdd){
+
+    this.addItemToCart = function(itemToAdd){
       for ( const itemInCart of this.cart ){
         // if item is the same as another item except for the count, append 1 to the count.
           if ( objectsAreEqual(itemInCart, itemToAdd, ['count'])){
@@ -169,7 +166,7 @@ head %}
       this.cart.push(itemToAdd);
     }
 
-    getHtmlForItem = function( itemObject, index ) {
+    this.getHtmlForItem = function( itemObject, index ) {
         const appendValueParams = index.toString();
         let newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams)
         .replace("countPlaceholder", itemObject.count);
@@ -182,7 +179,7 @@ head %}
       return newDiv;
     }
 
-    toString = function(itemName = null){
+    this.toString = function(itemName = null){
       let total = 0.00;
       let cartToString = "";
       const self = this;
@@ -198,7 +195,7 @@ head %}
       return cartToString;
     }
 
-    canAddItemToCart = function(selectionItemObject, maxFlavors, maxItems, type, help){
+    this.canAddItemToCart = function(selectionItemObject, maxFlavors, maxItems, type, help){
 
       maxFlavors = Math.min(maxFlavors, maxItems);
       if ( this.alreadyAtMaxFlavorLimit(selectionItemObject, maxFlavors) ){
@@ -207,7 +204,7 @@ head %}
       return true;
     }
 
-    getAddToCartError = function(selectionItemObject, maxFlavors, maxItems){
+    this.getAddToCartError = function(selectionItemObject, maxFlavors, maxItems){
       maxFlavors = Math.min(maxFlavors, maxItems);
       if ( this.alreadyAtMaxFlavorLimit(selectionItemObject, maxFlavors) ){
         return AT_FLAVOR_LIMIT_DIV;
@@ -216,7 +213,7 @@ head %}
 
     }
 
-    alreadyAtMaxFlavorLimit = function(itemObj, appMaxFlavors){
+    this.alreadyAtMaxFlavorLimit = function(itemObj, appMaxFlavors){
       const countedFlavors = new Set([itemObj.flavor]);
       let flavorCount = 1
       for ( const itemInCart of this.cart ){
@@ -233,7 +230,7 @@ head %}
       }
       return false;
     }
-    getPriceForItem = function(itemToGetPricesFrom){
+    this.getPriceForItem = function(itemToGetPricesFrom){
       let total = 1.00;
       const itemName = itemToGetPricesFrom.name;
       const keysToCalculateCost = this.getCostKeys(itemToGetPricesFrom);
@@ -248,7 +245,7 @@ head %}
 
     }
 
-    getCostKeys = function(itemObject){
+    this.getCostKeys = function(itemObject){
       const keysFoundInItemObject = [];
       for ( const possibleCostKey of this.possibleCostKeys ){
         if ( itemObject.hasOwnProperty(possibleCostKey) ){
@@ -260,23 +257,21 @@ head %}
 
   }
 
-  class App{
-    constructor(cart, menu, pricesDict){
-      this.menu = {}
-      for ( const menuItem of menu ){
-        this.menu[menuItem.name] = new MenuItem(menuItem);
-      }
-      this.toLimit = new Set(["Entree", "entree"]);
-      this.foodCounter = new FoodCounter(cart['order'], this, pricesDict);
-      this.maxItems = 20;
-      this.maxFlavors = 4;
-      this.currentItem = ''
-      this.help = false;
-      this.validGuests = false;
-      this.environ = {}
+  function App(cart, menu, pricesDict){
+    this.menu = {}
+    for ( const menuItem of menu ){
+      this.menu[menuItem.name] = new MenuItem(menuItem);
     }
+    this.toLimit = new Set(["Entree", "entree"]);
+    this.foodCounter = new FoodCounter(cart['order'], this, pricesDict);
+    this.maxItems = 20;
+    this.maxFlavors = 4;
+    this.currentItem = ''
+    this.help = false;
+    this.validGuests = false;
+    this.environ = {}
 
-    run = function(){
+    this.run = function(){
       if ( this.foodCounter.cart.length > 0 ){
         this.showSelectedFood('#my-cart');
       }
@@ -308,7 +303,7 @@ head %}
       }
     }
 
-    showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
+    this.showSelectedFood = function(idOfTarget, itemName = undefined, errorMessage = ""){
       const MyApp = this;
 
       let cartToString = this.foodCounter.toString(itemName);
@@ -336,7 +331,7 @@ head %}
       }
     }
 
-    attachAddToCartControlls = function(itemName, type){
+    this.attachAddToCartControlls = function(itemName, type){
       const MyApp = this;
       $("#addToCart").on('click', function(){
         // create item object.
