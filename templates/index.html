@@ -69,15 +69,17 @@ head %}
 
       <div class="row main-menu-box">
         <h4 id="number-rec"></h4>
-        <div class="col-md-6">
+        <div class="col-md-12">
           <h3 class="main-menu-headers">Entrees</h3>
-          <div class="col-md-8 col-md-offset-2">
+          <!-- <div class="col-md-8 col-md-offset-2"> -->
+          <div class="col-xs-12">
             <div id="entree" class="row"></div>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-12">
           <h3 class="main-menu-headers">Sides</h3>
-          <div class="col-md-8 col-md-offset-2">
+          <!-- <div class="col-md-8 col-md-offset-2"> -->
+          <div class="col-xs-12">
             <div id="side" class="row"></div>
           </div>
         </div>
@@ -108,6 +110,7 @@ head %}
   href="{{ url_for('static', filename='defaultcompressed.css') }}"
 />
 <script type="text/javascript">
+  const MOBILE_MODE = ( window.innerWidth <= 767);
   const paramsToEncode = {}
   if ( sessionStorage.getItem("cart") != undefined ){
     paramsToEncode["cart"] = JSON.parse(sessionStorage.getItem('cart'))
@@ -198,6 +201,14 @@ head %}
       }
 
       button = function(){
+        if ( !MOBILE_MODE ){
+            return `<div id="${this.getId()}"
+                  class="entree-item col-xs-12 entree-options">
+                    <h3 style='text-align:left;'>${this.environ.name}</h3>
+                    <div>${this.getDescriptionList()}</div>
+                    <div id="${this.getId()}Choose"></div>
+                  </div>`;
+        }
         return `<div id="${this.getId()}"
                   class="entree-item col-xs-12 col-sm-6 col-md-12 entree-options">
                     ${this.environ.name}
@@ -239,7 +250,7 @@ head %}
           return "";
         }
         key = this.trimKey(key);
-        let content = `<div class='col-sm-6 col-md-4'> Choose ${key} :  <select class='select-setting'>`
+        let content = `<div class='col-xs-9 col-xs-offset-2'> Choose ${key} :  <select class='select-setting'>`
         // if asking for help, and the item is of entree type, and the key is the size. only return option for the smallest size
         if ( help && this.toLimit.has(this.environ.type) && key == 'size'){
           const sizeKey = ( this.environ.hasOwnProperty("sizes") ) ? 'sizes' : 'size';
@@ -263,7 +274,7 @@ head %}
         return key;
       }
 
-      getHeader = function(){
+      getDescriptionList = function(){
         let description = "<ul>";
         if( this.environ.hasOwnProperty("description") ){
           if ( this.environ.description.length > 0 ){
@@ -272,7 +283,14 @@ head %}
             })
           }
         }
-        return description + '</ul><p class="please-select-from">Please choose from options:</p>';
+        return description
+      }
+      getHeader = function(){
+        if ( MOBILE_MODE ){
+          return this.getDescriptionList() + '</ul><p class="please-select-from">Please choose from options:</p>';
+        }else{
+          return '<p class="please-select-from">Please choose from options:</p>';
+        }
 
       }
     }

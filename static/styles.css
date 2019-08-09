@@ -533,7 +533,7 @@ footer {
 .entree-item {
   margin: 5px 0px;
   padding: 10px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   border: 1px #0d034c solid;
   background-color: white;
   font-size: 15px;
@@ -767,9 +767,9 @@ START OF MENU SELECTION FOR USER
   border-bottom: 3px solid;
 }
 .selection {
-  border: 1px solid;
+  /* border: 1px solid; */
   padding: 10px;
-  border-radius: 5px;
+  /* border-radius: 5px; */
 }
 .selection div {
   padding: 4px;
