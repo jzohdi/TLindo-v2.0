@@ -2,4 +2,3 @@
 myenv/
 flask_session/
 venv/
-credentials.json
