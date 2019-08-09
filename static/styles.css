@@ -524,25 +524,26 @@ footer {
 .helper-screen {
   min-height: 70vh;
 }
-.entree-options {
+/* .entree-options {
   margin: 5px 0px;
-}
+} */
 #selected-food {
   margin-bottom: 50px;
 }
 .entree-item {
-  margin: 5px 0px;
+  margin-top: 5px;
+  margin-bottom: 15px;
   padding: 10px;
   /* border-radius: 10px; */
   border: 1px #0d034c solid;
   background-color: white;
   font-size: 15px;
 }
-@media (max-width: 767px) {
+/* @media (max-width: 767px) {
   .entree-item {
     width: 100%;
   }
-}
+} */
 .entree-item:hover {
   cursor: pointer;
   color: white;
@@ -765,6 +766,7 @@ START OF MENU SELECTION FOR USER
 }
 .main-menu-headers {
   border-bottom: 3px solid;
+  font-size: calc(25px + 1.3vw);
 }
 .selection {
   /* border: 1px solid; */
@@ -777,7 +779,7 @@ START OF MENU SELECTION FOR USER
 .selection select {
   text-align: center;
   border-radius: 5px;
-  min-width: 120px;
+  min-width: 160px;
 }
 .add-select {
   border-radius: 5px;
@@ -865,6 +867,10 @@ START OF MENU SELECTION FOR USER
 #my-cart div {
   margin-bottom: 8px;
   border-bottom: 1px solid;
+}
+.choose-option {
+  margin-left: 15%;
+  margin-bottom: 13px;
 }
 #my-cart div .span {
   display: inline-block;
@@ -1041,9 +1047,9 @@ hr {
 }
 #done-selection {
   /*bottom: 25px;*/
-  width: 50%;
+  /* width: 50%; */
   position: static;
-  margin-left: 22%;
+  /* margin-left: 22%; */
   margin-top: 5vmin;
 }
 @media (max-width: 991px) and (min-width: 768px) {
