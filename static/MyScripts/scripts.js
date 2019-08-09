@@ -19,10 +19,15 @@ const urlEncodeParams = function(paramDictionary) {
 const urlDecodeParams = function() {
   const urlSearchString = window.location.search;
   if (!urlSearchString.includes("?")) return {};
-  const paramDictionary = JSON.parse(
-    decodeURIComponent(urlSearchString.replace("?", ""))
-  );
-  return paramDictionary;
+  try {
+    const paramDictionary = JSON.parse(
+      decodeURIComponent(urlSearchString.replace("?", ""))
+    );
+    return paramDictionary;
+  } catch {
+    window.history.replaceState({}, "", "");
+    return {};
+  }
 };
 
 function objectsAreEqual(o1, o2, arrayToExclude = []) {
