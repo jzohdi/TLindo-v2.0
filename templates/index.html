@@ -108,6 +108,26 @@ head %}
   href="{{ url_for('static', filename='defaultcompressed.css') }}"
 />
 <script type="text/javascript">
+  const paramsToEncode = {}
+  if ( sessionStorage.getItem("cart") != undefined ){
+    paramsToEncode["cart"] = JSON.parse(sessionStorage.getItem('cart'))
+  }
+  if ( sessionStorage.getItem("date") != undefined){
+    paramsToEncode["date"] = sessionStorage.getItem('date')
+  }
+  const urlEncode = function(paramDictionary) {
+    window.history.replaceState({}, "", "?" + encodeURIComponent(JSON.stringify(paramDictionary) ) );
+  };
+  urlEncode(paramsToEncode);
+  const urlDecode = function() {
+    const urlSearchString = window.location.search;
+    if (!urlSearchString.includes("?")) return {};
+    const paramDictionary = JSON.parse(
+      decodeURIComponent(urlSearchString.replace("?", ""))
+    );
+    return paramDictionary;
+  };
+
   const MAIN_MODAL_CONTENT =
     "<h2> ItemNamePlaceholder: </h2>" +
     "<p> HeaderPlaceholder </p>" +
@@ -138,7 +158,38 @@ head %}
     '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
     '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
     const DEFAULT_MIN = 8;
+    const setAppMaxItems = function(){
+      let numGuests;
+      let numAdults = $('#numAdults').val()
+      let numKids = $('#numKids').val();
 
+      if( numAdults === '' ) numAdults = 0;
+      if( numKids === '') numKids = 0;
+      if( isNaN(numAdults) || isNaN(numKids) ){
+        app.validGuests = false;
+      }else{
+
+        if ( numAdults + numKids === 0 ){
+          validGuests = false;
+          return;
+        }
+
+        app.environ.Adults = parseInt(numAdults);
+        app.environ.Kids = parseInt(numKids);
+
+        if ( (app.environ.Kids + app.environ.Adults) >= 8 && (0.5*app.environ.Kids + app.environ.Adults) < 8 ){
+          numGuests = 8;
+        }else{
+          numGuests = (0.5*app.environ.Kids) + app.environ.Adults;
+        }
+        app.maxItems = Math.ceil( numGuests / parseInt(DEFAULT_MIN) );
+        const numberRec = $('#number-rec');
+        if ( numberRec.html() !== '' ){
+          numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees of the smallest size.`) ;
+        }
+        app.validGuests = true;
+      }
+    }
     class MenuItem{
       constructor(itemDictionary){
         this.environ = itemDictionary;
@@ -477,11 +528,26 @@ head %}
       return thisItem;
     }
     let cart = []
-    if ( sessionStorage.getItem("cart") != undefined ){
-      cart = JSON.parse( sessionStorage.getItem("cart") );
+    const urlParams = urlDecode();
+    if( urlParams.hasOwnProperty("cart") ){
+      cart = urlParams["cart"];
+    }
+    if ( urlParams.hasOwnProperty("adults") ){
+      $("#numAdults").val( urlParams['adults'] );
+    }
+    if ( urlParams.hasOwnProperty("kids") ){
+      $("#numKids").val( urlParams["kids"] );
     }
     const app = new App(cart, {{ menu | tojson }});
-
+    if ( urlParams.hasOwnProperty("help") ){
+      app.help = urlParams.help;
+      setAppMaxItems();
+      $('#amount-help').toggleClass(function(){
+          return 'focused-button';
+      });
+      const numberRec = $("#number-rec");
+      numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees of the smallest size.`) ;
+    }
     app.run();
 
     const attachAddMore = function(){
@@ -509,54 +575,18 @@ head %}
       }
     });
 
-    const setAppMaxItems = function(){
-      let numGuests;
-      let numAdults = $('#numAdults').val()
-      let numKids = $('#numKids').val()
-
-      if( numAdults === '' ) numAdults = 0;
-      if( numKids === '') numKids = 0;
-      if( isNaN(numAdults) || isNaN(numKids) ){
-        app.validGuests = false;
-      }else{
-
-        if ( numAdults + numKids === 0 ){
-          validGuests = false;
-          return;
-        }
-
-        app.environ.Adults = parseInt(numAdults);
-        app.environ.Kids = parseInt(numKids);
-        sessionStorage.setItem("numAdults", numAdults);
-        sessionStorage.setItem("numKids", numKids);
-
-        if ( (app.environ.Kids + app.environ.Adults) >= 8 && (0.5*app.environ.Kids + app.environ.Adults) < 8 ){
-          numGuests = 8;
-        }else{
-          numGuests = (0.5*app.environ.Kids) + app.environ.Adults;
-        }
-        app.maxItems = Math.ceil( numGuests / parseInt(DEFAULT_MIN) );
-        const numberRec = $('#number-rec');
-        if ( numberRec.html() !== '' ){
-          numberRec.html(`For ${app.environ.Adults} adults${ (app.environ.Kids != 0) ? ` and ${app.environ.Kids} kids` : ''}, we recommoned ${app.maxItems} entrees of the smallest size.`) ;
-        }
-        app.validGuests = true;
-      }
-    }
-
     $('#numAdults').on('input', function(){
+      const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+      urlEncodeParams(paramsDictionary);
       setAppMaxItems();
     });
 
     $('#numKids').on('input', function(){
+      const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+      urlEncodeParams(paramsDictionary);
       setAppMaxItems();
     })
-    if ( sessionStorage.getItem("numAdults") != undefined ){
-      $("#numAdults").val(sessionStorage.getItem("numAdults") );
-    }
-    if ( sessionStorage.getItem("numKids") != undefined ){
-      $("#numKids").val( sessionStorage.getItem("numKids") );
-    }
+
     setAppMaxItems();
     $('#amount-help').on('click', function(){
       if ( app.help == false && app.validGuests == false){
@@ -569,6 +599,10 @@ head %}
           numberRec.empty()
         }
         app.help = !app.help;
+        // set the url encoding search string //
+        const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+        urlEncodeParams(paramsDictionary);
+        /////////////////////////////////////////////
         app.foodCounter.cart = reverseResolutionOfItems(app.foodCounter.cart, app.help);
         app.showSelectedFood('#my-cart');
         $('#amount-help').toggleClass(function(){
@@ -614,57 +648,58 @@ head %}
       }
       return false;
     }
-    const convertToSmallerSizes = function(itemObject){
-      console.log('item to make to smaller resolution', itemObject)
-      const newResArray = []
-      const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
-      const itemSize = itemObject[sizeKey];
-      const arrayOfItemSizes = app.menu[itemObject.name].environ.sizes;
-      let minSize = {'Count' : 100 }
-      arrayOfItemSizes.forEach( function(object){
-        if ( parseInt(object.Count) < minSize.Count ){
-          minSize = object
-        }
-      });
-      console.log("This is the min size object 1", minSize)
-      const thisItemCount = arrayOfItemSizes.find( function(element){
-        return element.name == itemSize;
-      });
-      console.log("This is the min size object 1", thisItemCount)
-      const copyOfItem = deepCopy(itemObject);
-      copyOfItem[sizeKey] = minSize.name;
-      copyOfItem['count'] = ( parseInt(thisItemCount.Count) / parseInt(minSize.Count) ) * itemObject.count;
-      console.log("This is the copy of the item", copyOfItem);
-      newResArray.push(copyOfItem);
-      return newResArray;
-    }
-    const convertToLargerSizes = function(itemObject){
-      const newResArray = []
-      const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
-      const itemSize = itemObject[sizeKey];
-      let copyOfSizes = deepCopy(app.menu[itemObject.name].environ.sizes);
-      const thisItemCount = copyOfSizes.find( function(element){
-        return element.name == itemSize;
-      })
-      let totalPieces = parseInt(thisItemCount.Count) * itemObject.count;
-      while ( copyOfSizes.length > 0 ){
-        const currentLargestSize = Math.max.apply(Math, copyOfSizes.map(function(object) { return object.Count; }))
-        const sizeObjectWithCurrentLargestSize = copyOfSizes.find( function(object){
-          return object.Count == currentLargestSize;
-        })
-        if ( totalPieces >= sizeObjectWithCurrentLargestSize.Count ){
-          const newItem = deepCopy(itemObject);
-          newItem.count = 0;
-          newItem.size = sizeObjectWithCurrentLargestSize.name;
-          while ( totalPieces >= parseInt(sizeObjectWithCurrentLargestSize.Count) ){
-            newItem.count += 1;
-            totalPieces -= parseInt(sizeObjectWithCurrentLargestSize.Count);
-          }
-          newResArray.push(newItem);
-        }
-        copyOfSizes = copyOfSizes.filter( function(object){ return object.Count != currentLargestSize });
+  const convertToSmallerSizes = function(itemObject){
+    const newResArray = []
+    const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
+    const itemSize = itemObject[sizeKey];
+    const arrayOfItemSizes = app.menu[itemObject.name].environ.sizes;
+    let minSize = {'Count' : 100 }
+    arrayOfItemSizes.forEach( function(object){
+      if ( parseInt(object.Count) < minSize.Count ){
+        minSize = object
       }
-      return newResArray;
+    });
+    const thisItemCount = arrayOfItemSizes.find( function(element){
+      return element.name == itemSize;
+    });
+    const copyOfItem = deepCopy(itemObject);
+    copyOfItem[sizeKey] = minSize.name;
+    copyOfItem['count'] = ( parseInt(thisItemCount.Count) / parseInt(minSize.Count) ) * itemObject.count;
+    newResArray.push(copyOfItem);
+    return newResArray;
+  }
+  const convertToLargerSizes = function(itemObject){
+    const newResArray = []
+    const sizeKey = itemObject.hasOwnProperty("size") ? "size" : "portion";
+    const itemSize = itemObject[sizeKey];
+    let copyOfSizes = deepCopy(app.menu[itemObject.name].environ.sizes);
+    const thisItemCount = copyOfSizes.find( function(element){
+      return element.name == itemSize;
+    })
+    let totalPieces = parseInt(thisItemCount.Count) * itemObject.count;
+    while ( copyOfSizes.length > 0 ){
+      const currentLargestSize = Math.max.apply(Math, copyOfSizes.map(function(object) { return object.Count; }))
+      const sizeObjectWithCurrentLargestSize = copyOfSizes.find( function(object){
+        return object.Count == currentLargestSize;
+      })
+      if ( totalPieces >= sizeObjectWithCurrentLargestSize.Count ){
+        const newItem = deepCopy(itemObject);
+        newItem.count = 0;
+        newItem.size = sizeObjectWithCurrentLargestSize.name;
+        while ( totalPieces >= parseInt(sizeObjectWithCurrentLargestSize.Count) ){
+          newItem.count += 1;
+          totalPieces -= parseInt(sizeObjectWithCurrentLargestSize.Count);
+        }
+        newResArray.push(newItem);
+      }
+      copyOfSizes = copyOfSizes.filter( function(object){ return object.Count != currentLargestSize });
     }
+    return newResArray;
+  }
+
+  window.addEventListener('click', function(){
+    const paramsDictionary = {"help": app.help , "cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
+    urlEncodeParams(paramsDictionary);
+  })
 </script>
 {% endblock %}

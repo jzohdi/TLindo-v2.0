@@ -313,6 +313,14 @@ block head %}
 />
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
+  const urlDecode = function() {
+    const urlSearchString = window.location.search;
+    if (!urlSearchString.includes("?")) return {};
+    const paramDictionary = JSON.parse(
+      decodeURIComponent(urlSearchString.replace("?", ""))
+    );
+    return paramDictionary;
+  };
   const ITEM_HTML_FOR_LIST =
     '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
     '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
@@ -450,8 +458,12 @@ block head %}
   }
 
   let cart = []
+  const urlParams = urlDecode();
   if ( sessionStorage.getItem("cart") != undefined ){
     cart = JSON.parse( sessionStorage.getItem("cart") );
+  }
+  if ( urlParams.hasOwnProperty("cart") ){
+    cart = urlParams["cart"];
   }
   let app;
 
@@ -461,7 +473,10 @@ block head %}
     })
       .then(function(myJson) {
         app = new App(cart, myJson);
+        const paramsDictionary = {"cart" : app.foodCounter.cart, "date" : $('#datepicker').val()}
+        urlEncodeParams(paramsDictionary);
         app.run();
+
         main();
       }); 
   }
@@ -471,6 +486,7 @@ block head %}
   const main = function(){
   
   const backToMenu = function(){
+    sessionStorage.setItem("date", $("#datepicker").val())
     sessionStorage.setItem("cart", JSON.stringify(app.foodCounter.cart) );
     document.location.href = "/";
   };
@@ -837,14 +853,18 @@ function setInputFilter(textbox, inputFilter) {
   });
 }
 
-// Restrict input to digits and '.' by using a regular expression filter.
-const toEnforceInputs = $('.digits-only')
-$.each( toEnforceInputs, function(index, element){
-  setInputFilter(element, function(value) {
-    return /^\d*\.?\d*$/.test(value);
-  });
-})
-}
+  // Restrict input to digits and '.' by using a regular expression filter.
+  const toEnforceInputs = $('.digits-only')
+  $.each( toEnforceInputs, function(index, element){
+    setInputFilter(element, function(value) {
+      return /^\d*\.?\d*$/.test(value);
+    });
+  })
+  }
+  window.addEventListener('click', function(){
+    const paramsDictionary = {"cart" : app.foodCounter.cart, "date" : $('#datepicker').val()}
+    urlEncodeParams(paramsDictionary);
+  })
 </script>
 <style>
   @media (max-width: 320px) {

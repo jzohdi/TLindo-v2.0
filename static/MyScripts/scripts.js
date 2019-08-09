@@ -9,6 +9,22 @@ function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
+const encodeToString = function(paramDictionary) {
+  return "?" + encodeURIComponent(JSON.stringify(paramDictionary));
+};
+const urlEncodeParams = function(paramDictionary) {
+  window.history.replaceState({}, "", encodeToString(paramDictionary));
+};
+
+const urlDecodeParams = function() {
+  const urlSearchString = window.location.search;
+  if (!urlSearchString.includes("?")) return {};
+  const paramDictionary = JSON.parse(
+    decodeURIComponent(urlSearchString.replace("?", ""))
+  );
+  return paramDictionary;
+};
+
 function objectsAreEqual(o1, o2, arrayToExclude = []) {
   const keys = new Set(Object.keys(o1).concat(Object.keys(o2)));
   arrayToExclude.forEach(key => keys.delete(key));
@@ -26,8 +42,11 @@ function shutDown(password) {
     textStatus
   ) {});
 }
-
-function setPicker(selectDate = sessionStorage.getItem("date")) {
+const urlDictionary = urlDecodeParams();
+function setPicker(selectDate = urlDictionary["date"]) {
+  if (selectDate == undefined) {
+    selectDate = sessionStorage.getItem("date");
+  }
   const finalArrayOfDates = [];
   $.get("/disabled_dates", function(data) {
     data.forEach(function(element, index) {
