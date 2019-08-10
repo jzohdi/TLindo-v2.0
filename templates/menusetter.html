@@ -52,6 +52,7 @@ head %}
       })
       .fail(function() {
         alert("Something went wrong.");
+        updateMenuButton.css({ "pointer-events": "" });
         updateMenuButton.html(preLoadingHtml);
       });
   });

@@ -871,6 +871,7 @@ START OF MENU SELECTION FOR USER
 .choose-option {
   margin-left: 15%;
   margin-bottom: 13px;
+  font-size: calc(19px - 0.3vw);
 }
 #my-cart div .span {
   display: inline-block;
