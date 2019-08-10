@@ -607,7 +607,7 @@ def edit_order():
     if not order_to_edit.get("status"):
         return redirect(url_for('user_orders'))
     order_to_edit = order_to_edit.get("return_value")
-
+    session['order_to_edit'] = order_to_edit
     menu = Controllers.connect_to_db(Controllers.get_menu_items)
     if menu.get("status") and menu.get("return_value"):
         menu = menu.get("return_value")
@@ -616,6 +616,23 @@ def edit_order():
     # if we could not retrieve the menu, then the page
     # cannot be used. Show only error page.
     return render_template('edit_order.html', order=order_to_edit, menu=menu)
+
+
+@app.route("/get_order/prices/menu/", methods=["GET"])
+def get_order_prices_menu():
+    if 'order_to_edit' not in session:
+        return jsonify({"error": "No order to edit found in session."})
+    order_to_edit = session.pop('order_to_edit')
+    menu = Controllers.connect_to_db(Controllers.get_menu_items)
+    if not menu.get("status") or not menu.get("return_value"):
+        return jsonify({"error": "Failed retrieving menu."})
+    menu = menu.get("return_value")
+    prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
+    if not prices.get("status") or not prices.get("return_value"):
+        return jsonify({"error": prices.get("error")})
+    return jsonify({'order': order_to_edit,
+                    'menu': menu,
+                    'prices': prices.get("return_value")})
 
 
 @app.route('/commit_order_edit/', methods=["POST"])
@@ -969,13 +986,9 @@ def shutdown_server():
     func()
 
 
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    if not session.get('beta'):
-        return "access denied :("
-    if request.args.get("pw") == settings.get("SHUTDOWN"):
-        shutdown_server()
-        return 'Server shutting down...'
+@app.route("/error", methods=["GET", "POST"])
+def error():
+    return render_template("error.html")
 
 
 @app.route('/privacy_policy', methods=["GET"])

@@ -453,7 +453,7 @@ const urlEncode = function(paramDictionary) {
         if ( $("#modal-cart").html() == undefined ){
           app.showSelectedFood('#my-cart');
         }else{
-          app.showSelectedFood('#modal-cart');
+          app.showSelectedFood('#modal-cart', app.currentItem);
         }
       });
     }

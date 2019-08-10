@@ -916,6 +916,10 @@ START OF MENU SELECTION FOR USER
   text-align: left;
   margin-top: 2vh;
 }
+.step-style {
+  text-align: left;
+  margin-top: 5px;
+}
 hr {
   border-top: 1px solid #0d034c;
 }

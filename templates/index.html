@@ -8,12 +8,13 @@ head %}
 <div id="main-planner-page" class="container">
   <div id="top-message" class="row normalize-height">
     <div id="card1" class="col-md-10 col-md-offset-1 main-card fade-in-right">
-      <h4>Thanks for choosing Taco Lindo!</h4>
-      <h4>Lets plan your event!</h4>
+      <h3>Thanks for choosing Taco Lindo!</h3>
+      <h3>Lets plan your event!</h3>
     </div>
   </div>
   <div id="event-planner" class="row normalize-height">
     <div id="card2" class="col-md-10 col-md-offset-1 main-card fade-in-left">
+      <h3 class="step-style">Step 1:</h3>
       <h4>What day will your event be?</h4>
       <div id="date-form" class="form-group">
         <input
@@ -37,6 +38,7 @@ head %}
       class="col-md-10 col-md-offset-1 main-card fade-in-left helper-screen"
     >
       <div id="card9" class="col-xs-12 fade-in-right ">
+        <h3 style="margin-left:-15px;" class="step-style">Step 2:</h3>
         <div class="col-sm-6">
           <h4>
             <span class="order-keys">Not sure how much to order?</span>
@@ -66,6 +68,7 @@ head %}
       </div>
 
       <div class="row main-menu-box">
+        <h3 style="padding-left: 15px;" class="step-style">Step 3:</h3>
         <h4 id="number-rec"></h4>
         <h3 class="main-menu-headers">Entrees</h3>
         <div class="col-xs-12">
@@ -103,7 +106,7 @@ head %}
     href="{{ url_for('static', filename='defaultcompressed.css') }}"
   />
   <script type="text/javascript">
-      function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+    function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
     var urlEncode = function urlEncode(paramDictionary) {
       window.history.replaceState({}, "", "?" + encodeURIComponent(JSON.stringify(paramDictionary)));
@@ -185,7 +188,7 @@ head %}
 
       this.button = function () {
         if (!MOBILE_MODE) {
-          return "<div id=\"".concat(this.getId(), "\"\n                    class=\"entree-item col-xs-10 col-xs-offset-1 entree-options\">\n                      <h3 style='text-align:left;'>").concat(this.environ.name, "</h3>\n                      <div>").concat(this.getDescriptionList(), "</div>\n                    </div>");
+          return "<div id=\"".concat(this.getId(), "\"\n                    class=\"entree-item col-xs-10 col-xs-offset-1 entree-options\">\n               <h3 style='text-align:left;    margin-top: 5px;'>").concat(this.environ.name, "</h3>\n                      <div>").concat(this.getDescriptionList(), "</div>\n                    </div>");
         }
 
         return "<div id=\"".concat(this.getId(), "\"\n                    class=\"entree-item col-xs-12 entree-options\">\n                      ").concat(this.environ.name, "\n                  </div>");
@@ -658,7 +661,7 @@ head %}
         if ($("#modal-cart").html() == undefined) {
           app.showSelectedFood('#my-cart');
         } else {
-          app.showSelectedFood('#modal-cart');
+          app.showSelectedFood('#modal-cart', app.currentItem);
         }
       });
     };

@@ -1,92 +1,56 @@
-function _toConsumableArray(arr) {
-  return (
-    _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread()
-  );
-}
-
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
-}
-
-function _iterableToArray(iter) {
-  if (
-    Symbol.iterator in Object(iter) ||
-    Object.prototype.toString.call(iter) === "[object Arguments]"
-  )
-    return Array.from(iter);
-}
-
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
-      arr2[i] = arr[i];
-    }
-    return arr2;
-  }
-}
-
-var urlDecode = function urlDecode() {
-  var urlSearchString = window.location.search;
+const urlDecode = function() {
+  const urlSearchString = window.location.search;
   if (!urlSearchString.includes("?")) return {};
-  var paramDictionary = JSON.parse(
+  const paramDictionary = JSON.parse(
     decodeURIComponent(urlSearchString.replace("?", ""))
   );
   return paramDictionary;
 };
-
-var ITEM_HTML_FOR_LIST =
+const ITEM_HTML_FOR_LIST =
   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
   '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
-var DEFAULT_MIN = 8;
-var LOADING_HTML =
-  '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
-
+const DEFAULT_MIN = 8;
+const LOADING_HTML = `<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
 function FoodCounter(cart, app, pricesDict) {
   this.cart = cart;
   this.toLimit = new Set(["Entree", "entree"]);
   this.parentApp = app;
   this.possibleSizeKeys = ["size", "sizes", "portion", "portions"];
-  this.possibleCostKeys = [].concat(_toConsumableArray(this.possibleSizeKeys), [
+  this.possibleCostKeys = [
+    ...this.possibleSizeKeys,
     "flavor",
     "flavors",
     "meat",
     "protein"
-  ]);
+  ];
   this.prices = pricesDict;
 
   this.getHtmlForItem = function(itemObject, index) {
-    var appendValueParams = index.toString();
-    var newDiv = ITEM_HTML_FOR_LIST.replace(
+    const appendValueParams = index.toString();
+    let newDiv = ITEM_HTML_FOR_LIST.replace(
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
 
-    for (var key in itemObject) {
+    for (const key in itemObject) {
       if (key != "count") {
-        newDiv += '<span class="my-cart-key"> '.concat(
-          itemObject[key],
-          '</span><strong class="order-keys"> | </strong>'
-        );
+        newDiv += `<span class="my-cart-key"> ${
+          itemObject[key]
+        }</span><strong class="order-keys"> | </strong>`;
       }
     }
-
     return newDiv;
   };
 
-  this.toString = function() {
-    var itemName =
-      arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var total = 0.0;
-    var cartToString = "";
-    var self = this;
+  this.toString = function(itemName = null) {
+    let total = 0.0;
+    let cartToString = "";
+    const self = this;
     this.cart.forEach(function(itemInCart, index) {
       if (!itemName || itemInCart.name == itemName) {
         cartToString += self.getHtmlForItem(itemInCart, index);
-        var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
-        cartToString += '<small class="my-cart-key">$'.concat(
-          itemPrice,
-          "</small></div>"
-        );
+        const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
+        cartToString += `<small class="my-cart-key">$${itemPrice}</small></div>`;
         total += parseFloat(itemPrice);
       }
     });
@@ -95,76 +59,26 @@ function FoodCounter(cart, app, pricesDict) {
   };
 
   this.getPriceForItem = function(itemToGetPricesFrom) {
-    var total = 1.0;
-    var itemName = itemToGetPricesFrom.name;
-    var keysToCalculateCost = this.getCostKeys(itemToGetPricesFrom);
-    var thisItemPriceDict = this.prices[itemName];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
+    let total = 1.0;
+    const itemName = itemToGetPricesFrom.name;
+    const keysToCalculateCost = this.getCostKeys(itemToGetPricesFrom);
 
-    try {
-      for (
-        var _iterator = keysToCalculateCost[Symbol.iterator](), _step;
-        !(_iteratorNormalCompletion = (_step = _iterator.next()).done);
-        _iteratorNormalCompletion = true
-      ) {
-        var key = _step.value;
-        var priceDictKeyValue = parseFloat(thisItemPriceDict[key]);
-        total *= priceDictKeyValue.toFixed(2);
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return != null) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
+    const thisItemPriceDict = this.prices[itemName];
+    for (const key of keysToCalculateCost) {
+      const priceDictKeyValue = parseFloat(thisItemPriceDict[key]);
+      total *= priceDictKeyValue.toFixed(2);
     }
-
     total *= itemToGetPricesFrom["count"].toFixed(2);
     return total;
   };
 
   this.getCostKeys = function(itemObject) {
-    var keysFoundInItemObject = [];
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-      for (
-        var _iterator2 = this.possibleCostKeys[Symbol.iterator](), _step2;
-        !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done);
-        _iteratorNormalCompletion2 = true
-      ) {
-        var possibleCostKey = _step2.value;
-
-        if (itemObject.hasOwnProperty(possibleCostKey)) {
-          keysFoundInItemObject.push(itemObject[possibleCostKey]);
-        }
-      }
-    } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-          _iterator2.return();
-        }
-      } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
-        }
+    const keysFoundInItemObject = [];
+    for (const possibleCostKey of this.possibleCostKeys) {
+      if (itemObject.hasOwnProperty(possibleCostKey)) {
+        keysFoundInItemObject.push(itemObject[possibleCostKey]);
       }
     }
-
     return keysFoundInItemObject;
   };
 }
@@ -185,51 +99,42 @@ function App(cart, pricesDict) {
     this.showSelectedFood("#my-cart");
   };
 
-  this.showSelectedFood = function(idOfTarget) {
-    var itemName =
-      arguments.length > 1 && arguments[1] !== undefined
-        ? arguments[1]
-        : undefined;
-    var errorMessage =
-      arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
-    var MyApp = this; // draw the selection to the cart
-
-    var showSelectedFood = this.foodCounter.toString(itemName);
+  this.showSelectedFood = function(
+    idOfTarget,
+    itemName = undefined,
+    errorMessage = ""
+  ) {
+    const MyApp = this;
+    // draw the selection to the cart
+    let showSelectedFood = this.foodCounter.toString(itemName);
     $(idOfTarget).html(showSelectedFood);
-    sessionStorage.setItem("cart", JSON.stringify(this.foodCounter.cart)); // add controllers for the increase count and decrease count
-
-    var incButtons = document.getElementsByClassName("increase");
-
-    for (var x = 0; x < incButtons.length; x++) {
+    sessionStorage.setItem("cart", JSON.stringify(this.foodCounter.cart));
+    // add controllers for the increase count and decrease count
+    const incButtons = document.getElementsByClassName("increase");
+    for (let x = 0; x < incButtons.length; x++) {
       incButtons[x].addEventListener("click", function() {
         MyApp.foodCounter.cart[this.id].count += 1;
         MyApp.showSelectedFood(idOfTarget, itemName);
       });
     }
 
-    var decButtons = document.getElementsByClassName("decrease");
-
-    for (var _x = 0; _x < decButtons.length; _x++) {
-      decButtons[_x].addEventListener("click", function() {
-        MyApp.foodCounter.cart[this.id].count -= 1; // if the count for this item goes to 0, remove it from the cart.
-
+    const decButtons = document.getElementsByClassName("decrease");
+    for (let x = 0; x < decButtons.length; x++) {
+      decButtons[x].addEventListener("click", function() {
+        MyApp.foodCounter.cart[this.id].count -= 1;
+        // if the count for this item goes to 0, remove it from the cart.
         if (MyApp.foodCounter.cart[this.id].count == 0) {
           MyApp.foodCounter.cart.splice(this.id, 1);
         }
-
         MyApp.showSelectedFood(idOfTarget, itemName);
       });
     }
   };
 }
 
-var getSelectedOptions = function getSelectedOptions(nameOfItem, itemType) {
-  var $selected = $(".select-setting");
-  var thisItem = {
-    count: 1,
-    name: nameOfItem,
-    type: itemType
-  };
+const getSelectedOptions = function(nameOfItem, itemType) {
+  const $selected = $(".select-setting");
+  const thisItem = { count: 1, name: nameOfItem, type: itemType };
   $.each($selected, function(index, value) {
     thisItem[
       $(value)
@@ -244,52 +149,49 @@ var getSelectedOptions = function getSelectedOptions(nameOfItem, itemType) {
   return thisItem;
 };
 
-var cart = [];
-var urlParams = urlDecode();
-
+let cart = [];
+const urlParams = urlDecode();
 if (sessionStorage.getItem("cart") != undefined) {
   cart = JSON.parse(sessionStorage.getItem("cart"));
 }
-
 if (urlParams.hasOwnProperty("cart")) {
   cart = urlParams["cart"];
 }
+let app;
 
-var app;
-
-var getPricesAsync = function getPricesAsync() {
-  var response = fetch("/get_prices/")
+const getPricesAsync = function() {
+  const response = fetch("/get_prices/")
     .then(function(response) {
       return response.json();
     })
     .then(function(myJson) {
       app = new App(cart, myJson);
-      var paramsDictionary = {
+      const paramsDictionary = {
         cart: app.foodCounter.cart,
         date: $("#datepicker").val()
       };
       urlEncodeParams(paramsDictionary);
       app.run();
+
       main();
     });
 };
 
 getPricesAsync();
 
-var main = function main() {
-  var backToMenu = function backToMenu() {
+const main = function() {
+  const backToMenu = function() {
     sessionStorage.setItem("date", $("#datepicker").val());
     sessionStorage.setItem("cart", JSON.stringify(app.foodCounter.cart));
     document.location.href = "/";
   };
-
-  $("#back-to-menu").on("click", function() {
+  $("#back-to-menu").on("click", () => {
     backToMenu();
   });
-  document.getElementById("payment-form").reset(); // Custom styling can be passed to options when creating an Element.
+  document.getElementById("payment-form").reset();
+  // Custom styling can be passed to options when creating an Element.
   // (Note that this demo uses a wider set of styles than the guide below.)
-
-  var style = {
+  const style = {
     base: {
       color: "#32325d",
       fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
@@ -303,29 +205,25 @@ var main = function main() {
       color: "#fa755a",
       iconColor: "#fa755a"
     }
-  }; // Create a Stripe client.
-
-  var stripe = Stripe("pk_test_L8yMZPmXBR046Uxp2PzjT4O9"); // Create an instance of Elements.
-
-  var elements = stripe.elements(); // Create an instance of the card Element.
-
-  var card = elements.create("card", {
-    style: style
-  }); // Add an instance of the card Element into the `card-element` <div>.
-
+  };
+  // Create a Stripe client.
+  const stripe = Stripe("pk_test_L8yMZPmXBR046Uxp2PzjT4O9");
+  // Create an instance of Elements.
+  const elements = stripe.elements();
+  // Create an instance of the card Element.
+  const card = elements.create("card", { style });
+  // Add an instance of the card Element into the `card-element` <div>.
   card.mount("#card-element");
-  card.addEventListener("change", function(_ref) {
-    var error = _ref.error;
-    var displayError = document.getElementById("card-errors");
 
+  card.addEventListener("change", ({ error }) => {
+    const displayError = document.getElementById("card-errors");
     if (error) {
       displayError.textContent = error.message;
     } else {
       displayError.textContent = "";
     }
   });
-
-  var createToken = function createToken(placeOrderButton, changeBack) {
+  const createToken = function(placeOrderButton, changeBack) {
     stripe.createToken(card).then(function(result) {
       if (result.error) {
         // Inform the user if there was an error
@@ -338,17 +236,16 @@ var main = function main() {
       }
     });
   };
-
   function stripeTokenHandler(token, placeOrderButton, changeBack) {
     // Insert the token ID into the form so it gets submitted to the server
-    var form = document.getElementById("payment-form");
-    var hiddenInput = document.createElement("input");
+    const form = document.getElementById("payment-form");
+    const hiddenInput = document.createElement("input");
     hiddenInput.setAttribute("type", "hidden");
     hiddenInput.setAttribute("name", "stripeToken");
     hiddenInput.setAttribute("value", token.id);
-    form.appendChild(hiddenInput); // const orderInformation = getOrderInfoAsDictionary();
-
-    var arrayOf2DElements = [
+    form.appendChild(hiddenInput);
+    // const orderInformation = getOrderInfoAsDictionary();
+    const arrayOf2DElements = [
       ["name", $('input[name="orderName"]')[0].value],
       ["date", $("#datepicker").val()],
       ["phone", $('input[name="orderPhone"]')[0].value],
@@ -372,12 +269,15 @@ var main = function main() {
       .fail(function(data) {
         placeOrderButton.html(changeBack);
         alert("something went wrong " + data.error);
-      }); // Submit the form
+      });
+    // Submit the form
     // form.submit();
-  } // Create a token when the form is submitted.
+  }
+  // Create a token when the form is submitted.
   // var form = document.getElementById('payment-form');
   // form.addEventListener('submit', function(e) {
   //   e.preventDefault();
+
   // });
 
   function toggleHide(tagId) {
@@ -387,15 +287,12 @@ var main = function main() {
       $(tagId).removeClass("hidden");
     }
   }
-
-  var showForm = function showForm(formName) {
-    var wantedForm = formName === "login" ? "login" : "register";
-    var other = formName === "login" ? "register" : "login";
-
+  const showForm = formName => {
+    const wantedForm = formName === "login" ? "login" : "register";
+    const other = formName === "login" ? "register" : "login";
     if (!$("#" + other + "-form").hasClass("hidden")) {
       $("#" + other + "-form").addClass("hidden");
     }
-
     $("#" + wantedForm + "-form").removeClass("hidden");
     $("#" + other).removeClass("hidden");
     $("#" + wantedForm).addClass("hidden");
@@ -404,13 +301,12 @@ var main = function main() {
   function continue_as_guest() {
     const loginRegisterHtml = $("#register-login-section").html();
     $("#register-login-section").html(LOADING_HTML);
-
     $.get("/guest_login/", function() {}).done(function(data) {
       if (data.hasOwnProperty("error")) {
         $("#register-login-section").html(loginRegisterHtml);
         alert("something went wrong " + data.error);
       } else {
-        var confirmationCode = data.code;
+        const confirmationCode = data.code;
         $("#register-login-section").empty();
         $("#register-login-section").html(
           '<h4>Your Confirmation Code is: <span class="red-title">' +
@@ -424,25 +320,22 @@ var main = function main() {
   }
 
   function request_login() {
-    var username = $('input[name="login_username"]')[0].value;
-
+    let username = $('input[name="login_username"]')[0].value;
     if (username === "") {
       $("#login_error").html("Username required to log in");
       return false;
     }
-
     if ($('input[name="login_password"]')[0].value == "") {
       $("#login_error").html("Password required to log in");
       return false;
     }
-
-    var form = document.createElement("form");
-    var arrayOf2DElements = [
+    const form = document.createElement("form");
+    const arrayOf2DElements = [
       ["username", username],
       ["pass", $('input[name="login_password"]')[0].value]
     ];
     addOrderInformation(form, arrayOf2DElements);
-    var formBeforeLoading = $("#register-login-section").html();
+    const formBeforeLoading = $("#register-login-section").html();
     $("#register-login-section").html(LOADING_HTML);
     $.post("/request_login/", $(form).serialize())
       .done(function(data) {
@@ -466,24 +359,20 @@ var main = function main() {
       });
   }
 
-  var checkPassword = function checkPassword(error_message) {
-    var password = $('input[name="register_password"]')[0].value;
-
+  const checkPassword = function(error_message) {
+    const password = $('input[name="register_password"]')[0].value;
     if (!/[A-Z]/.test(password)) {
       error_message.html("Password requires at least 1 uppdercase letter");
       return false;
     }
-
     if (!/[a-z]/.test(password)) {
       error_message.html("Password requires at least 1 lowercase letter");
       return false;
     }
-
     if (!/[0-9]/.test(password)) {
       error_message.html("Password requires at least 1 number");
       return false;
     }
-
     if (password.length < 8) {
       error_message.html("Password must be at least 8 characters long");
       return false;
@@ -493,49 +382,43 @@ var main = function main() {
   };
 
   function request_register() {
-    var errorMessage = $("#register_error");
-    var username = $('input[name="register_username"]')[0].value;
-
+    const errorMessage = $("#register_error");
+    const username = $('input[name="register_username"]')[0].value;
     if (username === "") {
       errorMessage.html("Username required");
       return;
     }
 
-    var email = $('input[name="email"]')[0].value;
-
+    const email = $('input[name="email"]')[0].value;
     if (email === "") {
       errorMessage.html("Email required");
       return;
     }
-
     if (!email.includes("@") || !email.includes(".")) {
       errorMessage.html("Please enter valid email");
       return;
     }
 
-    var password = $('input[name="register_password"]')[0].value;
-
+    const password = $('input[name="register_password"]')[0].value;
     if (password === "" || !checkPassword(errorMessage)) {
       errorMessage.html("Password required");
       return;
     }
 
-    var confirmPass = $('input[name="confirm-password"]')[0].value;
-
+    const confirmPass = $('input[name="confirm-password"]')[0].value;
     if (password != confirmPass) {
       errorMessage.html("Passwords do not match");
       return;
     }
-
-    var form = document.createElement("form");
-    var arrayOf2DElements = [
+    const form = document.createElement("form");
+    const arrayOf2DElements = [
       ["username", username],
       ["email", email],
       ["pass", password],
       ["confirm-pass", confirmPass]
     ];
     addOrderInformation(form, arrayOf2DElements);
-    var formBeforeLoading = $("#register-login-section").html();
+    const formBeforeLoading = $("#register-login-section").html();
     $("#register-login-section").html(LOADING_HTML);
     $.get("/request_register/", $(form).serialize())
       .done(function(data) {
@@ -561,16 +444,13 @@ var main = function main() {
         alert(errorThrown);
       });
   }
-
-  var PROCESSING_BUTTON =
+  const PROCESSING_BUTTON =
     "<button class='button processing-button place-order-button'><span class='glyphicon glyphicon-repeat'></span></button>";
-
-  var placeOrder = function placeOrder() {
-    var placeOrderButton = $("#place-order-button");
-    var save_button = document.getElementById("place-order-button").innerHTML;
-    var formBeforeLoading = $("#register-login-section").html();
+  const placeOrder = function() {
+    const placeOrderButton = $("#place-order-button");
+    const save_button = document.getElementById("place-order-button").innerHTML;
+    const formBeforeLoading = $("#register-login-section").html();
     document.getElementById("place-order-button").innerHTML = LOADING_HTML;
-
     if (allRequiredFilled()) {
       createToken(placeOrderButton, save_button);
     } else {
@@ -579,28 +459,24 @@ var main = function main() {
   };
 
   function allRequiredFilled() {
-    var unsatisfiedFields = false;
-    var errorMessage =
+    let unsatisfiedFields = false;
+    let errorMessage =
       '<h3>Required fields not satisfied:<span style="color:#de4621;">';
-
     if (!app.billingSame && !hasBillingAddress()) {
       errorMessage += "Must provided billing address";
       unsatisfiedFields = true;
     }
-
     $(".required").each(function(index, item) {
       if (item.value === "") {
-        var itemName = item.name.replace("order", "");
+        const itemName = item.name.replace("order", "");
         errorMessage += " " + itemName + ",";
         unsatisfiedFields = true;
       }
     });
-
     if (!unsatisfiedFields && !window.id) {
       errorMessage += "Must log in, register, or continue as guest,";
       unsatisfiedFields = true;
     }
-
     if (unsatisfiedFields) {
       $("#place-order-error")
         .removeClass("hidden")
@@ -610,48 +486,35 @@ var main = function main() {
       if (!$("#place-order-error").hasClass("hidden")) {
         $("#place-order-error").addClass("hidden");
       }
-
       return true;
     }
   }
-
-  var addOrderInformation = function addOrderInformation(
-    createdForm,
-    arrayOf2DElements
-  ) {
+  const addOrderInformation = function(createdForm, arrayOf2DElements) {
     arrayOf2DElements.forEach(function(element) {
-      var hiddenInput = document.createElement("input");
+      const hiddenInput = document.createElement("input");
       hiddenInput.setAttribute("type", "hidden");
       hiddenInput.setAttribute("name", element[0]);
       hiddenInput.setAttribute("value", element[1]);
       createdForm.appendChild(hiddenInput);
     });
   };
-
-  var parseFoodCounter = function parseFoodCounter() {
+  const parseFoodCounter = function() {
     return JSON.stringify(app.foodCounter.cart);
   };
-
-  var parseAddress = function parseAddress() {
-    var street = $('input[name="orderAddress"]')[0].value;
-    var city = $('input[name="orderCity"]')[0].value;
-    var zip = $('input[name="orderZipcode"]')[0].value;
-    return ""
-      .concat(street, ", ")
-      .concat(city, " ")
-      .concat(zip);
+  const parseAddress = function() {
+    const street = $('input[name="orderAddress"]')[0].value;
+    const city = $('input[name="orderCity"]')[0].value;
+    const zip = $('input[name="orderZipcode"]')[0].value;
+    return `${street}, ${city} ${zip}`;
   };
-
-  var hasBillingAddress = function hasBillingAddress() {
+  const hasBillingAddress = function() {
     return (
       $('input[name="billingAddress"]')[0].value === "" &&
       $('input[name="billingCity"]')[0].value === ""
     );
   };
-
-  var getBillingAddress = function getBillingAddress() {
-    var billingObj = {};
-
+  const getBillingAddress = function() {
+    const billingObj = {};
     if (app.billingSame) {
       billingObj["street"] = $('input[name="orderAddress"]')[0].value;
       billingObj["city"] = $('input[name="orderCity"]')[0].value;
@@ -660,45 +523,36 @@ var main = function main() {
       billingObj["street"] = $('input[name="billingAddress"]')[0].value;
       billingObj["city"] = $('input[name="billingCity"]')[0].value;
     }
-
     return JSON.stringify(billingObj);
   };
-
-  var convertNavBar = function convertNavBar() {
-    var LOG_OUT = '<a class="titles main-nav-item" href="/logout" >Log Out</a>';
+  const convertNavBar = function() {
+    const LOG_OUT =
+      '<a class="titles main-nav-item" href="/logout" >Log Out</a>';
     $("#nav-register").addClass("hidden");
     $("#nav-login").html(LOG_OUT);
   };
-
-  $("#request-login").on("click", function() {
-    const currentHTML = $("#login-register-guest").html();
-    $("#login-register-guest").html(LOADING_HTML);
+  $("#request-login").on("click", () => {
     request_login();
   });
-  $("#request-register").on("click", function() {
-    const currentHTML = $("#login-register-guest").html();
-    $("#login-register-guest").html(LOADING_HTML);
+  $("#request-register").on("click", () => {
     request_register();
   });
-  $("#show-login").on("click", function() {
+  $("#show-login").on("click", () => {
     showForm("login");
   });
-  $("#show-register").on("click", function() {
+  $("#show-register").on("click", () => {
     showForm("register");
   });
-  $("#continue-as-guest").on("click", function() {
-    const currentHTML = $("#login-register-guest").html();
-    $("#login-register-guest").html(LOADING_HTML);
+  $("#continue-as-guest").on("click", () => {
     continue_as_guest();
   });
-  $("#place-order-button").on("click", function() {
+  $("#place-order-button").on("click", () => {
     placeOrder();
   });
   $("#billingCheckbox").change(function() {
     app.billingSame = !app.billingSame;
     toggleHide("#billingFieldset");
   });
-
   function setInputFilter(textbox, inputFilter) {
     [
       "input",
@@ -721,18 +575,18 @@ var main = function main() {
         }
       });
     });
-  } // Restrict input to digits and '.' by using a regular expression filter.
+  }
 
-  var toEnforceInputs = $(".digits-only");
+  // Restrict input to digits and '.' by using a regular expression filter.
+  const toEnforceInputs = $(".digits-only");
   $.each(toEnforceInputs, function(index, element) {
     setInputFilter(element, function(value) {
       return /^\d*\.?\d*$/.test(value);
     });
   });
 };
-
 window.addEventListener("click", function() {
-  var paramsDictionary = {
+  const paramsDictionary = {
     cart: app.foodCounter.cart,
     date: $("#datepicker").val()
   };
