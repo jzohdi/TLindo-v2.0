@@ -462,10 +462,7 @@ function App(cart, menu, pricesDict) {
 
   this.run = function() {
     var _this = this;
-
-    if (this.foodCounter.cart.length > 0) {
-      this.showSelectedFood("#my-cart");
-    }
+    this.showSelectedFood("#my-cart");
 
     var _loop = function _loop(menuItem) {
       var menuClass = _this.menu[menuItem];

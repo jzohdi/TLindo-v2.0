@@ -322,9 +322,8 @@ const urlEncode = function(paramDictionary) {
       this.environ = {}
 
       this.run = function(){
-        if ( this.foodCounter.cart.length > 0 ){
-          this.showSelectedFood('#my-cart');
-        }
+        this.showSelectedFood('#my-cart');
+      
         for ( const menuItem in this.menu ){
           const menuClass = this.menu[menuItem]
           $(menuClass.target()).append(menuClass.button());
