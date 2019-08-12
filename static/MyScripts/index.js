@@ -296,6 +296,14 @@ const urlEncode = function(paramDictionary) {
         }
         return false;
       }
+      this.countItems = function(){
+        console.log('herre');
+        var total = 0;
+        for ( var i = 0 ; i < this.cart.length; i++ ){
+          total += this.cart[i].count;
+        }
+        return total;
+      }
 
     }
 
@@ -354,6 +362,7 @@ const urlEncode = function(paramDictionary) {
         }
         showSelectedFood += this.foodCounter.toString(itemName);
         $(idOfTarget).html(showSelectedFood);
+        $("#cart-count").html(this.foodCounter.countItems());
 
         // add controllers for the increase count and decrease count
         const incButtons = document.getElementsByClassName("increase");
@@ -597,4 +606,13 @@ const urlEncode = function(paramDictionary) {
   window.addEventListener('click', function(){
     const paramsDictionary = {"cart" : app.foodCounter.cart, "adults" : $('#numAdults').val(), "kids": $('#numKids').val(), "date" : $('#datepicker').val()}
     urlEncodeParams(paramsDictionary);
+  })
+  
+  $('#cart-click').on('click', function(){
+    const cart = $("#my-cart");
+    if ( cart.hasClass("hidden") ){
+      cart.removeClass("hidden");
+    }else{
+      cart.addClass("hidden");
+    }
   })

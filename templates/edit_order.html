@@ -26,25 +26,26 @@ head %}
             <div id="side" class="row"></div>
           </div>
         </div>
-        <div id="selected-food" class="col-md-8">
-          <h3 class="main-menu-headers">
-            Your Cart
-          </h3>
-          <div id="my-cart" class="row"></div>
-        </div>
+        <div id="selected-food" class="col-md-8"></div>
       </div>
-      <div style="text-align: center;">
-        <h4>New Total: $<span id="cart-total"></span></h4>
+      <div id="cart-card" class="row">
+        <h3 class="main-menu-headers">
+          Cart
+        </h3>
+        <div id="my-cart" class="row"></div>
       </div>
-      <div style="text-align: center;">
-        <h4>Already Paid: {{ order.paid }}</h4>
-      </div>
-      <div
-        id="checkoutButton"
-        class="button button1 checkout-button col-xs-5 col-sm-3"
-      >
-        Confirm Changes
-      </div>
+    </div>
+    <div style="text-align: center;">
+      <h4>New Total: $<span id="cart-total"></span></h4>
+    </div>
+    <div style="text-align: center;">
+      <h4>Already Paid: {{ order.paid }}</h4>
+    </div>
+    <div
+      id="checkoutButton"
+      class="button button1 checkout-button col-xs-5 col-sm-3"
+    >
+      Confirm Changes
     </div>
   </div>
 </div>

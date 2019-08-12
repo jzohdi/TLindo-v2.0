@@ -5,8 +5,7 @@ block head %}
 </script>
 
 {% endblock %} {% block main %}
-<div id='set-prices' class="hidden">{{ session.entree_prices }}</div>
-<div class="container-fluid">
+<div id='page' class="container-fluid">
   <div class="row">
     <div
       id="button2"
@@ -305,11 +304,11 @@ block head %}
     </div>
   </div>
 </div>
-<script src="{{ url_for('static', filename='datepicker.js') }}"></script>
+<script src="{{ url_for('static', filename='libraries/datepicker.js') }}"></script>
 <link
   rel="stylesheet"
   type="text/css"
-  href="{{ url_for('static', filename='defaultcompressed.css') }}"
+  href="{{ url_for('static', filename='libraries/defaultcompressed.css') }}"
 />
 <script src="https://js.stripe.com/v3/"></script>
 <script src="{{ url_for('static', filename='compiled/confirmCart.js') }}"></script>

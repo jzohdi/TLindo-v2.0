@@ -40,7 +40,7 @@ var ITEM_HTML_FOR_LIST =
 var DEFAULT_MIN = 8;
 var LOADING_HTML =
   '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
-
+$("#my-cart").html(LOADING_HTML);
 function FoodCounter(cart, app, pricesDict) {
   this.cart = cart;
   this.toLimit = new Set(["Entree", "entree"]);
@@ -269,6 +269,8 @@ var getPricesAsync = function getPricesAsync() {
         date: $("#datepicker").val()
       };
       urlEncodeParams(paramsDictionary);
+      // $("#page").html(orginalPageHtml);
+
       app.run();
       main();
     });

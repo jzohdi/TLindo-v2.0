@@ -11,6 +11,7 @@ const ITEM_HTML_FOR_LIST =
   '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
 const DEFAULT_MIN = 8;
 const LOADING_HTML = `<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
+$("#my-cart").html(LOADING_HTML);
 function FoodCounter(cart, app, pricesDict) {
   this.cart = cart;
   this.toLimit = new Set(["Entree", "entree"]);
