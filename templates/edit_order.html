@@ -7,11 +7,8 @@ head %}
 {% endblock %} {% block main %}
 <div id="modalHolder"></div>
 <div id="main-planner-page" class="container">
-  <div id="select-menu" class="row normalize-height">
-    <div
-      id="card2"
-      class="col-md-10 col-md-offset-1 main-card fade-in-left helper-screen"
-    >
+  <div id="select-menu" class="row">
+    <div id="card2" class="col-md-10 col-md-offset-1 main-card fade-in-left">
       <div class="row main-menu-box">
         <h4 id="number-rec"></h4>
         <div class="col-md-6">
@@ -26,92 +23,98 @@ head %}
             <div id="side" class="row"></div>
           </div>
         </div>
-        <div id="selected-food" class="col-md-8"></div>
       </div>
-      <div id="cart-card" class="row">
-        <h3 class="main-menu-headers">
-          Cart
-        </h3>
-        <div id="my-cart" class="row"></div>
-      </div>
-    </div>
-    <div style="text-align: center;">
-      <h4>New Total: $<span id="cart-total"></span></h4>
-    </div>
-    <div style="text-align: center;">
-      <h4>Already Paid: {{ order.paid }}</h4>
     </div>
     <div
-      id="checkoutButton"
-      class="button button1 checkout-button col-xs-5 col-sm-3"
+      id="cart-card"
+      class="col-md-10 col-md-offset-1 main-card fade-in-right"
     >
-      Confirm Changes
+      <h3 class="main-menu-headers">
+        Cart
+      </h3>
+      <div id="my-cart" class="row"></div>
+      <div class="row" style="margin-left: 20px;">
+          Tax: <strong>$<span id="cart-tax"></span></strong>
+      </div>
+      <div  class='total-style'>
+        <p>New Total: $<span id="cart-total"></span></p>
+      </div>
+      <div class='total-style'>
+        <p>Already Paid: {{ order.paid }}</p>
+      </div>
+      <div
+        id="checkoutButton"
+        class="button button1 checkout-button col-xs-5 col-sm-3"
+      >
+        Confirm Changes
+      </div>
     </div>
   </div>
 </div>
-<style>
-  .entree-item {
-    border-radius: 10px;
-  }
-</style>
-<style id="custom-styles">
-  .lds-ellipsis {
-    margin-left: calc(50% - 32px);
-    display: inline-block;
-    position: relative;
-    width: 200px;
-    height: 100px;
-  }
-  .lds-ellipsis div {
-    position: absolute;
-    top: 27px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #0d034c;
-    animation-timing-function: cubic-bezier(0, 1, 1, 0);
-  }
-  .lds-ellipsis div:nth-child(1) {
-    left: -60px;
-    animation: lds-ellipsis1 1.5s infinite;
-  }
-  .lds-ellipsis div:nth-child(2) {
-    left: -53px;
-    animation: lds-ellipsis2 1.5s infinite;
-  }
-  .lds-ellipsis div:nth-child(3) {
-    left: 29px;
-    animation: lds-ellipsis2 1.5s infinite;
-  }
-  .lds-ellipsis div:nth-child(4) {
-    left: 100px;
-    animation: lds-ellipsis3 1.5s infinite;
-  }
-  @keyframes lds-ellipsis1 {
-    0% {
-      transform: scale(0);
+  <style>
+    .entree-item {
+      border-radius: 10px;
     }
-    100% {
-      transform: scale(1);
+  </style>
+  <style id="custom-styles">
+    .lds-ellipsis {
+      margin-left: calc(50% - 32px);
+      display: inline-block;
+      position: relative;
+      width: 200px;
+      height: 100px;
     }
-  }
-  @keyframes lds-ellipsis3 {
-    0% {
-      transform: scale(1);
+    .lds-ellipsis div {
+      position: absolute;
+      top: 27px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #0d034c;
+      animation-timing-function: cubic-bezier(0, 1, 1, 0);
     }
-    100% {
-      transform: scale(0);
+    .lds-ellipsis div:nth-child(1) {
+      left: -60px;
+      animation: lds-ellipsis1 1.5s infinite;
     }
-  }
-  @keyframes lds-ellipsis2 {
-    0% {
-      transform: translate(0, 0);
+    .lds-ellipsis div:nth-child(2) {
+      left: -53px;
+      animation: lds-ellipsis2 1.5s infinite;
     }
-    100% {
-      transform: translate(75px, 0);
+    .lds-ellipsis div:nth-child(3) {
+      left: 29px;
+      animation: lds-ellipsis2 1.5s infinite;
     }
-  }
-</style>
-<style id="custom-styles2"></style>
-<script src="{{ url_for('static', filename='compiled/editOrder.js') }}"></script>
-{% endblock %}
+    .lds-ellipsis div:nth-child(4) {
+      left: 100px;
+      animation: lds-ellipsis3 1.5s infinite;
+    }
+    @keyframes lds-ellipsis1 {
+      0% {
+        transform: scale(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @keyframes lds-ellipsis3 {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(0);
+      }
+    }
+    @keyframes lds-ellipsis2 {
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(75px, 0);
+      }
+    }
+  </style>
+  <style id="custom-styles2"></style>
+  <script src="{{ url_for('static', filename='MyScripts/editOrder.js') }}"></script>
+  {% endblock %}
+</div>

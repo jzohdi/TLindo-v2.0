@@ -1,3 +1,4 @@
+
 const urlEncode = function(paramDictionary) {
     window.history.replaceState({}, "", "?" + encodeURIComponent(JSON.stringify(paramDictionary) ) );
   };
@@ -50,9 +51,11 @@ const urlEncode = function(paramDictionary) {
   const PICK_NUMBER_MORE_ITEMS =
     '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">( Select numberPlaceholder more entrees )</div>';
 
-  const ITEM_HTML_FOR_LIST =
-    '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
-    '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+  // const ITEM_HTML_FOR_LIST =
+  //   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
+  //   '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+  const ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
+
     const DEFAULT_MIN = 8;
     const setAppMaxItems = function(app){
       let numGuests;
@@ -208,27 +211,28 @@ const urlEncode = function(paramDictionary) {
           const appendValueParams = index.toString();
           let newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams)
           .replace("countPlaceholder", itemObject.count);
-
-        for (const key in itemObject) {
-          if (key === "cost"){
-            newDiv += `<small class="my-cart-key" >${itemObject[key]}"</small>,`;
-          }
-          else if (key != "count") {
-            newDiv += `<span class="my-cart-key"> ${itemObject[key]}</span><strong class="order-keys"> | </strong>`;
-          }
-        }
-        return newDiv + "</div>";
+          newDiv += `<td>${itemObject.name} ${itemObject.size}</td></tr>`;
+        // for (const key in itemObject) {
+        //   if (key === "cost"){
+        //     newDiv += `<small class="my-cart-key" >${itemObject[key]}"</small>,`;
+        //   }
+        //   else if (key != "count") {
+        //     newDiv += `<span class="my-cart-key"> ${itemObject[key]}</span><strong class="order-keys"> | </strong>`;
+        //   }
+        // }
+        // return newDiv + "</div>";
+        return newDiv;
       }
 
       this.toString = function(itemName = null){
-        let cartToString = "";
+        let cartToString = "<table id='cart-table'><tbody>";
         const self = this;
         this.cart.forEach( function(itemInCart, index) {
           if ( !itemName || itemInCart.name == itemName ){
             cartToString += self.getHtmlForItem(itemInCart, index);
           }
         })
-        return cartToString;
+        return cartToString + "</tbody></table>";;
       }
 
       this.canAddItemToCart = function(selectionItemObject, maxFlavors, maxItems, type, help){

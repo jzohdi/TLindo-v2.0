@@ -52,7 +52,7 @@ var DEFAULT_MIN = 8;
 var MAIN_MODAL_CONTENT =
   "<h2> ItemNamePlaceholder: </h2>" +
   "<p> HeaderPlaceholder </p>" +
-  "<div class='selection row'> SelectionPlaceholder <div id='addToCart'" +
+  "<div style='padding-left: 12%;'class='selection row'> SelectionPlaceholder <div id='addToCart'" +
   "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
   '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
   ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
@@ -115,7 +115,7 @@ function MenuItem(itemDictionary) {
     }
 
     key = this.trimKey(key);
-    var content = "<div class='col-sm-6 col-md-4'> Choose ".concat(
+    var content = "<div class='col-sm-12'> Choose ".concat(
       key,
       " :  <select class='select-setting'>"
     ); // if asking for help, and the item is of entree type, and the key is the size. only return option for the smallest size

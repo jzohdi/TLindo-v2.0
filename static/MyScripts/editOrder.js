@@ -1,13 +1,14 @@
 const LOADING_HTML = `<div class="lds-ellipsis placeholder"><div></div><div></div><div></div><div></div></div>`;
-const ITEM_HTML_FOR_LIST =
-  '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
-  '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+// const ITEM_HTML_FOR_LIST =
+//   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
+// '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+const ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
 const DEFAULT_MIN = 8;
 
 const MAIN_MODAL_CONTENT =
   "<h2> ItemNamePlaceholder: </h2>" +
   "<p> HeaderPlaceholder </p>" +
-  "<div class='selection row'> SelectionPlaceholder <div id='addToCart'" +
+  "<div style='padding-left: 12%;'class='selection row'> SelectionPlaceholder <div id='addToCart'" +
   "class='col-xs-2 col-xs-offset-8 add-select'>Add to cart</div></div>" +
   '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' +
   ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
@@ -61,7 +62,7 @@ function MenuItem(itemDictionary) {
       return "";
     }
     key = this.trimKey(key);
-    let content = `<div class='col-sm-6 col-md-4'> Choose ${key} :  <select class='select-setting'>`;
+    let content = `<div class='col-sm-12'> Choose ${key} :  <select class='select-setting'>`;
     // if asking for help, and the item is of entree type, and the key is the size. only return option for the smallest size
     if (help && this.toLimit.has(this.environ.type) && key == "size") {
       const sizeKey = this.environ.hasOwnProperty("sizes") ? "sizes" : "size";
@@ -139,37 +140,47 @@ function FoodCounter(cart, app, pricesDict) {
     this.cart.push(itemToAdd);
   };
 
-  this.getHtmlForItem = function(itemObject, index) {
+  this.getHtmlForItem = function(itemObject, index, price) {
     const appendValueParams = index.toString();
     let newDiv = ITEM_HTML_FOR_LIST.replace(
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
-
-    for (const key in itemObject) {
-      if (key != "count") {
-        newDiv += `<span class="my-cart-key"> ${
-          itemObject[key]
-        }</span><strong class="order-keys"> | </strong>`;
-      }
-    }
+    newDiv += `<td>${itemObject.name} ${itemObject.size}</td>`;
     return newDiv;
   };
 
+  // this.toString = function(itemName = null) {
+  //   let total = 0.0;
+  //   let cartToString = "";
+  //   const self = this;
+  //   this.cart.forEach(function(itemInCart, index) {
+  //     const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
+  //     if (!itemName || itemInCart.name == itemName) {
+  //       cartToString += self.getHtmlForItem(itemInCart, index);
+  //       cartToString += `<small class="my-cart-key">$${itemPrice}</small></div>`;
+  //     }
+  //     total += parseFloat(itemPrice);
+  //   });
+  //   $("#cart-total").html(total.toFixed(2));
+  //   return cartToString;
+  // };
   this.toString = function(itemName = null) {
     let total = 0.0;
-    let cartToString = "";
+    let cartToString = "<table id='cart-table'><tbody>";
     const self = this;
     this.cart.forEach(function(itemInCart, index) {
+      const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
       if (!itemName || itemInCart.name == itemName) {
         cartToString += self.getHtmlForItem(itemInCart, index);
-        const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
-        cartToString += `<small class="my-cart-key">$${itemPrice}</small></div>`;
-        total += parseFloat(itemPrice);
+        cartToString +=
+          "<td class='price-column'>$ " + itemPrice + "</td></tr>";
       }
+      total += parseFloat(itemPrice);
     });
-    $("#cart-total").html(total.toFixed(2));
-    return cartToString;
+    $("#cart-tax").html((total * 0.06625).toFixed(2));
+    $("#cart-total").html((total + tax).toFixed(2));
+    return cartToString + "</tbody></table>";
   };
 
   this.canAddItemToCart = function(

@@ -34,9 +34,8 @@ var urlDecode = function urlDecode() {
   return paramDictionary;
 };
 
-var ITEM_HTML_FOR_LIST =
-  '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
-  '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+var ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
+
 var DEFAULT_MIN = 8;
 var LOADING_HTML =
   '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
@@ -60,15 +59,9 @@ function FoodCounter(cart, app, pricesDict) {
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
-
-    for (var key in itemObject) {
-      if (key != "count") {
-        newDiv += '<span class="my-cart-key"> '.concat(
-          itemObject[key],
-          '</span><strong class="order-keys"> | </strong>'
-        );
-      }
-    }
+    newDiv += "<td>"
+      .concat(itemObject.name, " - ")
+      .concat(itemObject.size, "</td>");
 
     return newDiv;
   };
@@ -80,17 +73,19 @@ function FoodCounter(cart, app, pricesDict) {
     var cartToString = "";
     var self = this;
     this.cart.forEach(function(itemInCart, index) {
+      var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
       if (!itemName || itemInCart.name == itemName) {
         cartToString += self.getHtmlForItem(itemInCart, index);
-        var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
-        cartToString += '<small class="my-cart-key">$'.concat(
+        cartToString += "<td class='price-column'>$ ".concat(
           itemPrice,
-          "</small></div>"
+          "</td></tr>"
         );
-        total += parseFloat(itemPrice);
       }
+      total += parseFloat(itemPrice);
     });
-    $("#cart-total").html(total.toFixed(2));
+    var tax = total * 0.06625;
+    $("#cart-tax").html(tax.toFixed(2));
+    $("#cart-total").html((total + tax).toFixed(2));
     return cartToString;
   };
 

@@ -153,7 +153,7 @@ head %}
     var AT_ORDER_LIMIT_DIV = '<div id="limit-message"style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">' + 'Currently at order limit <div id="add-more" class="button button1 want-more-button">Want to add to order?' + ADD_MORE_MESSAGE + "</div>";
     var AT_FLAVOR_LIMIT_DIV = '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Sorry, you have reached the max number of unique flavors for item</div>';
     var PICK_NUMBER_MORE_ITEMS = '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">( Select numberPlaceholder more entrees )</div>';
-    var ITEM_HTML_FOR_LIST = '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' + '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+    var ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
     var DEFAULT_MIN = 8;
 
     var setAppMaxItems = function setAppMaxItems(app) {
@@ -336,28 +336,28 @@ head %}
       this.getHtmlForItem = function (itemObject, index) {
         var appendValueParams = index.toString();
         var newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams).replace("countPlaceholder", itemObject.count);
+        newDiv += "<td>".concat(itemObject.name, " - ").concat(itemObject.size, "</td></tr>");
+        // for (var key in itemObject) {
+        //   if (key === "cost") {
+        //     newDiv += "<small class=\"my-cart-key\" >".concat(itemObject[key], "\"</small>,");
+        //   } else if (key != "count") {
+        //     newDiv += "<span class=\"my-cart-key\"> ".concat(itemObject[key], "</span><strong class=\"order-keys\"> | </strong>");
+        //   }
+        // }
 
-        for (var key in itemObject) {
-          if (key === "cost") {
-            newDiv += "<small class=\"my-cart-key\" >".concat(itemObject[key], "\"</small>,");
-          } else if (key != "count") {
-            newDiv += "<span class=\"my-cart-key\"> ".concat(itemObject[key], "</span><strong class=\"order-keys\"> | </strong>");
-          }
-        }
-
-        return newDiv + "</div>";
+        return newDiv //+ "</div>";
       };
 
       this.toString = function () {
         var itemName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        var cartToString = "";
+        var cartToString = "<table id='cart-table'><tbody>";
         var self = this;
         this.cart.forEach(function (itemInCart, index) {
           if (!itemName || itemInCart.name == itemName) {
             cartToString += self.getHtmlForItem(itemInCart, index);
           }
         });
-        return cartToString;
+        return cartToString + "</tbody></table>";
       };
 
       this.canAddItemToCart = function (selectionItemObject, maxFlavors, maxItems, type, help) {

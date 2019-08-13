@@ -494,7 +494,7 @@ footer {
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 20; /* Sit on top */
   padding-top: 100px; /* Location of the box */
   left: 0;
   top: 0;
@@ -698,9 +698,12 @@ START OF MENU SELECTION FOR USER
 }
 .checkout-button {
   border: 2px solid;
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
+  /* position: absolute; */
+  min-width: 109px;
+}
+.total-style {
+  text-align: right;
+  padding-right: 25px;
 }
 #cart-click {
   cursor: pointer;
@@ -764,6 +767,12 @@ START OF MENU SELECTION FOR USER
   margin-bottom: 3%;
   text-align: left;
 }
+#cart-table {
+  width: 100%;
+}
+#cart-table tr {
+  height: 7vh;
+}
 
 #modal-cart {
   text-align: left;
@@ -786,14 +795,26 @@ START OF MENU SELECTION FOR USER
 #modal-cart div {
   margin-bottom: 8px;
 }
-#modal-cart div .span {
+.count-column {
+  width: 18%;
+  min-width: 110px;
+}
+.price-column {
+  text-align: right;
+  padding-right: 41px;
+  min-width: 105px;
+}
+.increase,
+.decrease {
+  width: 32px;
   display: inline-block;
   cursor: pointer;
   margin: 0px 5px;
   text-align: center;
   border-radius: 4px;
 }
-#modal-cart div .span:hover {
+.increase:hover,
+.decrease:hover {
   background-color: #0d034c;
   color: white;
 }
@@ -814,12 +835,7 @@ START OF MENU SELECTION FOR USER
     width: 40px;
   }
 }
-@media (min-width: 992px) {
-  #my-cart {
-    margin-left: -50px;
-  }
-}
-@media (max-width: 991px) and (min-width: 460px) {
+@media (min-width: 460px) {
   #my-cart {
     margin-left: 10%;
   }
@@ -833,17 +849,6 @@ START OF MENU SELECTION FOR USER
   margin-left: 15%;
   margin-bottom: 13px;
   font-size: calc(19px - 0.3vw);
-}
-#my-cart div .span {
-  display: inline-block;
-  cursor: pointer;
-  margin: 0px 5px;
-  text-align: center;
-  border-radius: 4px;
-}
-#my-cart div .span:hover {
-  background-color: #0d034c;
-  color: white;
 }
 .my-cart-key {
   white-space: nowrap;
@@ -985,6 +990,7 @@ hr {
   margin-bottom: 5px;
 }
 .edit-order-button {
+  z-index: 10;
   position: absolute;
   top: 0px;
   right: 0px;
