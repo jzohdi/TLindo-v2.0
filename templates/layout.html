@@ -30,7 +30,7 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='styles.css') }}"
+      href="{{ url_for('static', filename='compiled/styles.css') }}"
     />
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -121,34 +121,6 @@
                   >Log Out</a
                 >
               </li>
-              <!-- <li class="dropdown">
-                <a
-                  class="dropdown-toggle titles main-nav-item"
-                  data-toggle="dropdown"
-                  href="#"
-                  >Functions<span class="caret"></span
-                ></a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a
-                      href="{{ url_for('managedates') }}"
-                      class="titles main-nav-item"
-                      >Manage Dates</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="titles main-nav-item"
-                      href="{{ url_for('menusetter') }}"
-                      >View/Edit Menu</a
-                    >
-                  </li>
-                  {# <li>
-                    <a class="titles main-nav-item" href="#">Change Password</a>
-                  </li>
-
-                </ul>
-              </li>#} -->
             </ul>
             {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
