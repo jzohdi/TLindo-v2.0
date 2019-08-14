@@ -487,6 +487,8 @@ class App_Actions:
             total = total + item_cost
             order_item['cost'] = item_cost
             array_of_order[index] = order_item
+        total = {'base': total, "tax": round(
+            total * 0.06625, 2), "total": round(total + (total * 0.06625), 2)}
         return (total, array_of_order)
 
     def price_item(self, order_item, prices_dictionary):

@@ -33,14 +33,14 @@ head %}
         Cart
       </h3>
       <div id="my-cart" class="row"></div>
-      <div class="row" style="margin-left: 20px;">
+      <div class='total-style'>
           Tax: <strong>$<span id="cart-tax"></span></strong>
       </div>
       <div  class='total-style'>
         <p>New Total: $<span id="cart-total"></span></p>
       </div>
       <div class='total-style'>
-        <p>Already Paid: {{ order.paid }}</p>
+        <p>Already Paid: {{ order.paid.total }}</p>
       </div>
       <div
         id="checkoutButton"

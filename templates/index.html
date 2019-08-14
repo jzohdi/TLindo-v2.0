@@ -332,11 +332,31 @@ head %}
 
         this.cart.push(itemToAdd);
       };
+      this.getListFromItem = function (itemObject) {
+        var string = '';
+        var keys = Object.keys(itemObject);
+
+        for (var _i = 0, _keys = keys; _i < _keys.length; _i++) {
+          var key = _keys[_i];
+          string += "-" + itemObject[key];
+        }
+
+        return string;
+      };
 
       this.getHtmlForItem = function (itemObject, index) {
         var appendValueParams = index.toString();
         var newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams).replace("countPlaceholder", itemObject.count);
         newDiv += "<td>".concat(itemObject.name, " - ").concat(itemObject.size, "</td></tr>");
+        function deepCopy(object) {
+          return JSON.parse(JSON.stringify(object));
+        }
+        var copyObject = deepCopy(itemObject);
+        delete copyObject["name"];
+        delete copyObject["size"];
+        delete copyObject["count"];
+        newDiv += "<tr><td></td><td class='cart-item-description'>".concat(this.getListFromItem(copyObject), "</td></tr>");
+
         // for (var key in itemObject) {
         //   if (key === "cost") {
         //     newDiv += "<small class=\"my-cart-key\" >".concat(itemObject[key], "\"</small>,");

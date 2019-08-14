@@ -415,7 +415,7 @@ footer {
   text-decoration: none;
   font-family: LTPro, Arial, Helvetica, sans-serif;
   font-weight: bold;
-  border-radius: 10px;
+  border-radius: 5px;
   border-color: #0d034c;
   background-color: white;
   color: #0d034c;
@@ -423,9 +423,9 @@ footer {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  -webkit-transition: border-color 0.4s; /* Safari */
-  -o-transition: border-color 0.4s;
-  transition: border-color 0.4s;
+  -webkit-transition: border-color 0.4s, background-color 0.5s; /* Safari */
+  -o-transition: border-color 0.4s, background-color 0.5s;
+  transition: border-color 0.4s, background-color 0.5s;
 }
 .button1:hover {
   background-color: #0d034c;
@@ -468,10 +468,9 @@ footer {
   margin-top: 5px;
   margin-bottom: 15px;
   padding: 10px;
-  /* border-radius: 10px; */
-  border: 1px #0d034c solid;
-  background-color: white;
-  font-size: 15px;
+  border-radius: 10px;
+  /* border: 1px #0d034c solid; */
+  background-color: #f7f7f7;
 }
 /* @media (max-width: 767px) {
   .entree-item {
@@ -771,9 +770,13 @@ START OF MENU SELECTION FOR USER
   width: 100%;
 }
 #cart-table tr {
-  height: 7vh;
+  /* height: 7vh; */
 }
-
+.cart-item-description {
+  padding-left: 20px;
+  font-size: 13px;
+  padding-bottom: 20px;
+}
 #modal-cart {
   text-align: left;
   font-size: calc(22px - 0.5vw);

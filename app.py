@@ -392,7 +392,7 @@ def charge():
     user_id = session.get('user_id') if 'user_id' in session else False
     # there will be confirmation code in session if the user requested guest
     # login, else generate new code.
-    confirmation_code = session.get("confirmation_code")
+    confirmation_code = session.pop("confirmation_code")
     if not confirmation_code:
         confirmation_code = Controllers.generate_confirmation_code()
 
@@ -441,7 +441,7 @@ def charge():
     try:
         charge = stripe.Charge.create(
             amount=Controllers.format_amount_to_cents(
-                order_information['price']),
+                order_information['price']["total"]),
             currency='usd',
             description='Charge for :{}'.format(confirmation_code),
             receipt_email=recipient_email,
@@ -461,7 +461,7 @@ def charge():
             str(amount_charged)[:-2] + "." + str(amount_charged)[-2:]
 
         kwargs = {'date': order_information.get("date"),
-                  'order_total': order_information.get("price")}
+                  'order_total': order_information.get("price").get('total')}
         Controllers.connect_to_db(Controllers.reconcile_managedates, kwargs)
         if user_id:
             confirmation_code_to_user_kwargs = {'user_id': user_id,
@@ -655,11 +655,18 @@ def commit_edit():
     if not current_prices.get("status"):
         return jsonify({"error": "Could not verify your new total."})
     current_prices = current_prices.get("return_value")
+
+    old_total = order_information.get("price").get("total")
+
     (order_information["price"], order_information['order']
      ) = Controllers.validate_order(new_order, current_prices)
-
     if not order_information.get('price') or not order_information.get('order'):
         return jsonify({'error': 'could not confirm order pricing'})
+
+    new_total = order_information.get("price").get("total")
+    data = order_information.get("date")
+    kwargs = {"date": date, "order_total": (new_total - old_total)}
+    Controllers.connect_to_db(Controllers.reconcile_managedates, kwargs)
 
     confirmation_code = order_information.pop("_id")
     if order_information.get("confirmation_code"):

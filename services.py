@@ -38,7 +38,7 @@ class Email_Service:
     def prettify(self, order_dict):
         final_string = "\n"
         for key, value in order_dict.items():
-            finalString = finalString + key + ": " + str(value) + "\n"
+            final_string = final_string + key + ": " + str(value) + "\n"
         return final_string
 
 

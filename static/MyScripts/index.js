@@ -206,12 +206,25 @@ const urlEncode = function(paramDictionary) {
         }
         this.cart.push(itemToAdd);
       }
+      this.getListFromItem = function(itemObject){
+        let string = '';
+        const keys = Object.keys(itemObject);
+        for ( const key of keys ){
+          string += "-" + itemObject[key];
+        }
+        return string;
+      }
 
       this.getHtmlForItem = function( itemObject, index ) {
           const appendValueParams = index.toString();
           let newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams)
           .replace("countPlaceholder", itemObject.count);
           newDiv += `<td>${itemObject.name} ${itemObject.size}</td></tr>`;
+          const copyObject = deepCopy(itemObject);
+          delete copyObject["name"];
+          delete copyObject["size"];
+          delete copyObject["count"];
+          newDiv += `<tr><td></td><td style="font-size: 13px;">${this.getListFromItem(copyObject)}</td></tr>`;
         // for (const key in itemObject) {
         //   if (key === "cost"){
         //     newDiv += `<small class="my-cart-key" >${itemObject[key]}"</small>,`;

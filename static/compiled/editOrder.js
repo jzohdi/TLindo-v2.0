@@ -45,9 +45,8 @@ function _typeof(obj) {
 
 var LOADING_HTML =
   '<div class="lds-ellipsis placeholder"><div></div><div></div><div></div><div></div></div>';
-var ITEM_HTML_FOR_LIST =
-  '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
-  '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+var ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
+
 var DEFAULT_MIN = 8;
 var MAIN_MODAL_CONTENT =
   "<h2> ItemNamePlaceholder: </h2>" +
@@ -230,6 +229,17 @@ function FoodCounter(cart, app, pricesDict) {
 
     this.cart.push(itemToAdd);
   };
+  this.getListFromItem = function(itemObject) {
+    var string = "";
+    var keys = Object.keys(itemObject);
+
+    for (var _i = 0, _keys = keys; _i < _keys.length; _i++) {
+      var key = _keys[_i];
+      string += "-" + itemObject[key];
+    }
+
+    return string;
+  };
 
   this.getHtmlForItem = function(itemObject, index) {
     var appendValueParams = index.toString();
@@ -237,15 +247,18 @@ function FoodCounter(cart, app, pricesDict) {
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
+    newDiv += "<td>"
+      .concat(itemObject.name, " - ")
+      .concat(itemObject.size, "</td></tr>");
 
-    for (var key in itemObject) {
-      if (key != "count") {
-        newDiv += '<span class="my-cart-key"> '.concat(
-          itemObject[key],
-          '</span><strong class="order-keys"> | </strong>'
-        );
-      }
-    }
+    var copyObject = JSON.parse(JSON.stringify(itemObject));
+    delete copyObject["name"];
+    delete copyObject["size"];
+    delete copyObject["count"];
+    newDiv += "<tr><td></td><td class='cart-item-description'>".concat(
+      this.getListFromItem(copyObject),
+      "</td></tr>"
+    );
 
     return newDiv;
   };
@@ -254,21 +267,23 @@ function FoodCounter(cart, app, pricesDict) {
     var itemName =
       arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var total = 0.0;
-    var cartToString = "";
+    var cartToString = "<table id='cart-table'><tbody>";
     var self = this;
     this.cart.forEach(function(itemInCart, index) {
+      var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
+
       if (!itemName || itemInCart.name == itemName) {
         cartToString += self.getHtmlForItem(itemInCart, index);
-        var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
-        cartToString += '<small class="my-cart-key">$'.concat(
-          itemPrice,
-          "</small></div>"
-        );
-        total += parseFloat(itemPrice);
+        cartToString +=
+          "<td class='price-column'>$ " + itemPrice + "</td></tr>";
       }
+
+      total += parseFloat(itemPrice);
     });
-    $("#cart-total").html(total.toFixed(2));
-    return cartToString;
+    var tax = total * 0.06625;
+    $("#cart-tax").html((total * 0.06625).toFixed(2));
+    $("#cart-total").html((total + tax).toFixed(2));
+    return cartToString + "</tbody></table>";
   };
 
   this.canAddItemToCart = function(

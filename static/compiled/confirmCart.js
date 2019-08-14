@@ -53,7 +53,19 @@ function FoodCounter(cart, app, pricesDict) {
   ]);
   this.prices = pricesDict;
 
-  this.getHtmlForItem = function(itemObject, index) {
+  this.getListFromItem = function(itemObject) {
+    var string = "";
+    var keys = Object.keys(itemObject);
+
+    for (var _i = 0, _keys = keys; _i < _keys.length; _i++) {
+      var key = _keys[_i];
+      string += "-" + itemObject[key];
+    }
+
+    return string;
+  };
+
+  this.getHtmlForItem = function(itemObject, index, itemPrice) {
     var appendValueParams = index.toString();
     var newDiv = ITEM_HTML_FOR_LIST.replace(
       /appendValuePlaceholder/g,
@@ -62,6 +74,16 @@ function FoodCounter(cart, app, pricesDict) {
     newDiv += "<td>"
       .concat(itemObject.name, " - ")
       .concat(itemObject.size, "</td>");
+    newDiv += "<td class='price-column'>$ ".concat(itemPrice, "</td></tr>");
+
+    var copyObject = JSON.parse(JSON.stringify(itemObject));
+    delete copyObject["name"];
+    delete copyObject["size"];
+    delete copyObject["count"];
+    newDiv += "<tr><td></td><td class='cart-item-description'>".concat(
+      this.getListFromItem(copyObject),
+      "</td><td></td></tr>"
+    );
 
     return newDiv;
   };
@@ -75,11 +97,7 @@ function FoodCounter(cart, app, pricesDict) {
     this.cart.forEach(function(itemInCart, index) {
       var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
       if (!itemName || itemInCart.name == itemName) {
-        cartToString += self.getHtmlForItem(itemInCart, index);
-        cartToString += "<td class='price-column'>$ ".concat(
-          itemPrice,
-          "</td></tr>"
-        );
+        cartToString += self.getHtmlForItem(itemInCart, index, itemPrice);
       }
       total += parseFloat(itemPrice);
     });

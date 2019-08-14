@@ -6,9 +6,8 @@ const urlDecode = function() {
   );
   return paramDictionary;
 };
-const ITEM_HTML_FOR_LIST =
-  '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
-  '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+var ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
+
 const DEFAULT_MIN = 8;
 const LOADING_HTML = `<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
 $("#my-cart").html(LOADING_HTML);
@@ -26,20 +25,26 @@ function FoodCounter(cart, app, pricesDict) {
   ];
   this.prices = pricesDict;
 
-  this.getHtmlForItem = function(itemObject, index) {
+  this.getHtmlForItem = function(itemObject, index, itemPrice) {
     const appendValueParams = index.toString();
-    let newDiv = ITEM_HTML_FOR_LIST.replace(
+    var newDiv = ITEM_HTML_FOR_LIST.replace(
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
+    newDiv += "<td>"
+      .concat(itemObject.name, " - ")
+      .concat(itemObject.size, "</td>");
+    newDiv += "<td class='price-column'>$ ".concat(itemPrice, "</td></tr>");
 
-    for (const key in itemObject) {
-      if (key != "count") {
-        newDiv += `<span class="my-cart-key"> ${
-          itemObject[key]
-        }</span><strong class="order-keys"> | </strong>`;
-      }
-    }
+    var copyObject = JSON.parse(JSON.stringify(itemObject));
+    delete copyObject["name"];
+    delete copyObject["size"];
+    delete copyObject["count"];
+    newDiv += "<tr><td></td><td class='cart-item-description'>".concat(
+      this.getListFromItem(copyObject),
+      "</td><td></td></tr>"
+    );
+
     return newDiv;
   };
 
@@ -48,13 +53,14 @@ function FoodCounter(cart, app, pricesDict) {
     let cartToString = "";
     const self = this;
     this.cart.forEach(function(itemInCart, index) {
+      var itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
       if (!itemName || itemInCart.name == itemName) {
-        cartToString += self.getHtmlForItem(itemInCart, index);
-        const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
-        cartToString += `<small class="my-cart-key">$${itemPrice}</small></div>`;
-        total += parseFloat(itemPrice);
+        cartToString += self.getHtmlForItem(itemInCart, index, itemPrice);
       }
+      total += parseFloat(itemPrice);
     });
+    var tax = total * 0.06625;
+    $("#cart-tax").html(tax.toFixed(2));
     $("#cart-total").html(total.toFixed(2));
     return cartToString;
   };

@@ -140,31 +140,33 @@ function FoodCounter(cart, app, pricesDict) {
     this.cart.push(itemToAdd);
   };
 
-  this.getHtmlForItem = function(itemObject, index, price) {
+  this.getListFromItem = function(itemObject) {
+    let string = "";
+    const keys = Object.keys(itemObject);
+    for (const key of keys) {
+      string += "-" + itemObject[key];
+    }
+    return string;
+  };
+
+  this.getHtmlForItem = function(itemObject, index, itemPrice) {
     const appendValueParams = index.toString();
     let newDiv = ITEM_HTML_FOR_LIST.replace(
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
     newDiv += `<td>${itemObject.name} ${itemObject.size}</td>`;
+    newDiv += "<td class='price-column'>$ " + itemPrice + "</td></tr>";
+    const copyObject = deepCopy(itemObject);
+    delete copyObject["name"];
+    delete copyObject["size"];
+    delete copyObject["count"];
+    newDiv += `<tr><td></td><td style="font-size: 13px;">${this.getListFromItem(
+      copyObject
+    )}</td><td></td></tr>`;
     return newDiv;
   };
 
-  // this.toString = function(itemName = null) {
-  //   let total = 0.0;
-  //   let cartToString = "";
-  //   const self = this;
-  //   this.cart.forEach(function(itemInCart, index) {
-  //     const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
-  //     if (!itemName || itemInCart.name == itemName) {
-  //       cartToString += self.getHtmlForItem(itemInCart, index);
-  //       cartToString += `<small class="my-cart-key">$${itemPrice}</small></div>`;
-  //     }
-  //     total += parseFloat(itemPrice);
-  //   });
-  //   $("#cart-total").html(total.toFixed(2));
-  //   return cartToString;
-  // };
   this.toString = function(itemName = null) {
     let total = 0.0;
     let cartToString = "<table id='cart-table'><tbody>";
@@ -172,12 +174,11 @@ function FoodCounter(cart, app, pricesDict) {
     this.cart.forEach(function(itemInCart, index) {
       const itemPrice = self.getPriceForItem(itemInCart).toFixed(2);
       if (!itemName || itemInCart.name == itemName) {
-        cartToString += self.getHtmlForItem(itemInCart, index);
-        cartToString +=
-          "<td class='price-column'>$ " + itemPrice + "</td></tr>";
+        cartToString += self.getHtmlForItem(itemInCart, index, itemPrice);
       }
       total += parseFloat(itemPrice);
     });
+    const tax = total * 0.06625;
     $("#cart-tax").html((total * 0.06625).toFixed(2));
     $("#cart-total").html((total + tax).toFixed(2));
     return cartToString + "</tbody></table>";
