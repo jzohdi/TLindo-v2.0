@@ -33,32 +33,27 @@ head %}
         Cart
       </h3>
       <div id="my-cart" class="row"></div>
-      <div class='total-style'>
-          Tax: <strong>$<span id="cart-tax"></span></strong>
-      </div>
-      <div  class='total-style'>
-        <p>New Total: $<span id="cart-total"></span></p>
-      </div>
-      <div class='total-style'>
-        <p>Already Paid: {{ order.paid.total }}</p>
-      </div>
-      <div
-        id="checkoutButton"
-        class="button button1 checkout-button col-xs-5 col-sm-3"
-      >
-        Confirm Changes
+      <div class="row" style="margin-left: 20px;">
+        <div class="total-style">Base: $<span id="cart-base"></span></div>
+        <div class="total-style">Tax: $<span id="cart-tax"></span></div>
+        <div class="total-style">
+          New Total: <strong>$<span id="cart-total"></span></strong>
+        </div>
+        <div class="total-style">
+          <p>Already Paid: {{ order.paid.total }}</p>
+        </div>
+        <div
+          id="checkoutButton"
+          class="button button1 checkout-button col-xs-5 col-sm-3"
+        >
+          Confirm Changes
+        </div>
       </div>
     </div>
   </div>
-</div>
-  <style>
-    .entree-item {
-      border-radius: 10px;
-    }
-  </style>
   <style id="custom-styles">
     .lds-ellipsis {
-      margin-left: calc(50% - 32px);
+      margin-left: 0px;
       display: inline-block;
       position: relative;
       width: 200px;
@@ -74,19 +69,19 @@ head %}
       animation-timing-function: cubic-bezier(0, 1, 1, 0);
     }
     .lds-ellipsis div:nth-child(1) {
-      left: -60px;
+      left: -10px;
       animation: lds-ellipsis1 1.5s infinite;
     }
     .lds-ellipsis div:nth-child(2) {
-      left: -53px;
+      left: -3px;
       animation: lds-ellipsis2 1.5s infinite;
     }
     .lds-ellipsis div:nth-child(3) {
-      left: 29px;
+      left: 79px;
       animation: lds-ellipsis2 1.5s infinite;
     }
     .lds-ellipsis div:nth-child(4) {
-      left: 100px;
+      left: 150px;
       animation: lds-ellipsis3 1.5s infinite;
     }
     @keyframes lds-ellipsis1 {

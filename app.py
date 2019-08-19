@@ -146,7 +146,6 @@ def user_orders():
     all_orders = Controllers.connect_to_db(Controllers.get_user_orders, kwargs)
 
     if all_orders.get('status'):
-
         all_orders = all_orders.get("return_value")
         (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(
             all_orders, True)
@@ -157,7 +156,6 @@ def user_orders():
         upcoming_dates_sorted = Controllers.sort_list_of_dates(
             upcoming_dates,
             "date")
-
         return render_template(
             'userorders.html',
             admin=False,
@@ -308,7 +306,7 @@ def password_recovery():
     else:
         code = request.args.get('code')
         email = request.args.get('recipient')
-        print(email)
+
         if not code or not email:
             return render_template('forgotpassword.html',
                                    error="Could not retrieve new pass code")
@@ -608,14 +606,9 @@ def edit_order():
         return redirect(url_for('user_orders'))
     order_to_edit = order_to_edit.get("return_value")
     session['order_to_edit'] = order_to_edit
-    menu = Controllers.connect_to_db(Controllers.get_menu_items)
-    if menu.get("status") and menu.get("return_value"):
-        menu = menu.get("return_value")
-    else:
-        return render_template("error_page.html")
     # if we could not retrieve the menu, then the page
     # cannot be used. Show only error page.
-    return render_template('edit_order.html', order=order_to_edit, menu=menu)
+    return render_template('edit_order.html', order=order_to_edit)
 
 
 @app.route("/get_order/prices/menu/", methods=["GET"])
@@ -657,6 +650,7 @@ def commit_edit():
     current_prices = current_prices.get("return_value")
 
     old_total = order_information.get("price").get("total")
+    # old_total = order_information.get("price")
 
     (order_information["price"], order_information['order']
      ) = Controllers.validate_order(new_order, current_prices)
@@ -664,8 +658,8 @@ def commit_edit():
         return jsonify({'error': 'could not confirm order pricing'})
 
     new_total = order_information.get("price").get("total")
-    data = order_information.get("date")
-    kwargs = {"date": date, "order_total": (new_total - old_total)}
+    date = order_information.get("date")
+    kwargs = {"date": date, "order_total": round(new_total - old_total, 2)}
     Controllers.connect_to_db(Controllers.reconcile_managedates, kwargs)
 
     confirmation_code = order_information.pop("_id")
@@ -959,7 +953,6 @@ def get_menu():
     if not session.get('beta'):
         return "access denied :("
     menu = Controllers.connect_to_db(Controllers.get_menu_items)
-    print(menu)
     if menu.get("status") and menu.get('return_value'):
         return jsonify({'Status': "Success", 'Menu': menu.get('return_value')})
     return jsonify({"Status": "Failed"})
@@ -1010,6 +1003,15 @@ def terms_and_conditions():
     if not session.get('beta'):
         return "access denied :("
     return render_template('terms_and_conditions.html')
+
+
+def remove_bad_orders(mydb, all_orders):
+    collection = mydb[settings.get("ORDERS_DB")]
+    for order in all_orders:
+        try:
+            order.get("price").get("total")
+        except:
+            collection.delete_one({"_id": order.get("_id")})
 
 
 if __name__ == '__main__':

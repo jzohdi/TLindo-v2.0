@@ -92,7 +92,12 @@ head %}
                 >Confirmation Code: </span
               ><span id="{{ each_order['_id'] }}{{ key }}"> {{ value }}</span>
             </div>
-            {% elif key != 'editable' %}
+            {% elif key == 'price' %}
+            <span style="text-transform: uppercase;" class="order-keys"
+              >{{ key }}: </span
+            >{% for inner_key, inner_value in each_order[key].items() %}
+            <strong>{{ inner_key }}:</strong> {{ inner_value }}
+            {% endfor %} {% elif key != 'editable' %}
 
             <div class="col-sm-3">
               <span style="text-transform: uppercase;" class="order-keys"
@@ -129,7 +134,16 @@ head %}
               <h4 class="order-keys">Order:</h4>
               <div>
                 {% for order_item in value %}
-                <div>{{ loop.index }}. {{ order_item }}</div>
+                <p>
+                  {{ loop.index }}. {% for order_item_key, order_item_value in
+                  order_item.items() %} {% if order_item_key == 'count' %}
+                  <strong>Quantity: </strong>{{ order_item_value }}
+                  {% elif order_item_key == 'cost' %}
+                  <strong>Price: </strong>${{ order_item_value }}
+                  {% else %}
+                  <strong>{{ order_item_key }}: </strong> {{ order_item_value }}
+                  {% endif %} {% endfor %}
+                </p>
                 {% endfor %}
               </div>
             </div>
@@ -140,7 +154,13 @@ head %}
               </span>
               {{ value }}
             </div>
-            {% else %}
+            {% elif key == 'price' %}
+            <span style="text-transform: uppercase;" class="order-keys"
+              >{{ key }}:
+            </span>
+            {% for inner_key, inner_value in each_order[key].items() %}
+            <strong>{{ inner_key }}:</strong> {{ inner_value }}
+            {% endfor %} {% else %}
             <div class="col-sm-3">
               <span style="text-transform: uppercase;" class="order-keys"
                 >{{ key }}:

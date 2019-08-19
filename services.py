@@ -21,7 +21,7 @@ class Email_Service:
         AUTH = self.environ.get("AUTH")
         data = {"AUTH": AUTH, 'recipient': recipient, "user_name": username}
         result = self.requests.get(ENDPOINT, data=data)
-        print(result.json())
+        # print(result.json())
         return result.json()
 
     def placed_order_email(self, recipient, order, confirmation_code):
@@ -32,7 +32,6 @@ class Email_Service:
         data = {"AUTH": AUTH, "recipient": recipient,
                 'order': str_order, 'confirmation_code': confirmation_code}
         result = self.requests.get(ENPOINT, data=data)
-        print(result.json())
         return result.json()
 
     def prettify(self, order_dict):

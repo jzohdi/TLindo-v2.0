@@ -60,6 +60,7 @@ function FoodCounter(cart, app, pricesDict) {
       total += parseFloat(itemPrice);
     });
     var tax = total * 0.06625;
+    $("#cart-base").html(total.toFixed(2));
     $("#cart-tax").html(tax.toFixed(2));
     $("#cart-total").html(total.toFixed(2));
     return cartToString;

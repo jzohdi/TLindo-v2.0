@@ -262,7 +262,8 @@ footer {
     -webkit-box-shadow 0.7s, -webkit-transform 0.8s;
 }
 #amount-help {
-  float: right;
+  margin-bottom: -24px;
+  margin-top: 36px;
   padding: 3px;
   border: 2px solid;
 }
@@ -468,9 +469,10 @@ footer {
   margin-top: 5px;
   margin-bottom: 15px;
   padding: 10px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   /* border: 1px #0d034c solid; */
-  background-color: #f7f7f7;
+  background-color: #c2c1c3;
+  transition: background-color 0.5s;
 }
 /* @media (max-width: 767px) {
   .entree-item {
@@ -479,8 +481,8 @@ footer {
 } */
 .entree-item:hover {
   cursor: pointer;
-  color: white;
-  background-color: #0d034c;
+  /* color: white; */
+  background-color: #0d034c54;
 }
 /* .entree-item {
   -webkit-transition: all 1s;
@@ -705,17 +707,20 @@ START OF MENU SELECTION FOR USER
   padding-right: 25px;
 }
 #cart-click {
+  background-color: #dbdada;
+  font-size: 26px;
   cursor: pointer;
-  border-radius: 30%;
   padding: 8px;
 }
 #cart-click:hover {
-  background-color: #0d034c;
-  color: white;
+  /* background-color: #0d034c;*/
+  color: black;
 }
 .cart-header {
   text-align: left;
   /* position: unset; */
+  font-weight: 200;
+  font-size: calc(18px + 1.3vw);
   margin-top: 24px;
   padding-left: 15px;
   /* transform: translateY(0px); */
@@ -739,23 +744,35 @@ START OF MENU SELECTION FOR USER
   border-radius: 5px;
   min-width: 160px;
 }
+.item-title {
+  cursor: pointer;
+}
+.spacing {
+  margin-left: 40px;
+}
 .add-select {
   border-radius: 5px;
   background-color: #0d034c;
   color: white;
-  -webkit-transition: color 1s, background-color 1s;
-  -o-transition: color 1s, background-color 1s;
-  transition: color 1s, background-color 1s;
+  -webkit-transition: color 1s, background-color 0.5s;
+  -o-transition: color 1s, background-color 0.5s;
+  transition: color 1s, background-color 0.5s;
   font-size: 12px;
   height: auto;
   display: block;
   padding: 5px 20px !important;
   width: auto;
+  background-color: #0d034c;
   /* padding: 2px !important; */
 }
 .add-select:hover {
-  color: #fbbb13;
+  background-color: #0d034cc2;
   cursor: pointer;
+}
+.confirm-cart-login-button {
+  width: 100%;
+  max-width: 300px;
+  min-width: 175px;
 }
 .modal-add-to-order {
   font-size: 20px;
@@ -805,7 +822,7 @@ START OF MENU SELECTION FOR USER
 .price-column {
   text-align: right;
   padding-right: 41px;
-  min-width: 105px;
+  min-width: 120px;
 }
 .increase,
 .decrease {
@@ -844,10 +861,6 @@ START OF MENU SELECTION FOR USER
   }
 }
 
-#my-cart div {
-  margin-bottom: 8px;
-  border-bottom: 1px solid;
-}
 .choose-option {
   margin-left: 15%;
   margin-bottom: 13px;
@@ -926,16 +939,18 @@ hr {
   display: inline-block;
 }
 .want-more-button .tooltiptext {
+  font-size: 16px;
   background-color: black;
   color: white;
   padding: 10px;
-  width: 25vw !important;
+  width: calc(100px + 20vw) !important;
   visibility: hidden;
   text-align: center;
+  min-width: 200px;
   position: absolute;
-  -webkit-transform: translateX(-100px);
-  -ms-transform: translateX(-100px);
-  transform: translateX(-100px);
+  -webkit-transform: translateX(-200px);
+  -ms-transform: translateX(-200px);
+  transform: translateX(-200px);
   z-index: 2;
 }
 .want-more-button:hover .tooltiptext {
@@ -1177,4 +1192,11 @@ hr {
     -webkit-transform: translate(19px, 0);
     transform: translate(19px, 0);
   }
+}
+#down-glyph {
+  float: right;
+  transition: transform 0.2s;
+}
+.rotated {
+  transform: rotate(180deg);
 }

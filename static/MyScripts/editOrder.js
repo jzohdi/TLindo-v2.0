@@ -157,11 +157,11 @@ function FoodCounter(cart, app, pricesDict) {
     ).replace("countPlaceholder", itemObject.count);
     newDiv += `<td>${itemObject.name} ${itemObject.size}</td>`;
     newDiv += "<td class='price-column'>$ " + itemPrice + "</td></tr>";
-    const copyObject = deepCopy(itemObject);
+    const copyObject = JSON.parse(JSON.stringify(itemObject));
     delete copyObject["name"];
     delete copyObject["size"];
     delete copyObject["count"];
-    newDiv += `<tr><td></td><td style="font-size: 13px;">${this.getListFromItem(
+    newDiv += `<tr><td></td><td class="cart-item-description">${this.getListFromItem(
       copyObject
     )}</td><td></td></tr>`;
     return newDiv;
@@ -179,6 +179,7 @@ function FoodCounter(cart, app, pricesDict) {
       total += parseFloat(itemPrice);
     });
     const tax = total * 0.06625;
+    $("#cart-base").html(total.toFixed(2));
     $("#cart-tax").html((total * 0.06625).toFixed(2));
     $("#cart-total").html((total + tax).toFixed(2));
     return cartToString + "</tbody></table>";

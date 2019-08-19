@@ -35,7 +35,7 @@ var ADD_MORE_MESSAGE = '<span class="tooltiptext">' + "Based on your number of p
 var AT_ORDER_LIMIT_DIV = '<div id="limit-message"style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">' + 'Currently at order limit <div id="add-more" class="button button1 want-more-button">Want to add to order?' + ADD_MORE_MESSAGE + "</div>";
 var AT_FLAVOR_LIMIT_DIV = '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1"> Sorry, you have reached the max number of unique flavors for item</div>';
 var PICK_NUMBER_MORE_ITEMS = '<div style="color: red;" class="col-xs-12 col-sm-10 col-sm-offset-1">( Select numberPlaceholder more entrees )</div>';
-var ITEM_HTML_FOR_LIST = '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' + '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
+var ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
 var DEFAULT_MIN = 8;
 
 var setAppMaxItems = function setAppMaxItems(app) {
@@ -80,7 +80,7 @@ function MenuItem(itemDictionary) {
 
   this.button = function () {
     if (!MOBILE_MODE) {
-      return "<div id=\"".concat(this.getId(), "\"\n                    class=\"entree-item col-xs-10 col-xs-offset-1 entree-options\">\n                      <h3 style='text-align:left;'>").concat(this.environ.name, "</h3>\n                      <div>").concat(this.getDescriptionList(), "</div>\n                    </div>");
+      return "<div id=\"".concat(this.getId(), "\"\n                    class=\"entree-item col-xs-10 col-xs-offset-1 entree-options\">\n               <h3 style='text-align:left;    margin-top: 5px;'>").concat(this.environ.name, "</h3>\n                      <div>").concat(this.getDescriptionList(), "</div>\n                    </div>");
     }
 
     return "<div id=\"".concat(this.getId(), "\"\n                    class=\"entree-item col-xs-12 entree-options\">\n                      ").concat(this.environ.name, "\n                  </div>");
@@ -214,32 +214,52 @@ function FoodCounter(cart, app) {
 
     this.cart.push(itemToAdd);
   };
+  this.getListFromItem = function (itemObject) {
+    var string = '';
+    var keys = Object.keys(itemObject);
+
+    for (var _i = 0, _keys = keys; _i < _keys.length; _i++) {
+      var key = _keys[_i];
+      string += "-" + itemObject[key];
+    }
+
+    return string;
+  };
 
   this.getHtmlForItem = function (itemObject, index) {
     var appendValueParams = index.toString();
     var newDiv = ITEM_HTML_FOR_LIST.replace(/appendValuePlaceholder/g, appendValueParams).replace("countPlaceholder", itemObject.count);
-
-    for (var key in itemObject) {
-      if (key === "cost") {
-        newDiv += "<small class=\"my-cart-key\" >".concat(itemObject[key], "\"</small>,");
-      } else if (key != "count") {
-        newDiv += "<span class=\"my-cart-key\"> ".concat(itemObject[key], "</span><strong class=\"order-keys\"> | </strong>");
-      }
+    newDiv += "<td>".concat(itemObject.name, " - ").concat(itemObject.size, "</td></tr>");
+    function deepCopy(object) {
+      return JSON.parse(JSON.stringify(object));
     }
+    var copyObject = deepCopy(itemObject);
+    delete copyObject["name"];
+    delete copyObject["size"];
+    delete copyObject["count"];
+    newDiv += "<tr><td></td><td class='cart-item-description'>".concat(this.getListFromItem(copyObject), "</td></tr>");
 
-    return newDiv + "</div>";
+    // for (var key in itemObject) {
+    //   if (key === "cost") {
+    //     newDiv += "<small class=\"my-cart-key\" >".concat(itemObject[key], "\"</small>,");
+    //   } else if (key != "count") {
+    //     newDiv += "<span class=\"my-cart-key\"> ".concat(itemObject[key], "</span><strong class=\"order-keys\"> | </strong>");
+    //   }
+    // }
+
+    return newDiv //+ "</div>";
   };
 
   this.toString = function () {
     var itemName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var cartToString = "";
+    var cartToString = "<table id='cart-table'><tbody>";
     var self = this;
     this.cart.forEach(function (itemInCart, index) {
       if (!itemName || itemInCart.name == itemName) {
         cartToString += self.getHtmlForItem(itemInCart, index);
       }
     });
-    return cartToString;
+    return cartToString + "</tbody></table>";
   };
 
   this.canAddItemToCart = function (selectionItemObject, maxFlavors, maxItems, type, help) {
@@ -362,6 +382,13 @@ function FoodCounter(cart, app) {
 
     return false;
   };
+  this.countItems = function(){
+    var total = 0;
+    for ( var i = 0 ; i < this.cart.length; i++ ){
+      total += this.cart[i].count;
+    }
+    return total;
+  }
 }
 
 function App(cart, menu) {
@@ -401,10 +428,7 @@ function App(cart, menu) {
 
   this.run = function () {
     var _this = this;
-
-    if (this.foodCounter.cart.length > 0) {
-      this.showSelectedFood('#my-cart');
-    }
+    this.showSelectedFood('#my-cart');
 
     var _loop = function _loop(menuItem) {
       var menuClass = _this.menu[menuItem];
@@ -442,7 +466,7 @@ function App(cart, menu) {
     if (this.currentItem != '' && !this.toLimit.has(this.menu[this.currentItem].environ.type)) {
       showSelectedFood = '';
     }
-
+    $("#cart-count").html(this.foodCounter.countItems());
     showSelectedFood += this.foodCounter.toString(itemName);
     $(idOfTarget).html(showSelectedFood); // add controllers for the increase count and decrease count
 
@@ -543,7 +567,7 @@ if (urlParams.hasOwnProperty("kids")) {
   $("#numKids").val(urlParams["kids"]);
 }
 
-var app = new App(cart, []);
+var app = new App(cart, {{ menu |tojson }});
 app.run();
 
 var attachAddMore = function attachAddMore() {
@@ -553,7 +577,7 @@ var attachAddMore = function attachAddMore() {
     if ($("#modal-cart").html() == undefined) {
       app.showSelectedFood('#my-cart');
     } else {
-      app.showSelectedFood('#modal-cart');
+      app.showSelectedFood('#modal-cart', app.currentItem);
     }
   });
 };
@@ -568,7 +592,7 @@ $('#checkoutButton').on('click', function () {
   } else {
     sessionStorage.setItem("date", date);
     sessionStorage.setItem("cart", JSON.stringify(app.foodCounter.cart));
-    location.href = "/confirmCart#order-summary";
+    location.href = "/confirmCart";
   }
 });
 $('#numAdults').on('input', function () {
@@ -761,3 +785,12 @@ window.addEventListener('click', function () {
   };
   urlEncodeParams(paramsDictionary);
 });
+
+$('#cart-click').on('click', function(){
+  const cart = $("#my-cart");
+  if ( cart.hasClass("hidden") ){
+    cart.removeClass("hidden");
+  }else{
+    cart.addClass("hidden");
+  }
+})

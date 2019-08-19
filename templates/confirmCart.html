@@ -37,7 +37,10 @@ block head %}
         <div id="my-cart"></div>
       </div>
       <div class="row" style="margin-left: 20px;">
-          Tax: <strong>$<span id="cart-tax"></span></strong>
+        Base: $<span id="cart-base"></span>
+      </div>
+      <div class="row" style="margin-left: 20px;">
+          Tax: $<span id="cart-tax"></span>
       </div>
       <div class="row" style="margin-left: 20px; margin-bottom: 30px;">
         Total: <strong>$<span id="cart-total"></span></strong>
@@ -169,13 +172,13 @@ block head %}
             <h4>Would you like to:</h4>
             <div class="row">
               <div id='login'class="col-sm-4 col-md-3">
-                <button id='show-login' style="min-width: 173px;" class='button button1'>Login</button>
+                <button id='show-login' class='button button1 confirm-cart-login-button'>Login</button>
               </div>
               <div id='register'class="col-sm-4 col-md-3">
-                <button id='show-register' style="min-width: 173px;" class="button button1">Register</button>
+                <button id='show-register' class="button button1 confirm-cart-login-button">Register</button>
               </div>
               <div class="col-sm-4 col-md-3">
-                <button style="min-width: 173px;" id='continue-as-guest' class="button button1">Continue As Guest</button>
+                <button id='continue-as-guest' class="button button1 confirm-cart-login-button">Continue As Guest</button>
               </div>
             </div>
           </div>
