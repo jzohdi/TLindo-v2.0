@@ -464,11 +464,13 @@ footer {
 } */
 #selected-food {
   margin-bottom: 50px;
+  margin-top: 20px;
 }
 .entree-item {
   margin-top: 5px;
   margin-bottom: 15px;
   padding: 10px;
+  border-left: 5px solid #0d034c;
   /* border-radius: 10px; */
   /* border: 1px #0d034c solid; */
   background-color: #c2c1c3;

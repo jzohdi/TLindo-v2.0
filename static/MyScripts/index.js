@@ -587,6 +587,7 @@ $("#numAdults").on("input", function() {
   };
   urlEncodeParams(paramsDictionary);
   setAppMaxItems(app);
+  app.showSelectedFood("#my-cart");
 });
 
 $("#numKids").on("input", function() {
@@ -598,6 +599,7 @@ $("#numKids").on("input", function() {
   };
   urlEncodeParams(paramsDictionary);
   setAppMaxItems(app);
+  app.showSelectedFood("#my-cart");
 });
 
 $("#amount-help").on("click", function() {
