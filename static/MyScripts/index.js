@@ -57,7 +57,7 @@ const PICK_NUMBER_MORE_ITEMS =
 // const ITEM_HTML_FOR_LIST =
 //   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
 //   '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
-const ITEM_HTML_FOR_LIST = `<tr onclick='showDescription("idPlaceholder")'><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
+const ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
 
 const DEFAULT_MIN = 8;
 const setAppMaxItems = function(app) {
@@ -259,7 +259,7 @@ function FoodCounter(cart, app) {
     delete copyObject["name"];
     delete copyObject["size"];
     delete copyObject["count"];
-    newDiv += `<tr id="${idForShowRow}-description" class='hidden'><td></td><td class="cart-item-description">${this.getListFromItem(
+    newDiv += `<tr id="${idForShowRow}-description" class='hidden'><td></td><td onclick='showDescription("idPlaceholder")' class="cart-item-description">${this.getListFromItem(
       copyObject
     )}</td></tr>`;
     return newDiv;
