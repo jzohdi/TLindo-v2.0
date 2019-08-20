@@ -483,8 +483,8 @@ footer {
 } */
 .entree-item:hover {
   cursor: pointer;
-  /* color: white; */
-  background-color: #0d034c54;
+  color: white;
+  background-color: #0d034c80;
 }
 /* .entree-item {
   -webkit-transition: all 1s;
