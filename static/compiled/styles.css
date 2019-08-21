@@ -238,6 +238,16 @@ footer {
     table-layout: fixed;
   }
 }
+.entree-header {
+  background-color: #ffffffa6;
+  margin: -10px;
+  padding: 15px;
+  color: #0d034c !important;
+}
+.entree-description {
+  text-align: left;
+  padding-top: 24px;
+}
 /* for index page / main page */
 
 /* most of this content is setatting the styling for the site wide styling
@@ -248,7 +258,7 @@ footer {
   -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
   background-color: rgba(255, 255, 255, 1);
-  border-radius: 8px;
+  /* border-radius: 8px; */
   -webkit-animation-duration: 0.6s;
   animation-duration: 0.6s;
   overflow: hidden;
@@ -731,7 +741,11 @@ START OF MENU SELECTION FOR USER
 }
 .main-menu-headers {
   /* border-bottom: 3px solid; */
-  font-size: calc(22px + 1.3vw);
+  font-size: calc(31px + 1vw);
+}
+.move-step-over {
+  margin-top: -15px;
+  margin-left: -20px;
 }
 .selection {
   /* border: 1px solid; */
@@ -746,8 +760,11 @@ START OF MENU SELECTION FOR USER
   border-radius: 5px;
   min-width: 160px;
 }
-.item-title {
+.title-cart {
   cursor: pointer;
+}
+.cart-title-row td {
+  padding-top: calc(22px - 0.3vw);
 }
 .spacing {
   margin-left: 40px;
@@ -786,15 +803,14 @@ START OF MENU SELECTION FOR USER
   text-align: left;
 }
 #cart-table {
+  font-size: calc(21px - 0.2vw);
   width: 100%;
 }
-#cart-table tr {
-  /* height: 7vh; */
-}
+
 .cart-item-description {
   padding-left: 20px;
   font-size: 13px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
 #modal-cart {
   text-align: left;

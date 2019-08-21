@@ -993,15 +993,11 @@ def error():
 
 @app.route('/privacy_policy', methods=["GET"])
 def privacy_policy():
-    if not session.get('beta'):
-        return "access denied :("
     return render_template("privacypolicy.html")
 
 
 @app.route('/terms_and_conditions', methods=["GET"])
 def terms_and_conditions():
-    if not session.get('beta'):
-        return "access denied :("
     return render_template('terms_and_conditions.html')
 
 
@@ -1015,7 +1011,6 @@ def remove_bad_orders(mydb, all_orders):
 
 
 if __name__ == '__main__':
-
     app.debug = True
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)

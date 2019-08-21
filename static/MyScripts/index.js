@@ -57,7 +57,7 @@ const PICK_NUMBER_MORE_ITEMS =
 // const ITEM_HTML_FOR_LIST =
 //   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
 //   '+ </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span>';
-const ITEM_HTML_FOR_LIST = `<tr><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
+const ITEM_HTML_FOR_LIST = `<tr class='cart-title-row'><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
 
 const DEFAULT_MIN = 8;
 const setAppMaxItems = function(app) {
@@ -107,14 +107,19 @@ function MenuItem(itemDictionary) {
     if (!MOBILE_MODE) {
       return `<div id="${this.getId()}"
                   class="entree-item col-xs-10 col-xs-offset-1 entree-options">
-                    <h3 style='text-align:left;'>${this.environ.name}</h3>
-                    <div>${this.getDescriptionList()}</div>
+                    <h4 class='entree-header'>${this.environ.name}</h4>
+                    <div class='entree-description'>${this.getDescriptionList()}</div>
                   </div>`;
     }
     return `<div id="${this.getId()}"
-                  class="entree-item col-xs-12 entree-options">
-                    ${this.environ.name}
-                </div>`;
+    class="entree-item col-xs-12 entree-options">
+      <h4 class='entree-header'>${this.environ.name}</h4>
+      <div class='entree-description'>${this.getDescriptionList()}</div>
+    </div>`;
+    // return `<div id="${this.getId()}"
+    //               class="entree-item col-xs-12 entree-options">
+    //                 ${this.environ.name}
+    //             </div>`;
   };
   this.getId = function() {
     return this.environ.name.replace(/\s/g, "-").replace("&", "and");
@@ -198,10 +203,11 @@ function MenuItem(itemDictionary) {
   };
   this.getHeader = function() {
     if (MOBILE_MODE) {
-      return (
-        this.getDescriptionList() +
-        '</ul><p class="please-select-from">Please choose from options:</p>'
-      );
+      return '</ul><p class="please-select-from">Please choose from options:</p>';
+      // return (
+      //   this.getDescriptionList() +
+      //   '</ul><p class="please-select-from">Please choose from options:</p>'
+      // );
     } else {
       return '</ul><p class="please-select-from">Please choose from options:</p>';
     }
@@ -252,16 +258,18 @@ function FoodCounter(cart, app) {
     )
       .replace("countPlaceholder", itemObject.count)
       .replace("idPlaceholder", idForShowRow + "-description");
-    newDiv += `<td class='item-title'>${itemObject.name} ${
+    newDiv += `<td onclick='showDescription("${idForShowRow}-description")' class='title-cart'>${
+      itemObject.name
+    } ${
       itemObject.size
-    }<span id="${idForShowRow}-description-glyph" class="glyphicon glyphicon-chevron-down spacing"></span></td></tr>`;
+    }</td><td onclick='showDescription("${idForShowRow}-description")'class='title-cart'><span id="${idForShowRow}-description-glyph" class="glyphicon glyphicon-chevron-down spacing"></span></td></tr>`;
     const copyObject = deepCopy(itemObject);
     delete copyObject["name"];
     delete copyObject["size"];
     delete copyObject["count"];
-    newDiv += `<tr id="${idForShowRow}-description" class='hidden'><td></td><td onclick='showDescription("idPlaceholder")' class="cart-item-description">${this.getListFromItem(
+    newDiv += `<tr id="${idForShowRow}-description" class='hidden'><td></td><td class="cart-item-description">${this.getListFromItem(
       copyObject
-    )}</td></tr>`;
+    )}</td><td></td></tr>`;
     return newDiv;
   };
 
