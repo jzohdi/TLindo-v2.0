@@ -60,6 +60,7 @@ const PICK_NUMBER_MORE_ITEMS =
 const ITEM_HTML_FOR_LIST = `<tr class='cart-title-row'><td class='count-column'><span class="span increase" id="appendValuePlaceholder"> + </span> countPlaceholder <span class="span decrease" id="appendValuePlaceholder"> - </span></td>`;
 
 const DEFAULT_MIN = 8;
+
 const setAppMaxItems = function(app) {
   let numGuests;
   let numAdults = $("#numAdults").val();
@@ -67,37 +68,54 @@ const setAppMaxItems = function(app) {
 
   if (numAdults === "") numAdults = 0;
   if (numKids === "") numKids = 0;
-  if (isNaN(numAdults) || isNaN(numKids)) {
+  // if the user entered not a number for the number of kids or adults. or if the total is 0, the return false.
+  if (isNaN(numAdults) || isNaN(numKids) || numAdults + numKids === 0) {
     app.validGuests = false;
-  } else {
-    if (numAdults + numKids === 0) {
-      app.validGuests = false;
-      return;
+    // if the user currently is getting help, and the total people goes to 0, prompt to enter valid number.
+    if (app.help) {
+      $("#number-rec").html("Please enter a valid number for recommendation.");
     }
-
-    app.environ.Adults = parseInt(numAdults);
-    app.environ.Kids = parseInt(numKids);
-
-    if (
-      app.environ.Kids + app.environ.Adults >= 8 &&
-      0.5 * app.environ.Kids + app.environ.Adults < 8
-    ) {
-      numGuests = 8;
-    } else {
-      numGuests = 0.5 * app.environ.Kids + app.environ.Adults;
-    }
-    app.maxItems = Math.ceil(numGuests / parseInt(DEFAULT_MIN));
-    const numberRec = $("#number-rec");
-    if (numberRec.html() !== "") {
-      numberRec.html(
-        `For ${app.environ.Adults} adults${
-          app.environ.Kids != 0 ? ` and ${app.environ.Kids} kids` : ""
-        }, we recommoned ${app.maxItems} entrees of the smallest size.`
-      );
-    }
-    app.validGuests = true;
+    return;
   }
+
+  // else, convert the number to integer value, from the input string
+  app.environ.Adults = parseInt(numAdults);
+  app.environ.Kids = parseInt(numKids);
+
+  // calculate how many guests the entered adults and kids should be considered.
+  numGuests = setNumberOfGuests(app.environ.Adults, app.environ.Kids);
+  app.maxItems = Math.ceil(numGuests / parseInt(DEFAULT_MIN));
+
+  // show the string to tell user how many entrees to choose.
+  setRecommendationNumberString(
+    app.environ.Adults,
+    app.environ.Kids,
+    app.maxItems,
+    app.help
+  );
+
+  app.validGuests = true;
 };
+
+function setNumberOfGuests(numAdults, numKids) {
+  const numKidsWeighted = Math.ceil(0.5 * numKids);
+  // if 0.5 * kids + adults is less than 8, consider number of guests to be 8
+  if (numKidsWeighted + numAdults < 8) {
+    return 8;
+  }
+  return numKidsWeighted + numAdults;
+}
+
+function setRecommendationNumberString(numAdults, numKids, maxItems, help) {
+  const numberRec = $("#number-rec");
+  if (help) {
+    const recommendationString = `For ${numAdults} adults${
+      numKids != 0 ? ` and ${numKids} kids` : ""
+    }, we recommoned ${maxItems} entrees of the smallest size.`;
+    numberRec.html(recommendationString);
+  }
+}
+
 function MenuItem(itemDictionary) {
   this.environ = itemDictionary;
   this.notSelectKeys = new Set(["name", "description", "_id", "type"]);
