@@ -44,8 +44,18 @@ function FoodCounter(cart, app, pricesDict) {
       this.getListFromItem(copyObject),
       "</td><td></td></tr>"
     );
-
     return newDiv;
+  };
+
+  this.getListFromItem = function(itemObject) {
+    var string = "";
+    var keys = Object.keys(itemObject);
+
+    for (var _i = 0, _keys = keys; _i < _keys.length; _i++) {
+      var key = _keys[_i];
+      string += "-" + itemObject[key];
+    }
+    return string;
   };
 
   this.toString = function(itemName = null) {
