@@ -116,12 +116,12 @@ def dated_url_for(endpoint, **values):
 @app.route('/', methods=["POST", "GET"])
 def index():
     # check for password in beta version, remove in final production
-    pw = request.args.get('pw')
+    # pw = request.args.get('pw')
 
-    if pw != settings.get('BETA_KEY') and not session.get('beta'):
-        return "access denied :("
+    # if pw != settings.get('BETA_KEY') and not session.get('beta'):
+    #     return "access denied :("
 
-    session['beta'] = True
+    # session['beta'] = True
     # if logged in and gotten to index, reroute to scheduled orders
     if 'admin' in session:
         return redirect(url_for('scheduled_orders'))
@@ -136,8 +136,8 @@ def index():
 
 @app.route('/user_orders', methods=["GET", "POST"])
 def user_orders():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -167,8 +167,8 @@ def user_orders():
 
 @app.route('/orderlookup', methods=["GET", "POST"])
 def orderlookup():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
     if request.method == "POST":
 
         confirmation_code = request.form.get("confirmationCode")
@@ -191,8 +191,8 @@ def orderlookup():
 
 @app.route('/change_password', methods=["POST"])
 def change_password():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -226,8 +226,8 @@ def change_password():
 
 @app.route('/forgotpassword', methods=["POST", "GET"])
 def forgotpassword():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
 
     if request.method == "POST":
 
@@ -269,8 +269,8 @@ def forgotpassword():
 
 @app.route('/password_recovery', methods=["POST", "GET"])
 def password_recovery():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
 
     if request.method == "POST":
         code = session.get('recovery_code')
@@ -336,8 +336,8 @@ def password_recovery():
 
 @app.route('/user_settings', methods=["GET", "POST"])
 def user_settings():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
 
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -347,8 +347,8 @@ def user_settings():
 
 @app.route('/confirmCart', methods=["POST", "GET"])
 def confirmCart():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
 
     if 'order_in_queue' in session:
         session.pop('order_in_queue')
@@ -357,8 +357,8 @@ def confirmCart():
 
 @app.route('/order_placed/', methods=["POST", "GET"])
 def order_placed():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
     confirmation_code = session.get("order_code")
 
     if not confirmation_code:
@@ -551,8 +551,8 @@ def disabled_dates():
 
 @app.route('/change_contact_info/', methods=["POST"])
 def change_contact_info():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
 
     if 'user_id' not in session and 'guest_code' not in session:
         return jsonify({'error': 'failed'})
@@ -580,8 +580,8 @@ def set_edit_order_num():
 
 @app.route('/edit_order', methods=["POST", "GET"])
 def edit_order():
-    if not session.get('beta'):
-        return "access denied :("
+    # if not session.get('beta'):
+    #     return "access denied :("
 
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -613,14 +613,18 @@ def edit_order():
 
 @app.route("/get_order/prices/menu/", methods=["GET"])
 def get_order_prices_menu():
+
     if 'order_to_edit' not in session:
         return jsonify({"error": "No order to edit found in session."})
+
     order_to_edit = session.pop('order_to_edit')
     menu = Controllers.connect_to_db(Controllers.get_menu_items)
     if not menu.get("status") or not menu.get("return_value"):
         return jsonify({"error": "Failed retrieving menu."})
+
     menu = menu.get("return_value")
     prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
+
     if not prices.get("status") or not prices.get("return_value"):
         return jsonify({"error": prices.get("error")})
     return jsonify({'order': order_to_edit,
@@ -630,8 +634,6 @@ def get_order_prices_menu():
 
 @app.route('/commit_order_edit/', methods=["POST"])
 def commit_edit():
-    if not session.get('beta'):
-        return "access denied :("
 
     new_order = request.form.get('order')
     current_prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
@@ -672,8 +674,7 @@ def commit_edit():
 
 @app.route('/guest_login/', methods=["GET"])
 def guest_login():
-    if not session.get('beta'):
-        return "access denied :("
+
     if 'user_id' in session:
         return jsonify({'error': 'already logged in'})
     if 'guest_code' in session:
@@ -687,8 +688,7 @@ def guest_login():
 
 @app.route('/request_login/', methods=["POST"])
 def request_login():
-    if not session.get('beta'):
-        return "access denied :("
+
     username_or_email = request.form.get('username', '')
     password = request.form.get('pass', '')
 
@@ -710,8 +710,7 @@ def request_login():
 
 @app.route('/request_register/', methods=["GET"])
 def request_register():
-    if not session.get('beta'):
-        return "access denied :("
+
     username = request.form.get("username")
     email = request.form.get("email")
     password = request.form.get("pass")
@@ -747,8 +746,7 @@ def request_register():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    if not session.get('beta'):
-        return "access denied :("
+
     beta_key = session.get('beta')
     session.clear()
     session['beta'] = beta_key
@@ -784,22 +782,15 @@ def login():
 
 @app.route('/logout', methods=["GET", "POST"])
 def logout():
-    if not session.get('beta'):
-        return "access denied :("
-    beta_key = session.get('beta')
+
     session.clear()
-    session['beta'] = beta_key
+
     return redirect(url_for("index"))
 
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
-    if not session.get('beta'):
-        return "access denied :("
 
-    beta_key = session.get('beta')
-    session.clear()
-    session['beta'] = beta_key
     if request.method == "POST":
 
         # check that all information has been provided
@@ -848,8 +839,6 @@ def register():
 
 @app.route('/managedates', methods=["GET", "POST"])
 def managedates():
-    if not session.get('beta'):
-        return "access denied :("
 
     # validate that user is logged in and is admin
     if "user_id" not in session:
@@ -883,8 +872,7 @@ def managedates():
 
 @app.route('/menusetter', methods=["GET", "POST"])
 def menusetter():
-    if not session.get('beta'):
-        return "access denied :("
+
     if "user_id" not in session:
         return redirect(url_for('login'))
     if "admin" not in session:
@@ -895,8 +883,7 @@ def menusetter():
 
 @app.route('/scheduled_orders', methods=["GET", "POST"])
 def scheduled_orders():
-    if not session.get('beta'):
-        return "access denied :("
+
     if "user_id" not in session:
         return redirect(url_for('login'))
 
@@ -940,8 +927,7 @@ def commit_note():
 
 @app.route('/get_prices/', methods=["GET"])
 def get_prices():
-    if not session.get('beta'):
-        return "access denied :("
+
     prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
     if prices.get("status") and prices.get("return_value"):
         return jsonify(prices.get("return_value"))
@@ -950,8 +936,7 @@ def get_prices():
 
 @app.route('/_get_menu')
 def get_menu():
-    if not session.get('beta'):
-        return "access denied :("
+
     menu = Controllers.connect_to_db(Controllers.get_menu_items)
     if menu.get("status") and menu.get('return_value'):
         return jsonify({'Status': "Success", 'Menu': menu.get('return_value')})
