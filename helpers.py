@@ -18,7 +18,7 @@ def parse_dictionary(dictionaries):
 class App_Actions:
 
     def __init__(self, settings, random, traceback, MongoClient,
-                 datetime, pwd_context, string):
+                 datetime, pwd_context, string, re):
         self.CONFIRM_CODE_LENGTH = 8
         self.hash_salt_length = 12
         self.random = random
@@ -28,6 +28,7 @@ class App_Actions:
         self.traceback = traceback
         self.pwd_context = pwd_context
         self.string = string
+        self.re = re
 
     def connect_db(self):
         clientString = self.environ.get('MONGO_STRING').format(
@@ -332,13 +333,13 @@ class App_Actions:
 
         user_id = self.get_next_Value(collection, 'id_values', 1)
         user_obj = {'_id': user_id, 'username': username,
-                    "email": email, "password": password, 'salt': hash_salt}
+                    "email": email, "password": encryption, 'salt': hash_salt}
         user_obj['confirmation_codes'] = []
         result = collection.insert_one(user_obj)
-        if result.inserted_id:
-            return user_obj
-        else:
-            return {'error': "Something went wrong."}
+        return user_obj
+
+    def validate_email(self, email):
+        return self.re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
     def validate_form(self, form):
         for key, value in form.items():
@@ -353,6 +354,7 @@ class App_Actions:
             if form.get("password") != form.get("confirm-password"):
                 return {'is_valid': False,
                         "message": "Passwords did not match."}
+        return {"is_valid": True}
 
     def user_exists(self, mydb, email):
         collection = mydb[self.users_db()]
@@ -589,3 +591,14 @@ class App_Actions:
             if key != 'id' and key != 'order_num':
                 to_return += str(key).capitalize() + ': ' + str(value) + "\n"
         return to_return
+
+    def get_error_logs_list(self):
+        result_list = self.connect_to_db(self.get_error_logs, False)
+        if result_list.get("status") and result_list.get("return_value"):
+            return result_list.get("return_value")
+        return None
+
+    def get_error_logs(self, mydb):
+        collection = mydb[self.environ.get("ERROR_DB")]
+        results = collection.find()
+        return list(results)

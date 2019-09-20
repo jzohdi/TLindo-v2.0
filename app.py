@@ -32,6 +32,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from threading import Thread
 from email.utils import parseaddr
 import phonenumbers
+import re
 
 GSpread_dependencies = {'gspread': gspread, "SAC": ServiceAccountCredentials}
 
@@ -44,6 +45,7 @@ App_Actions_dependencies['MongoClient'] = MongoClient
 App_Actions_dependencies['datetime'] = datetime
 App_Actions_dependencies['pwd_context'] = pwd_context
 App_Actions_dependencies['string'] = string
+App_Actions_dependencies["re"] = re
 
 settings = getKeys(os)
 
@@ -796,18 +798,18 @@ def register():
         # check that all information has been provided
         is_valid_form = Controllers.validate_form(request.form)
 
-        if not is_valid_form.get('return_valid').get("is_valid"):
-            error_message = is_valid_form.get('return_valid').get('message')
+        if not is_valid_form.get("is_valid"):
+            error_message = is_valid_form.get('message')
             return render_template('register.html', error=error_message)
         password = request.form.get("password")
         # validate password meets conditions
-        if not Controllers.is_valid_password(passowrd):
+        if not Controllers.is_valid_password(password):
             return render_template('register.html',
                                    error='could not validate password')
 
         username = request.form.get("username")
         email = request.form.get("email")
-        is_valid_email = validate_email(email, verify=True)
+        is_valid_email = Controllers.validate_email(email)
         if not is_valid_email:
             return jsonify({'error': "Email address not valid."})
         # check to see if username has already been added to database
@@ -823,13 +825,12 @@ def register():
         if hasattr(registered_user, 'error'):
             return render_template("register.html",
                                    error=registered_user.get('error'))
-
         # send thank you for sign up email
         Email_Service.thank_for_sign_up(email, username)
         session["user_id"] = registered_user.get("_id")
         session["user_name"] = registered_user.get("username")
 
-        if registered_user.get("return_value").get("username") == 'admin':
+        if registered_user.get("username") == 'admin':
             session['admin'] = True
             return redirect(url_for("managedates"))
         return redirect(url_for("index"))
@@ -958,6 +959,16 @@ def update_menu():
     return jsonify({"Status": "Success", "Message": "Menu updated."})
 
 
+@app.route("/error_logs/<string:password>", methods=["GET"])
+def error_logs(password):
+    if password != settings.get("BETA_KEY"):
+        return jsonify({"error": "Access denied."})
+    error_logs = Controllers.get_error_logs_list()
+    if error_logs is None:
+        return jsonify({"error": "Something went wrong."})
+    return jsonify(error_logs)
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -984,15 +995,6 @@ def privacy_policy():
 @app.route('/terms_and_conditions', methods=["GET"])
 def terms_and_conditions():
     return render_template('terms_and_conditions.html')
-
-
-def remove_bad_orders(mydb, all_orders):
-    collection = mydb[settings.get("ORDERS_DB")]
-    for order in all_orders:
-        try:
-            order.get("price").get("total")
-        except:
-            collection.delete_one({"_id": order.get("_id")})
 
 
 if __name__ == '__main__':

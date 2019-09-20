@@ -92,9 +92,9 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id %} {% if admin %}
+            {% if session.user_id or session.user_id >= 0 %} {% if admin == True
+            %}
             <ul id="nav-list" class="nav navbar-nav menu">
-              {#<!-- <li><a href="#" class="titles main-nav-item">Past Orders</a></li> -->#}
               <li>
                 <a
                   href="{{ url_for('scheduled_orders') }}"
@@ -132,7 +132,6 @@
                   >New Reservation</a
                 >
               </li>
-              {#<!-- <li><a class="titles main-nav-item" href="#">Gallery</a></li> -->#}
               <li>
                 <a
                   class="titles main-nav-item"
@@ -148,11 +147,6 @@
                   >Manage Account<span class="caret"></span
                 ></a>
                 <ul class="dropdown-menu">
-                  {#<!-- <li>
-                    <a class="titles main-nav-item" href="#"
-                      >Incomplete Orders</a
-                    >
-                  </li> -->#}
                   <li>
                     <a
                       class="titles main-nav-item"
@@ -171,9 +165,7 @@
               </li>
             </ul>
 
-            {% endif %} {% else %}<script type="text/javascript">
-              sessionStorage.removeItem("logged_in");
-            </script>
+            {% endif %} {% else %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a
