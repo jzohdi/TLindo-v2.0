@@ -92,8 +92,7 @@
             >
           </div>
           <div class="collapse navbar-collapse" id="navbar">
-            {% if session.user_id or session.user_id >= 0 %} {% if admin == True
-            %}
+            {% if session.user_id %} {% if admin == True %}
             <ul id="nav-list" class="nav navbar-nav menu">
               <li>
                 <a

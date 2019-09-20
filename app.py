@@ -56,7 +56,9 @@ Sheets_Service = GSpread(**GSpread_dependencies)
 settings['SECRET_KEY'] = os.environ.get('SECRET_KEY', Controllers.get_salt(25))
 
 app = Flask(__name__)
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 app.static_path = STATIC_ROOT
@@ -771,7 +773,10 @@ def login():
             return render_template('login.html',
                                    error="Invalid username or email/password.")
 
-        session["user_id"] = verify_user.get("return_value")
+        user_id = verify_user.get("return_value")
+        if user_id == 0:
+            user_id = 'admin'
+        session["user_id"] = user_id
         session["user_name"] = username
         if username == 'admin':
             session['admin'] = True
@@ -827,7 +832,10 @@ def register():
                                    error=registered_user.get('error'))
         # send thank you for sign up email
         Email_Service.thank_for_sign_up(email, username)
-        session["user_id"] = registered_user.get("_id")
+        user_id = registered_user.get("_id")
+        if user_id == 0:
+            user_id = 'admin'
+        session["user_id"] = user_id
         session["user_name"] = registered_user.get("username")
 
         if registered_user.get("username") == 'admin':
@@ -939,7 +947,8 @@ def get_prices():
 def get_menu():
 
     menu = Controllers.connect_to_db(Controllers.get_menu_items)
-    if menu.get("status") and menu.get('return_value'):
+
+    if menu.get("status") and (menu.get('return_value') or menu.get('return_value') == []):
         return jsonify({'Status': "Success", 'Menu': menu.get('return_value')})
     return jsonify({"Status": "Failed"})
 

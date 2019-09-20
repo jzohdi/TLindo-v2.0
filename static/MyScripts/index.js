@@ -255,9 +255,7 @@ function FoodCounter(cart, app) {
       key = key.toLowerCase();
       // string += "-" + itemObject[key];
       if (key === "flavor" || key === "protein") {
-        string += `<div><span class='order-keys'>PROTEIN:</span> ${
-          itemObject[key]
-        }</div>`;
+        string += `<div><span class='order-keys'>PROTEIN:</span> ${itemObject[key]}</div>`;
       } else {
         string += `<div><span class='order-keys'>${key.toUpperCase()}:</span> ${
           itemObject[key]
@@ -276,11 +274,7 @@ function FoodCounter(cart, app) {
     )
       .replace("countPlaceholder", itemObject.count)
       .replace("idPlaceholder", idForShowRow + "-description");
-    newDiv += `<td onclick='showDescription("${idForShowRow}-description")' class='title-cart'>${
-      itemObject.name
-    } ${
-      itemObject.size
-    }</td><td onclick='showDescription("${idForShowRow}-description")'class='title-cart'><span id="${idForShowRow}-description-glyph" class="glyphicon glyphicon-chevron-down spacing"></span></td></tr>`;
+    newDiv += `<td onclick='showDescription("${idForShowRow}-description")' class='title-cart'>${itemObject.name} ${itemObject.size}</td><td onclick='showDescription("${idForShowRow}-description")'class='title-cart'><span id="${idForShowRow}-description-glyph" class="glyphicon glyphicon-chevron-down spacing"></span></td></tr>`;
     const copyObject = deepCopy(itemObject);
     delete copyObject["name"];
     delete copyObject["size"];
@@ -390,6 +384,7 @@ function FoodCounter(cart, app) {
 
 function App(cart, menu) {
   this.menu = {};
+
   for (const menuItem of menu) {
     this.menu[menuItem.name] = new MenuItem(menuItem);
   }
