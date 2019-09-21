@@ -53,14 +53,14 @@ class App_Actions:
 
         except Exception as err:
             print(self.traceback.print_exc())
-            self.log_error(str(err))
+            self.log_error(str(err), self.traceback.format_exc())
             return_value['error'] = str(err)
         finally:
             if client:
                 client.close()
             return return_value
 
-    def log_error(self, error):
+    def log_error(self, error, traceback=None):
         client = None
         try:
             client = self.connect_db()
@@ -68,7 +68,11 @@ class App_Actions:
             mydb = client[database]
             error_collection = mydb[self.environ.get("ERROR_DB")]
             error_collection.insert_one(
-                {'error': str(error), 'date/time': self.get_date_time()})
+                {
+                    'error': str(error),
+                    'date/time': self.get_date_time(),
+                    "traceback": traceback
+                })
         finally:
             if client:
                 client.close()
@@ -600,5 +604,5 @@ class App_Actions:
 
     def get_error_logs(self, mydb):
         collection = mydb[self.environ.get("ERROR_DB")]
-        results = collection.find()
+        results = collection.find({}, {"_id": 0})
         return list(results)

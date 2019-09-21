@@ -769,7 +769,8 @@ def login():
         kwargs = {'username_or_email': username, 'password': provided_pass}
         verify_user = Controllers.connect_to_db(Controllers.login_user, kwargs)
 
-        if not verify_user.get("status") or not verify_user.get("return_value"):
+        if not verify_user.get("status") or (
+                not verify_user.get("return_value") and verify_user.get('return_value') != 0):
             return render_template('login.html',
                                    error="Invalid username or email/password.")
 
@@ -973,6 +974,7 @@ def error_logs(password):
     if password != settings.get("BETA_KEY"):
         return jsonify({"error": "Access denied."})
     error_logs = Controllers.get_error_logs_list()
+
     if error_logs is None:
         return jsonify({"error": "Something went wrong."})
     return jsonify(error_logs)
