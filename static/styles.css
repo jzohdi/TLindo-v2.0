@@ -267,8 +267,9 @@ footer {
   transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
 }
 #amount-help {
-  float: right;
-  padding: 3px;
+  margin-bottom: -24px;
+  margin-top: 36px;
+  padding: 10px;
   border: 2px solid;
 }
 .focused-button {
