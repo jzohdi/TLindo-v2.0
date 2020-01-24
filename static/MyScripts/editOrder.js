@@ -1,3 +1,36 @@
+const MODAL_DIV =
+  '<div id="myModal" class="modal lindo-purple"><div class="modal-content main-card">' +
+  '<span class="close">X</span>' +
+  "contentPlaceHolder" +
+  "</div></div>";
+
+const createModal = (someIdOnPage, content) => {
+  const modalContent = MODAL_DIV.replace("contentPlaceHolder", content);
+  $(someIdOnPage).html(modalContent);
+
+  const modal = document.getElementById("myModal");
+  // const openButton = document.getElementById(triggerId);
+  const span = document.getElementsByClassName("close")[0];
+  const done = document.getElementById("done-selection");
+
+  modal.style.display = "block";
+
+  span.onclick = function() {
+    modal.style.display = "none";
+    $(someIdOnPage).empty();
+  };
+  if (done != undefined) {
+    done.onclick = () => {
+      span.click();
+    };
+  }
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      span.click();
+    }
+  };
+};
+
 const LOADING_HTML = `<div class="lds-ellipsis placeholder"><div></div><div></div><div></div><div></div></div>`;
 // const ITEM_HTML_FOR_LIST =
 //   '<div class="col-xs-12 col-sm-10 col-sm-offset-1"><span class="span increase"  id="appendValuePlaceholder"> ' +
@@ -143,8 +176,16 @@ function FoodCounter(cart, app, pricesDict) {
   this.getListFromItem = function(itemObject) {
     let string = "";
     const keys = Object.keys(itemObject);
-    for (const key of keys) {
-      string += "-" + itemObject[key];
+    for (var key of keys) {
+      key = key.toLowerCase();
+      // string += "-" + itemObject[key];
+      if (key === "flavor" || key === "protein") {
+        string += `<div><span class='lindo-red'>PROTEIN:</span> ${itemObject[key]}</div>`;
+      } else {
+        string += `<div><span class='lindo-red'>${key.toUpperCase()}:</span> ${
+          itemObject[key]
+        }</div>`;
+      }
     }
     return string;
   };
@@ -155,15 +196,18 @@ function FoodCounter(cart, app, pricesDict) {
       /appendValuePlaceholder/g,
       appendValueParams
     ).replace("countPlaceholder", itemObject.count);
-    newDiv += `<td>${itemObject.name} ${itemObject.size}</td>`;
-    newDiv += "<td class='price-column'>$ " + itemPrice + "</td></tr>";
+    newDiv += "<td>".concat(itemObject.name, "</td>");
+    newDiv += "<td class='price-column'>$ ".concat(itemPrice, "</td></tr>");
+
     const copyObject = JSON.parse(JSON.stringify(itemObject));
+
     delete copyObject["name"];
-    delete copyObject["size"];
     delete copyObject["count"];
-    newDiv += `<tr><td></td><td class="cart-item-description">${this.getListFromItem(
-      copyObject
-    )}</td><td></td></tr>`;
+
+    newDiv += "<tr><td></td><td class='cart-item-description'>".concat(
+      this.getListFromItem(copyObject),
+      "</td><td></td></tr>"
+    );
     return newDiv;
   };
 

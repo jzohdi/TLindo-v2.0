@@ -10,18 +10,21 @@ block head %}
     <div
       id="button2"
       style="-webkit-animation-duration: 1s; animation-duration: 1s;"
-      class="col-xs-6 col-xs-offset-2 fade-in-left"
+      class="fade-in-left"
     >
       <button
         id='back-to-menu'
-        class="button button1">
+        class="button button1 back-to-menu-button">
         <span id="back-arrow" class="glyphicon glyphicon-menu-left"></span> Back
         To Menu
       </button>
+      <button id="share-cart-button" class="button button1 ">
+        Share Cart
+      </button>
     </div>
   </div>
-  <div id='order-summary' class="row">
-    <div class="col-sm-10 sm-offset-1 main-card question-titles">
+  <div id='order-summary' style="font-size: 16px;" class="row">
+    <div class="col-sm-10 sm-offset-1 main-card lindo-purple">
       <h4 class="confirm-cart-titles">Order Summary:</h4>
       <div class="row" style="margin-left: 20px; margin-bottom: 30px;">
         Date:   <input
@@ -74,10 +77,6 @@ block head %}
             >Please Register or Log In to Continue
           </span>
         </h4>
-        <!-- <div
-          style="margin-bottom:30px;"
-          class=" col-sm-offset-2 col-xs-8 col-xs-custom-offset-2 col-md-6"
-        > -->
         <div id='login-form' class="col-xs-12 col-md-6 confirm-cart-form hidden">
           <fieldset>
             <div style='color:#de4621;' id="login_error"></div>
@@ -197,7 +196,6 @@ block head %}
           <div class="form-group">
             <input
               autocomplete="off"
-              autofocus
               class="form-control required"
               name="orderName"
               placeholder="Full Name"
@@ -253,9 +251,22 @@ block head %}
                 required
               />
             </div>
+            <p style="font-weight: bold;">* Delivery only available for zipcodes: 08085, 08014, 08067 *</p>
         </fieldset>
       </div>
     </div>
+  </div>
+  <div class="row">
+      <div id='delivery-section'class="col-sm-10 sm-offset-1 main-card hidden">
+        <h4><span class="confirm-cart-titles">Delivery </span>Fee: $<span id="delivery-fee"></span></h4><label style="margin-top: 15px;"class="check-container"> Yes
+            <input type="radio" name='delivery' value="yes">
+            <span class="check"></span>
+        </label>
+        <label class="check-container"> No
+            <input type="radio" name='delivery' checked="checked" value="no">
+            <span class="check"></span>
+        </label>
+      </div>
   </div>
   <div class="row">
     <div class="col-sm-10 sm-offset-1 main-card">
@@ -287,6 +298,7 @@ block head %}
               </div>
             </div>
           </fieldset>
+          <div style="font-size: 20px; padding: 4px; color: white; background-color:#0d034c;">Total: $<span id="charge-total"></span></div>
           <form id="payment-form">
           <div class="form-row">
             <label for="card-element">
@@ -351,5 +363,68 @@ block head %}
       transform: rotate(360deg);
     }
   }
+  /* The container */
+.check-container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.check-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.check {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.check-container:hover input ~ .check {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.check-container input:checked ~ .check {
+  background-color: #0d034c;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.check:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.check-container input:checked ~ .check:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.check-container .check:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
 </style>
 {% endblock %}

@@ -1,4 +1,7 @@
 .env.ini
+.idea
+.vscode/
+__pycache__/
 myenv/
 flask_session/
 venv/

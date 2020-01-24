@@ -18,7 +18,7 @@ head %}
     </div>
   </div>
   <div id="future-orders" class="row">
-    <div class="col-md-10 col-md-offset-1 main-card question-titles">
+    <div class="col-md-10 col-md-offset-1 main-card lindo-purple">
       <p>
         *Orders may be changed up to 24 hours before the reservation date. *
       </p>
@@ -48,7 +48,7 @@ head %}
           class="row each-order-style order-section"
         >
           <div class="col-md-10 col-md-offset-1">
-            <h4 class="order-keys">
+            <h4 class="lindo-red">
               Contact:
               <!-- prettier-ignore -->
               <div
@@ -61,7 +61,7 @@ head %}
             </h4>
             {% for key, value in each_order.items() %} {% if key == 'order' %}
             <div class="order-items-section col-xs-12">
-              <h4 class="order-keys">Order:</h4>
+              <h4 class="lindo-red">Order:</h4>
               {% if each_order['editable'] %}
               <div
                 id="{{ each_order['_id'] }}"
@@ -76,10 +76,9 @@ head %}
                 <p>
                   {{ loop.index }}. {% for order_item_key, order_item_value in
                   order_item.items() %} {% if order_item_key == 'count' %}
-                  <strong>Quantity: </strong>{{ order_item_value }}
-                  {% elif order_item_key == 'cost' %}
-                  <strong>Price: </strong>${{ order_item_value }}
-                  {% else %}
+                  <strong>Quantity: </strong>{{ order_item_value }} {% elif
+                  order_item_key == 'cost' %} <strong>Price: </strong>${{
+                  order_item_value }} {% else %}
                   <strong>{{ order_item_key }}: </strong> {{ order_item_value }}
                   {% endif %} {% endfor %}
                 </p>
@@ -87,24 +86,36 @@ head %}
               </div>
             </div>
             {% elif key == '_id' %}
-            <div class="col-sm-3">
-              <span style="text-transform: uppercase;" class="order-keys"
+            <div class="col-sm-xs-12">
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >Confirmation Code: </span
               ><span id="{{ each_order['_id'] }}{{ key }}"> {{ value }}</span>
             </div>
-            {% elif key == 'price' %}
-            <span style="text-transform: uppercase;" class="order-keys"
-              >{{ key }}: </span
-            >{% for inner_key, inner_value in each_order[key].items() %}
-            <strong>{{ inner_key }}:</strong> {{ inner_value }}
-            {% endfor %} {% elif key != 'editable' %}
-
-            <div class="col-sm-3">
-              <span style="text-transform: uppercase;" class="order-keys"
+            {%elif key != 'editable' and key != 'price' and key != 'paid' %}
+            <div class="col-xs-12">
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}: </span
               ><span id="{{ each_order['_id'] }}{{ key }}"> {{ value }}</span>
             </div>
-            {% endif %}{% endfor %}
+            {% endif %} {% endfor %}
+            <span style="text-transform: uppercase;" class="lindo-red"
+              >Price:
+            </span>
+            {% for inner_key, inner_value in each_order["price"].items() %}
+            <div>
+              <strong style="text-transform: capitalize;"
+                >{{ inner_key }}:</strong
+              >
+              ${{ inner_value }} {% if inner_key == "total" and
+              each_order.delivery == "yes"%}<strong
+                >(including delivery fee)</strong
+              >{% endif %}
+            </div>
+            {% endfor %}
+            <div>
+              <strong style="text-transform: capitalize;">Paid:</strong>
+              {{ each_order["paid"] }}
+            </div>
           </div>
         </div>
         {% endfor %}
@@ -112,7 +123,7 @@ head %}
     </div>
   </div>
   <div id="past-orders" class="row hidden">
-    <div class="col-md-10 col-md-offset-1 main-card question-titles">
+    <div class="col-md-10 col-md-offset-1 main-card lindo-purple">
       <h2 style="text-align:center;" class="confirm-cart-titles">
         Past Orders
       </h2>
@@ -128,19 +139,18 @@ head %}
           class="row each-order-style order-section"
         >
           <div class="col-md-10 col-md-offset-1">
-            <h4 class="order-keys">Contact:</h4>
+            <h4 class="lindo-red">Contact:</h4>
             {% for key, value in each_order.items() %} {% if key == 'order' %}
             <div class="order-items-section col-xs-12">
-              <h4 class="order-keys">Order:</h4>
+              <h4 class="lindo-red">Order:</h4>
               <div>
                 {% for order_item in value %}
                 <p>
                   {{ loop.index }}. {% for order_item_key, order_item_value in
                   order_item.items() %} {% if order_item_key == 'count' %}
-                  <strong>Quantity: </strong>{{ order_item_value }}
-                  {% elif order_item_key == 'cost' %}
-                  <strong>Price: </strong>${{ order_item_value }}
-                  {% else %}
+                  <strong>Quantity: </strong>{{ order_item_value }} {% elif
+                  order_item_key == 'cost' %} <strong>Price: </strong>${{
+                  order_item_value }} {% else %}
                   <strong>{{ order_item_key }}: </strong> {{ order_item_value }}
                   {% endif %} {% endfor %}
                 </p>
@@ -149,20 +159,21 @@ head %}
             </div>
             {% elif key == 'comments' %}
             <div class="col-xs-12">
-              <span style="text-transform: uppercase;" class="order-keys"
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               {{ value }}
             </div>
             {% elif key == 'price' %}
-            <span style="text-transform: uppercase;" class="order-keys"
+            <span style="text-transform: uppercase;" class="lindo-red"
               >{{ key }}:
             </span>
             {% for inner_key, inner_value in each_order[key].items() %}
-            <strong>{{ inner_key }}:</strong> {{ inner_value }}
-            {% endfor %} {% else %}
-            <div class="col-sm-3">
-              <span style="text-transform: uppercase;" class="order-keys"
+            <strong>{{ inner_key }}:</strong> {{ inner_value }} {% if inner_key
+            == "total" and each_order.delivery == "yes" %} * including delivery
+            fee* {% endif %} {% endfor %} {%else %}
+            <div class="col-xs-12">
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               {{ value }}

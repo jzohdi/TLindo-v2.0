@@ -96,7 +96,7 @@ body,
 }
 /* https://autoprefixer.github.io/ ----- auto prefixer to use if problems with brower css */
 /*color for layout background*/
-.feather {
+.site-background {
   /* background-image: -webkit-gradient(
     linear,
     left top,
@@ -121,7 +121,7 @@ body,
   background-color: transparent;
   padding-top: 20px;
 } */
-.question-titles {
+.lindo-purple {
   /*font-family: LTPro, Arial, Helvetica, sans-serif;*/
   color: #0d034c;
 }
@@ -210,7 +210,7 @@ main,
 .forgot-password-link:hover {
   color: #fbbb13;
 }
-.pass-box {
+.lindo-purple {
   color: #0d034c;
 }
 footer {
@@ -769,18 +769,15 @@ START OF MENU SELECTION FOR USER
   cursor: pointer;
   border-radius: 30%;
   padding: 8px;
+  border: 2px solid white;
 }
 #cart-click:hover {
-  background-color: #0d034c;
-  color: white;
+  border: 2px solid #0d034c !important;
 }
 .cart-header {
   text-align: left;
-  /* position: unset; */
   margin-top: 24px;
   padding-left: 15px;
-  /* transform: translateY(0px); */
-  /* padding-top: 15px; */
   padding-right: 115px;
 }
 .main-menu-headers {
@@ -1025,7 +1022,7 @@ hr {
     margin-left: 25%;
   }
 }
-.order-keys {
+.lindo-red {
   color: #de4621;
 }
 .responsive-header {

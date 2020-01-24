@@ -243,7 +243,7 @@ function FoodCounter(cart, app) {
     //   if (key === "cost") {
     //     newDiv += "<small class=\"my-cart-key\" >".concat(itemObject[key], "\"</small>,");
     //   } else if (key != "count") {
-    //     newDiv += "<span class=\"my-cart-key\"> ".concat(itemObject[key], "</span><strong class=\"order-keys\"> | </strong>");
+    //     newDiv += "<span class=\"my-cart-key\"> ".concat(itemObject[key], "</span><strong class=\"lindo-red\"> | </strong>");
     //   }
     // }
 

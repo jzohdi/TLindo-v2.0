@@ -192,7 +192,7 @@ var savePageLayout = function savePageLayout(page, divIdArray) {
 
 /***********************************************************************************
 ******************************************************************************************************************/
-var HELPER_SCREEN_DIV = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen question-titles">' + "helpPlaceHolder" + "<div class='row normalize-height'><div class='col-md-4'><h3 class='main-menu-headers' >" + "Entree Options</h3><div id='food-options' class='row'></div></div>" + "<div id='selected-food' class='col-md-8'><h3 class='main-menu-headers' >Selected Items</h3>" + "<div id='cardIdPlaceHolder' class='row'></div></div></div><div id='checkoutButton' onclick='proceedToCheckout(\"cardIdPlaceHolder\")'" + " class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
+var HELPER_SCREEN_DIV = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-left helper-screen lindo-purple">' + "helpPlaceHolder" + "<div class='row normalize-height'><div class='col-md-4'><h3 class='main-menu-headers' >" + "Entree Options</h3><div id='food-options' class='row'></div></div>" + "<div id='selected-food' class='col-md-8'><h3 class='main-menu-headers' >Selected Items</h3>" + "<div id='cardIdPlaceHolder' class='row'></div></div></div><div id='checkoutButton' onclick='proceedToCheckout(\"cardIdPlaceHolder\")'" + " class='button button1 checkout-button col-xs-5 col-sm-3'>Checkout</div></div>";
 
 var ITEM_NAME_BUTTON = '<div id="indexPlaceholder" class="entree-options">' + '<div class="entree-item col-xs-12 col-sm-6 col-md-12 xClass" onclick="showSelection(\'indexPlaceholder\')">itemName</div></div>';
 
@@ -379,9 +379,9 @@ function changeEventHandler(event) {
 // this function is called by the button an adds css stlying to give the animation
 // effect on hovering over the next button
 // col-md-offset-3
-var page1_A = '<div id="card1" class="col-md-12 main-card fade-in-right">' + '<h4 class="question-titles">Thanks for choosing Taco Lindo!</h4>' + '<h4 class="question-titles">Lets plan your event!</h4></div>';
-var page1_B = '<div id="card2" class="question-titles col-md-12 main-card fade-in-left">' + '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' + '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>';
-var page1_C = '<div id="card3" class="col-md-12 main-card fade-in-right">' + '<h4 class="question-titles"> If planning an event for less than <span id="min1"></span> people or' + '</h4> <h4 class="question-titles"> If your date is unavailable, give us a call: </h4>' + '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
+var page1_A = '<div id="card1" class="col-md-12 main-card fade-in-right">' + '<h4 class="lindo-purple">Thanks for choosing Taco Lindo!</h4>' + '<h4 class="lindo-purple">Lets plan your event!</h4></div>';
+var page1_B = '<div id="card2" class="lindo-purple col-md-12 main-card fade-in-left">' + '<h4>What day will your event be?</h4> <div id="date-form" class="form-group">' + '<input class="form-control" type="text" name="date" placeholder="None" id="datepicker" /> </div></div>';
+var page1_C = '<div id="card3" class="col-md-12 main-card fade-in-right">' + '<h4 class="lindo-purple"> If planning an event for less than <span id="min1"></span> people or' + '</h4> <h4 class="lindo-purple"> If your date is unavailable, give us a call: </h4>' + '<a class="lindo-purple" href="tel:+1-856-214-3413">(856)-214-3413</a></div>';
 var page1_D = '<div id="goNext" class="col-md-6 col-md-offset-3 fade-in-right">' + '<button onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" ' + 'class="button button1">Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
 
 var page1ToInsertIds = ['#top-message', '#event-planner', '#need-phone', '#next-button'];
@@ -457,18 +457,18 @@ if (!sessionStorage.getItem("backFromCart")) {
 }
 
 var buildHelpTop = function buildHelpTop() {
-  var outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right question-titles">';
+  var outer_div = '<div id="card2" class="col-md-8 col-md-offset-2 main-card fade-in-right lindo-purple">';
   var top_header_A = "<h4> Not sure what's going to be the perfect amount to order for your event?</h4><h4> We'd love to help!</h4>";
   var top_header_B = "<h4>Based on the number of people, we can recommend how much food to get for your gathering.</h4>";
-  var top_header_C = "<h4>To continue to the menu with help on your order size, click <span class='order-keys'>'With amount help'.</span><br/> Otherwise, click 'Without help'.</h4>";
+  var top_header_C = "<h4>To continue to the menu with help on your order size, click <span class='lindo-red'>'With amount help'.</span><br/> Otherwise, click 'Without help'.</h4>";
   var close_div = "</div>";
   return outer_div + top_header_A + top_header_B + top_header_C + close_div;
 };
 var chooseIfHelpDiv = function chooseIfHelpDiv() {
   var outer_leftDiv = '<div id="card3" class="choose-help-box card-margin1 col-md-4 col-md-offset-2 main-card fade-in-left">';
-  var left_side = '<h4 class="question-titles"> Without help</h4>' + "</div>";
+  var left_side = '<h4 class="lindo-purple"> Without help</h4>' + "</div>";
   var outer_rightDiv = '<div id="card4" class="choose-help-box card-margin2 col-md-4 main-card fade-in-right">';
-  var right_side = '<h4 class="question-titles">With amount help</h4>' + "</div>";
+  var right_side = '<h4 class="lindo-purple">With amount help</h4>' + "</div>";
   return outer_leftDiv + left_side + outer_rightDiv + right_side;
 };
 var ASK_IF_HELP_TOP = buildHelpTop();
@@ -484,9 +484,9 @@ var page3ToFade = ["#card2", "#card3", "#card4", "#goBack"];
 var page3NotFade = [];
 var page3 = new Page(page3Ids, page3Divs, page3ToFade, page3NotFade);
 
-var NOT_ENOUGH_PEOPLE_ERROR = '<div id="card3" class="col-md-12 main-card fade-in-right"> <h4 class="question-titles">' + "The minimum number of people to reserve a catering event is " + "minsizePlaceHolder" + ", <br>" + "but let's see if we can help out. Give us a call </h4>" + '<a class="question-titles" href="tel:+1-856-214-3413">(856)-214-3413</a> </div>';
+var NOT_ENOUGH_PEOPLE_ERROR = '<div id="card3" class="col-md-12 main-card fade-in-right"> <h4 class="lindo-purple">' + "The minimum number of people to reserve a catering event is " + "minsizePlaceHolder" + ", <br>" + "but let's see if we can help out. Give us a call </h4>" + '<a class="lindo-purple" href="tel:+1-856-214-3413">(856)-214-3413</a> </div>';
 
-var HOW_MANY_PEOPLE_DIV = '<div id="card2" class="col-md-12 main-card fade-in-left">' + ' <h4 class="question-titles">How many people will be at your event?</h4>' + '<div class="form-group">' + '<h5 class="question-titles">Adults: <input name="adults" class="form-control" /></h5>' + "</div>" + '<div class="form-group">' + '<h5 class="question-titles">' + '&nbsp;&nbsp;&nbsp;&nbsp;Kids: <input name="kids" class="form-control" />' + "</h5>" + "</div>" + "</div>";
+var HOW_MANY_PEOPLE_DIV = '<div id="card2" class="col-md-12 main-card fade-in-left">' + ' <h4 class="lindo-purple">How many people will be at your event?</h4>' + '<div class="form-group">' + '<h5 class="lindo-purple">Adults: <input name="adults" class="form-control" /></h5>' + "</div>" + '<div class="form-group">' + '<h5 class="lindo-purple">' + '&nbsp;&nbsp;&nbsp;&nbsp;Kids: <input name="kids" class="form-control" />' + "</h5>" + "</div>" + "</div>";
 
 var NEXT_BUTTON = '<div id="button1" style="-webkit-animation-duration: ' + MAIN_TIMING + 's; animation-duration: ' + MAIN_TIMING + 's;" class="col-xs-6 fade-in-right">' + '<button id="goNext" onmouseout="arrowMoveBack(\'#next-arrow\')" onmouseover="arrowMove(\'#next-arrow\')" class="button button1">' + 'Next <span id="next-arrow" class="glyphicon glyphicon-menu-right"></span></button></div>';
 
@@ -562,14 +562,14 @@ var saveNumberOfPeople = function saveNumberOfPeople(saveVariable, inputForAdult
    window.selectedFoodOptions will keep track of the items chosen
 
 */
-var MODAL_DIV = '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' + '<span class="close">X</span>' + "contentPlaceHolder" + "</div></div>";
+var MODAL_DIV = '<div id="myModal" class="modal lindo-purple"><div class="modal-content main-card">' + '<span class="close">X</span>' + "contentPlaceHolder" + "</div></div>";
 var MAIN_MODAL_CONTENT = "<h4> ItemNamePlaceholder: </h4>" + "<h4> HeaderPlaceholder </h4>" + "<div class='selection row'> SelectionPlaceholder <div onclick='getWantedItem(getWantedParams)'" + "class='row add-select'>Add to cart</div></div>" + '<div class="row modal-add-to-order">namePlaceholder\'s in your cart: </div><div id="idPlaceholder"' + ' class="row"></div><div class="button button1" id="done-selection">Done</div>';
 
 var ADD_MORE_MESSAGE = '<span class="tooltiptext">' + "Based on your number of people, we recommend the current cart limit. <br/> " + "But you can click here to increase the size of your cart!" + "</span></div>";
 
-var AT_ORDER_LIMIT_DIV = '<div id="limit-message" style="margin-right: 0px;" class="row order-keys">' + 'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' + ADD_MORE_MESSAGE + "</div>";
+var AT_ORDER_LIMIT_DIV = '<div id="limit-message" style="margin-right: 0px;" class="row lindo-red">' + 'Currently at order limit <div onclick="allowMore()"class="button button1 want-more-button">Want to add to order?' + ADD_MORE_MESSAGE + "</div>";
 
-var AT_FLAVOR_LIMIT_DIV = '<div style="margin-right: 0px;"  class="row order-keys"> Already at Max unique flavors for item</div>';
+var AT_FLAVOR_LIMIT_DIV = '<div style="margin-right: 0px;"  class="row lindo-red"> Already at Max unique flavors for item</div>';
 
 function startSelectionScreen() {
   var max_Items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 40;
@@ -831,7 +831,7 @@ var getSelectionDivsForSide = function getSelectionDivsForSide(sideDictionary) {
   return divString;
 };
 
-var PICK_NUMBER_MORE_ITEMS = '<div style="margin-right: 0px;" class="row order-keys">( Select numberPlaceholder more items )</div>';
+var PICK_NUMBER_MORE_ITEMS = '<div style="margin-right: 0px;" class="row lindo-red">( Select numberPlaceholder more items )</div>';
 
 var pickNumberOfItemsMessage = function pickNumberOfItemsMessage() {
   if (selectedFoodOptions.help) {

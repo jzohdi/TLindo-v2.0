@@ -34,13 +34,18 @@ head %}
       </h3>
       <div id="my-cart" class="row"></div>
       <div class="row" style="margin-left: 20px;">
-        <div class="total-style">Base: $<span id="cart-base"></span></div>
-        <div class="total-style">Tax: $<span id="cart-tax"></span></div>
         <div class="total-style">
-          New Total: <strong>$<span id="cart-total"></span></strong>
+          <strong>Base:</strong> $<span id="cart-base"></span>
         </div>
         <div class="total-style">
-          <p>Already Paid: {{ order.paid.total }}</p>
+          <strong>Tax:</strong> $<span id="cart-tax"></span>
+        </div>
+        <div class="total-style">
+          <strong>New Total:</strong> $<span id="cart-total"></span> {% if
+          order.delivery == "yes" %}(including delivery fee){% endif %}
+        </div>
+        <div class="total-style">
+          <p><strong>Already Paid:</strong> {{ order.paid }}</p>
         </div>
         <div
           id="checkoutButton"

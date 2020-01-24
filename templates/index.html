@@ -6,40 +6,36 @@ head %}
 {% endblock %} {% block main %}
 <div id="modalHolder"></div>
 <div id="main-planner-page" class="container">
-  <div id="top-message" class="row ">
-    <div id="card1" class="col-md-10 col-md-offset-1 main-card fade-in-right">
-      <h3>Thanks for choosing Taco Lindo!</h3>
-      <h3>Lets plan your event!</h3>
-    </div>
-  </div>
-  <div id="event-planner" class="row ">
+  <div id="event-planner" class="row">
     <div id="card2" class="col-md-10 col-md-offset-1 main-card fade-in-left">
       <h3 class="step-style">Step 1:</h3>
-      <h4>What day will your event be?</h4>
-      <div id="date-form" class="form-group">
-        <input
-          class="form-control"
-          type="text"
-          name="date"
-          placeholder="None"
-          id="datepicker"
-        />
+      <div class="row" style="margin-bottom: 30px;">
+        <div class='col-sm-6'>
+      <h4>What day will your event be? <br>If your date is unavailable or less than 24 hours in advance, give us a
+        call: <a style="color:#0d034c;" href="tel:+1-856-214-3413"><nobr>(856)-214-3413</nobr></a></h4>
       </div>
-      <h4 class="order-keys">
-        If your date is unavailable or less than 24 hours in advance, give us a
-        call:
-      </h4>
-      <a style="color:#0d034c;" href="tel:+1-856-214-3413">(856)-214-3413</a>
+      <div class="col-sm-6">
+        <div id="date-form" class="form-group">
+          <input
+            style="width: 100%; margin-top:20px;"
+            class="form-control"
+            type="text"
+            name="date"
+            placeholder="None"
+            id="datepicker"
+          />
+        </div>
+      </div>
+      </div>  
     </div>
   </div>
   <div id="select-menu" class="row ">
     <div id="card2" class="col-md-10 col-md-offset-1 main-card fade-in-left">
       <div id="card9" class="col-xs-12 fade-in-right ">
-        <h3 style="margin-top: -15px; margin-left: -20px;" class="step-style">Step 2:</h3>
+        <h3 style="margin-left: -15px;" class="step-style">Step 2:</h3>
         <div class="col-sm-6">
-          <h4>
-            <span class="order-keys">Not sure how much to order?</span>
-            Enter the number of people, then click Amount Help button below to
+          <h4>Not sure how much to order? <br/><br/>Enter the number of people, 
+            then the click "<span style="font-weight: bold;">Amount Help</span>" button below to
             display helper messages on the menu.
           </h4>
         </div>
@@ -60,10 +56,11 @@ head %}
         <div class="row">
           <button
             id="amount-help"
-            class="button button1 fade-in-right col-xs-12 col-md-8 col-md-offset-2"
+            class="button button1 fade-in-right amount-help-button"
           >
             Amount Help
           </button>
+          <div id="amount-help-anchor"></div>
         </div>
       </div>
     </div>
@@ -103,7 +100,7 @@ head %}
     </div>
   <div id="cart-card" class="row">
     <div class="col-md-10 col-md-offset-1 main-card fade-in-right">
-      <h3 id="cart-click" class="main-menu-headers cart-header button button1">
+      <h3 id="cart-click" class="main-menu-headers cart-header">
         Cart
         <span
           id="cart-icon-style"
@@ -116,11 +113,18 @@ head %}
         <div id="my-cart" class="row hidden"></div>
       </div>
       <div
-        id="checkoutButton"
+        id="checkout-button"
         class="button button1 checkout-button col-xs-5 col-sm-3"
       >
         Checkout
       </div>
+      <div
+      id="share-cart-button"
+      class="button button1 checkout-button col-xs-offset-2 col-sm-offset-6 col-xs-5 col-sm-3"
+    >
+      Share Cart
+    </div>
+    <textarea class="hidden" id="hidden-clipboard"></textarea>
     </div>
   </div>
   <div id="help-or-no" class="row "></div>
@@ -134,6 +138,7 @@ head %}
     href="{{ url_for('static', filename='libraries/defaultcompressed.css') }}"
   />
   <script src="{{ url_for('static', filename='MyScripts/index.js')}}"></script>
+  <style id='cart-bar-style'></style>
   <style id="custom-styles">
     .glyphicon-chevron-down {
       transition: transform 0.2s;

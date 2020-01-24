@@ -7,17 +7,21 @@ head %}
 {% endblock %} {% block main %}
 <div class="container-fluid">
   <div class="row">
-    <div class="col-lg-10 col-lg-offset-1 main-card question-titles">
-      <h4 class="order-keys">Change Password:</h4>
+    <div class="col-lg-10 col-lg-offset-1 main-card lindo-purple">
+      <h4 class="lindo-red">Change Password:</h4>
       <p>
         *passwords must contain:<br />
         at least 8 characters, one lowercase, one capital, and one number*
       </p>
-      <p id="new_pass_error" class="question-titles">{{ error }}</p>
+      <p id="new_pass_error" class="alert-danger">{{ error }}</p>
       <div class="row">
         <div class="col-xs-12">
           <div class="row">
-            <form action="{{ url_for('change_password') }}" method="post">
+            <form
+              id="change-password-form"
+              action="{{ url_for('change_password') }}"
+              method="post"
+            >
               <fieldset>
                 <div class="col-sm-3">
                   <div class="form-group">
@@ -57,14 +61,105 @@ head %}
 
                 <div class="col-xs-12 col-sm-6 col-md-4">
                   <div class="form-group">
-                    <div onclick="checkPassword()" class="button button1">
-                      Change Password
-                    </div>
                     <button
                       id="submit-new-pass"
+                      type="button"
+                      class="button button1 settings-button"
+                      onclick="checkPassword()"
+                    >
+                      Set New Password
+                    </button>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 main-card lindo-purple">
+      <h4 class="lindo-red">Change Email:</h4>
+      <p id="new-email-error" class="alert-danger">{{ email_error }}</p>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="row">
+            <form action="{{ url_for('change_email') }}" method="post">
+              <fieldset>
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <input
+                      style="width:100%"
+                      autocomplete="off"
+                      autofocus
+                      class="form-control"
+                      name="current-email"
+                      placeholder="Current Email"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <div class="form-group">
+                    <input
+                      style="width:100%"
+                      class="form-control"
+                      name="new-email"
+                      placeholder="New Email"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div class="col-xs-12 ">
+                  <div class="form-group">
+                    <button
+                      id="submit-new-email"
                       type="submit"
-                      class="hidden"
-                    ></button>
+                      class="button button1 settings-button"
+                    >
+                      Set New Email
+                    </button>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 main-card lindo-purple">
+      <h4 class="lindo-red">Delete Account:</h4>
+      <p id="new-email-error" class="alert-danger">{{ delete__error }}</p>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="row">
+            <form action="{{ url_for('delete_account') }}" method="post">
+              <fieldset>
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <input
+                      style="width:100%"
+                      autocomplete="off"
+                      autofocus
+                      class="form-control"
+                      name="username-or-email"
+                      placeholder="Enter Username or Email"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div class="col-xs-12 ">
+                  <div class="form-group">
+                    <button
+                      id="delete-account"
+                      type="submit"
+                      class="button button1 settings-button danger-button"
+                    >
+                      Delete Accout
+                    </button>
                   </div>
                 </div>
               </fieldset>
@@ -92,7 +187,9 @@ head %}
       error_message.html("Password must be at least 8 characters long");
       return false;
     } else {
-      $("#submit-new-pass").click();
+      // $("#submit-new-pass").attr("type", "submit");
+      // $("#submit-new-pass").click();
+      $("#change-password-form").submit();
     }
   }
 </script>

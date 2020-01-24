@@ -101,7 +101,8 @@ class App_Actions:
 
         collection = mydb[self.orders_db()]
         for confirmation_code in user_confirmation_codes:
-            order_info = collection.find_one({'_id': confirmation_code})
+            order_info = collection.find_one(
+                {'_id': confirmation_code}, {"datetime": 0})
             if not order_info:
                 raise Exception(("Could not find order information " +
                                  "for confirmation code: {}").format(
@@ -111,7 +112,7 @@ class App_Actions:
 
     def get_user_confirmation_codes(self, mydb, user_id):
         collection = mydb[self.users_db()]
-        result = collection.find_one({"_id": user_id})
+        result = collection.find_one({"_id": user_id}, {"datetime": 0})
         if not result:
             print('No user found with id: {}'.format(user_id))
             return []
@@ -172,6 +173,9 @@ class App_Actions:
     def menu_db(self):
         return self.environ.get("MENU_DB")
 
+    def charges_db(self):
+        return self.environ.get("CHARGES_DB")
+
     def settings_db(self):
         return self.environ.get("SETTINGS_DB")
 
@@ -186,6 +190,25 @@ class App_Actions:
                        .choice(self.string.ascii_lowercase +
                                self.string.ascii_uppercase +
                                self.string.digits) for _ in range(N))
+
+    def get_user_from_id(self, mydb, user_id):
+        collection = mydb[self.users_db()]
+        result = collection.find_one({"_id": user_id})
+        return result
+
+    def delete_user(self, mydb, user_id):
+        collection = mydb[self.users_db()]
+        collection.delete_one({"_id": user_id})
+
+    def set_new_user_email(self, mydb, user_id, new_email):
+        collection = mydb[self.users_db()]
+        find_email = collection.find_one({"email": new_email})
+        if find_email:
+            return "Email already exists under another account."
+        collection.find_one_and_update({'_id': user_id},
+                                       {'$set': {"email": new_email}},
+                                       upsert=False)
+        return "New email set!"
 
     def find_disabled_dates(self, mydb, all):
         return_arr = []
@@ -280,7 +303,7 @@ class App_Actions:
         try:
             key = self.datetime.datetime.strptime(date_string, '%d %B, %Y')
             return key
-        except:
+        except Exception:
             return False
 
     def user_can_edit(self, date_time_obj):
@@ -290,21 +313,28 @@ class App_Actions:
     def change_user_pass(self, mydb, user_id, old_pass, new_pass):
         collection = mydb[self.users_db()]
         find_user = collection.find_one({'_id': user_id})
+
         if not find_user:
-            return False
-        if not self.verify_password(find_user, old_pass):
-            return False
+            raise Exception("User not found id: {} ".format(user_id))
+
         hash_salt = find_user["salt"]
         encrypted = self.pwd_context.hash(new_pass + hash_salt)
 
         collection.find_one_and_update({'_id': user_id},
                                        {'$set': {"password": encrypted}},
                                        upsert=False)
-        return True
+        return find_user
 
     def verify_password(self, user_object, password):
         return self.pwd_context.verify(password + user_object['salt'],
                                        user_object['password'])
+
+    def is_date_available(self, mydb, date):
+        collection = mydb[self.manage_dates_db()]
+        result = collection.find_one({"_id": date})
+        if not result or result.get("disabled") == "False":
+            return True
+        return False
 
     def login_user(self, mydb, username_or_email, password):
         collection = mydb[self.users_db()]
@@ -354,7 +384,7 @@ class App_Actions:
                 return {"is_valid": False, "message":
                         "Must provide {}".format(key)}
 
-        if hasattr(form, "password") and hasattr(form, "confirm-password"):
+        if "password" in form and "confirm-password" in form:
             if form.get("password") != form.get("confirm-password"):
                 return {'is_valid': False,
                         "message": "Passwords did not match."}
@@ -445,6 +475,10 @@ class App_Actions:
         for result in results:
             name = result.get('name')
             item_obj = {}
+            if name.lower().strip() == "delivery":
+                item_obj["price"] = result.get("price")[0]
+                return_obj[name.lower().strip()] = item_obj
+                continue
             sizes = self.find_key_value(
                 result, ["size", "sizes", "portion", "portion"])
             if not sizes:
@@ -557,8 +591,23 @@ class App_Actions:
         collection.insert_one(order)
         return True
 
-    def validate_user_placed_confirmation_code(self, user_id,
-                                               confirmation_code):
+    def get_upcoming_orders(self, mydb):
+
+        collection = mydb[self.environ.get("ORDERS_DB")]
+        return list(collection.find({"datetime":
+                                     {"$gt":
+                                         self.datetime.datetime.today()}
+                                     }, {"datetime": 0}))
+
+    def get_passed_orders(self, mydb):
+
+        collection = mydb[self.environ.get("ORDERS_DB")]
+        return list(collection.find({"datetime":
+                                     {"$lt":
+                                         self.datetime.datetime.today()}
+                                     }, {"datetime": 0}))
+
+    def validate_user_with_code(self, user_id, confirmation_code):
         kwargs = {"user_id": user_id}
         list_of_codes = self.connect_to_db(
             self.get_user_confirmation_codes, kwargs)
@@ -584,9 +633,10 @@ class App_Actions:
                                "order": order_info.get("order"),
                                'modified_date': self.datetime.datetime.now()})
 
-    def update_order(self, mydb, id, new_order):
+    def update_order(self, mydb, order_id, new_order):
         collection = mydb[self.orders_db()]
-        collection.find_one_and_update({"_id": id},
+        new_order['modified_on'] = self.datetime.datetime.now()
+        collection.find_one_and_update({"_id": order_id},
                                        {"$set": new_order}, upsert=False)
 
     def format_order_message(self, order_info):
@@ -606,3 +656,20 @@ class App_Actions:
         collection = mydb[self.environ.get("ERROR_DB")]
         results = collection.find({}, {"_id": 0})
         return list(results)
+
+    def format_price(self, price_dict):
+        formatted = f'Subtotal: ${price_dict.get("base")}\n'
+        formatted += f'Tax: ${price_dict.get("tax")}\n'
+        if price_dict.get("delivery"):
+            formatted += f'Delivery: ${price_dict.get("delivery")}\n'
+        formatted += f'Total: ${price_dict.get("total")}'
+        return formatted
+
+    def add_charge_to_db(self, mydb, timestamp, user_id, _id, charge_id):
+        object_to_save = {
+            "timestamp": timestamp,
+            "user_id": user_id,
+            "_id": _id,
+            "charge_id": charge_id}
+        collection = mydb[self.charges_db()]
+        collection.insert_one(object_to_save)

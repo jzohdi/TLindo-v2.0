@@ -6,29 +6,29 @@ block head %}
 {{ super() }} {% endblock %} {% block main %}
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-10 sm-offset-1 main-card question-titles">
-      <h3 style="text-align:center;" class="order-keys">
+    <div class="col-sm-10 sm-offset-1 main-card lindo-purple">
+      <h3 style="text-align:center;" class="lindo-red">
         Thanks for choosing Taco Lindo!
       </h3>
       <div class="row">
         {% for key, value in order.items() %} {% if key != 'order' %} {% if key
         == '_id' %}
         <div class="col-xs-12">
-          <span style="text-transform: uppercase;" class="order-keys"
+          <span style="text-transform: uppercase;" class="lindo-red"
             >Confirmation Code</span
           >
           {{ value }}
         </div>
         {% else %}
         <div class="col-xs-12">
-          <span style="text-transform: uppercase;" class="order-keys">{{
+          <span style="text-transform: uppercase;" class="lindo-red">{{
             key
           }}</span>
           {{ value }}
         </div>
         {% endif %} {% else %}
         <div class="col-sm-12">
-          <h4 style="text-transform: uppercase;" class="order-keys">Order:</h4>
+          <h4 style="text-transform: uppercase;" class="lindo-red">Order:</h4>
           {% for order_item in order['order'] %}
           <p>
             {{ loop.index }}. {% for order_item_key, order_item_value in
@@ -42,12 +42,12 @@ block head %}
           </p>
           {% endfor %} {% endif %} {% endfor %}
           <div class="col-xs-12">
-            <span style="text-transform: uppercase;" class="order-keys"
+            <span style="text-transform: uppercase;" class="lindo-red"
               >Total: </span
             >${{ total }}
           </div>
           <div class="col-xs-12">
-            <span style="text-transform: uppercase;" class="order-keys"
+            <span style="text-transform: uppercase;" class="lindo-red"
               >Amount Paid:
             </span>
             {{ paid }}
@@ -56,7 +56,7 @@ block head %}
       </div>
       <div class="row">
         <div class="col-xs-12">
-          <span style="text-transform: uppercase;" class="order-keys"
+          <span style="text-transform: uppercase;" class="lindo-red"
             >Comments:</span
           >
           {{ comments }}

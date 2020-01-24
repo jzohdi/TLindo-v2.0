@@ -1,3 +1,36 @@
+var MODAL_DIV =
+  '<div id="myModal" class="modal lindo-purple"><div class="modal-content main-card">' +
+  '<span class="close">X</span>' +
+  "contentPlaceHolder" +
+  "</div></div>";
+
+var createModal = function createModal(someIdOnPage, content) {
+  var modalContent = MODAL_DIV.replace("contentPlaceHolder", content);
+  $(someIdOnPage).html(modalContent);
+  var modal = document.getElementById("myModal"); // const openButton = document.getElementById(triggerId);
+
+  var span = document.getElementsByClassName("close")[0];
+  var done = document.getElementById("done-selection");
+  modal.style.display = "block";
+
+  span.onclick = function() {
+    modal.style.display = "none";
+    $(someIdOnPage).empty();
+  };
+
+  if (done != undefined) {
+    done.onclick = function() {
+      span.click();
+    };
+  }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      span.click();
+    }
+  };
+};
+
 function _toConsumableArray(arr) {
   return (
     _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread()
@@ -255,12 +288,14 @@ function FoodCounter(cart, app, pricesDict) {
     delete copyObject["name"];
     delete copyObject["size"];
     delete copyObject["count"];
-    newDiv += "<tr><td></td><td class='cart-item-description'>".concat(
-      this.getListFromItem(copyObject),
-      "</td></tr>"
-    );
-
+    newDiv += this.itemDescriptionToString(copyObject);
     return newDiv;
+  };
+  this.itemDescriptionToString = function(copyObject) {
+    // if (window.innerWidth < 600) {
+    return `<tr id="cart-item-description"><td colspan="3" class='phone-cart-description'>${this.getListFromItem(
+      copyObject
+    )}</td></tr>`;
   };
 
   this.toString = function() {

@@ -8,7 +8,7 @@ block head %}
 <div class="container-fluid">
     <div id="modal-holder"></div>
   <div class="row">
-    <div class="col-lg-10 col-lg-offset-1 main-card question-titles">
+    <div class="col-lg-10 col-lg-offset-1 main-card lindo-purple">
       <h4 class='top-bottom-space responsive-header'>Enter Confirimation Code:</h4>
       <form action="{{ url_for('orderlookup') }}" method="post">
         <fieldset>
@@ -31,10 +31,10 @@ block head %}
     </div>
     <div
       style="min-height:20vh"
-      class="col-lg-10 col-lg-offset-1 main-card question-titles"
+      class="col-lg-10 col-lg-offset-1 main-card lindo-purple"
     >
       <h4 class='top-bottom-space responsive-header'>Order:</h4>
-      <p class='order-keys'>{{ error }}</p>
+      <p class='alert-danger'>{{ error }}</p>
       <div id="insert-order" class="row">
         {% if order %}
         <div class="col-sm-4">
@@ -87,7 +87,7 @@ block head %}
 </div>
 <script type="text/javascript">
   const CONTACT_MODAL_DIV =
-      '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
+      '<div id="myModal" class="modal lindo-purple"><div class="modal-content main-card">' +
       '<span class="close">X</span>' +
       "contentPlaceHolder" +
       "</div></div>";

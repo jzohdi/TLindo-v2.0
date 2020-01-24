@@ -18,7 +18,7 @@ block head %}
     </div>
   </div>
   <div id="future-orders" class="row">
-    <div class="col-md-10 col-md-offset-1 main-card question-titles">
+    <div class="col-md-10 col-md-offset-1 main-card lindo-purple">
       <h2 style="text-align:center;" class="confirm-cart-titles">
         Upcoming Orders
       </h2>
@@ -38,10 +38,10 @@ block head %}
           class="row each-order-style order-section"
         >
           <div class="col-md-10 col-md-offset-1">
-            <h4 class="order-keys">Contact:</h4>
+            <h4 class="lindo-red">Contact:</h4>
             {% for key, value in each_order.items() %} {% if key == 'order' %}
             <div class="order-items-section col-xs-12">
-              <h4 class="order-keys">Order:</h4>
+              <h4 class="lindo-red">Order:</h4>
               <div
                 onclick="viewAmounts('{{ listIndex }}')"
                 class="button button1 edit-order-button"
@@ -57,7 +57,7 @@ block head %}
             </div>
             {% elif key == 'comments' %}
             <div class="col-xs-12">
-              <span style="text-transform: uppercase;" class="order-keys"
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               {{ value }}
@@ -67,14 +67,14 @@ block head %}
               id="{{ each_order._id }}notes"
               class="col-xs-12 special-notes-area"
             >
-              <span style="text-transform: uppercase;" class="order-keys"
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               <textarea id="{{ each_order._id }}textarea">{{ value }}</textarea>
             </div>
             {% else %}
             <div class="col-sm-3">
-              <span style="text-transform: uppercase;" class="order-keys"
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               {{ value }}
@@ -108,7 +108,7 @@ block head %}
     </div>
   </div>
   <div id="past-orders" class="row hidden">
-    <div class="col-md-10 col-md-offset-1 main-card question-titles">
+    <div class="col-md-10 col-md-offset-1 main-card lindo-purple">
       <h2 style="text-align:center;" class="confirm-cart-titles">
         Past Orders
       </h2>
@@ -127,10 +127,10 @@ block head %}
           class="row each-order-style order-section"
         >
           <div class="col-md-10 col-md-offset-1">
-            <h4 class="order-keys">Contact:</h4>
+            <h4 class="lindo-red">Contact:</h4>
             {% for key, value in each_order.items() %} {% if key == 'order' %}
             <div class="order-items-section col-xs-12">
-              <h4 class="order-keys">Order:</h4>
+              <h4 class="lindo-red">Order:</h4>
               <div>
                 {% for order_item in value %}
                 <div>{{ loop.index }}. {{ order_item }}</div>
@@ -139,14 +139,14 @@ block head %}
             </div>
             {% elif key == 'comments' %}
             <div class="col-xs-12">
-              <span style="text-transform: uppercase;" class="order-keys"
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               {{ value }}
             </div>
             {% else %}
             <div class="col-sm-3">
-              <span style="text-transform: uppercase;" class="order-keys"
+              <span style="text-transform: uppercase;" class="lindo-red"
                 >{{ key }}:
               </span>
               {{ value }}
@@ -160,124 +160,165 @@ block head %}
   </div>
 
   <script type="text/javascript">
+    window.UPCOMING_ORDERS = [];
 
-    window.UPCOMING_ORDERS = {{ upcoming_orders|tojson}};
-    const size_rules = { "Half Pan" : 2, "Full Pan" : 4, '48 oz Container' : 1.5}
-    const countConversions = { "Taco Tray": 24, "Burrito Tray": 8, "Nacho Bar" : 10, "Rotisserie Chicken" : 10 };
-    const TOPPING_RULES = { "Taco Tray" : [{
-                              topping: 'Tortillas (pieces)',
-                              amount : 24
-                              },
-                              {
-                              topping: "Salsa (oz)",
-                              amount : {'Pico' : 8, 'Roja' : 8, 'Verde' : 4, 'Chipotle' : 4}
-                              },
-                              {
-                              topping: "Crema(Sour Cream)(oz)",
-                              amount : 8
-                              },
-                              {
-                              topping: "Shredded Lettuce (oz)",
-                                amount : 16
-                              },
-                              {
-                                topping : 'Shredded Cheese (oz)',
-                                amount : 16
-                              }],
-                              "Chips" : [{
-                                topping : 'Salsa (oz)',
-                                amount : {'Pico' : 8, 'Roja' : 8, 'Verde' : 4, 'Chipotle' : 4}
-                              },
-                              {
-                                topping : 'Guacamole',
-                                amount : 8
-                              }],
-                              "Nachos": [{
-                                topping : "Queso (oz)",
-                                amount : 8
-                              },
-                              {
-                                topping: "Pickled Radish (oz)",
-                                amount : 12
-                              },
-                             {
-                              topping: "Pickled Jalapeno (oz)",
-                              amount : 10
-                             },
-                             {
-                               topping: "Salsa (oz)",
-                               amount: {'Pico' : 8, 'Roja' : 8, 'Verde' : 4, 'Chipotle' : 4}
-                             },
-                             {
-                             topping: "Crema(Sour Cream)(oz)",
-                             amount : 8
-                            }]
-                        }
+    fetch("/get_upcoming_orders")
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        if (data.Status == "Success") {
+          window.UPCOMING_ORDERS = data.Data;
+        }
+      });
+
+    const size_rules = { "Half Pan": 2, "Full Pan": 4, "48 oz Container": 1.5 };
+    const countConversions = {
+      "Taco Tray": 24,
+      "Burrito Tray": 8,
+      "Nacho Bar": 10,
+      "Rotisserie Chicken": 10
+    };
+    const TOPPING_RULES = {
+      "Taco Tray": [
+        {
+          topping: "Tortillas (pieces)",
+          amount: 24
+        },
+        {
+          topping: "Salsa (oz)",
+          amount: { Pico: 8, Roja: 8, Verde: 4, Chipotle: 4 }
+        },
+        {
+          topping: "Crema(Sour Cream)(oz)",
+          amount: 8
+        },
+        {
+          topping: "Shredded Lettuce (oz)",
+          amount: 16
+        },
+        {
+          topping: "Shredded Cheese (oz)",
+          amount: 16
+        }
+      ],
+      Chips: [
+        {
+          topping: "Salsa (oz)",
+          amount: { Pico: 8, Roja: 8, Verde: 4, Chipotle: 4 }
+        },
+        {
+          topping: "Guacamole",
+          amount: 8
+        }
+      ],
+      Nachos: [
+        {
+          topping: "Queso (oz)",
+          amount: 8
+        },
+        {
+          topping: "Pickled Radish (oz)",
+          amount: 12
+        },
+        {
+          topping: "Pickled Jalapeno (oz)",
+          amount: 10
+        },
+        {
+          topping: "Salsa (oz)",
+          amount: { Pico: 8, Roja: 8, Verde: 4, Chipotle: 4 }
+        },
+        {
+          topping: "Crema(Sour Cream)(oz)",
+          amount: 8
+        }
+      ]
+    };
     const TOPPINGS_MODAL_DIV =
-        '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
-        '<span class="close">X</span>' +
-        "contentPlaceHolder" +
-        "</div></div>";
-    const TOPPINGS = '<div class="row"><div class="col-xs-12">namePlaceholder | countPlaceholder | sizePlaceholder</div>'+
-            'toppingsPlaceholder</div>';
+      '<div id="myModal" class="modal lindo-purple"><div class="modal-content main-card">' +
+      '<span class="close">X</span>' +
+      "contentPlaceHolder" +
+      "</div></div>";
+    const TOPPINGS =
+      '<div class="row"><div class="col-xs-12">namePlaceholder | countPlaceholder | sizePlaceholder</div>' +
+      "toppingsPlaceholder</div>";
 
-    const getInnerModalContent = function(order_num){
-      let content = "<h4 class='order-keys'>Toppings Amounts:</h4>"
+    const getInnerModalContent = function(order_num) {
+      let content = "<h4 class='lindo-red'>Toppings Amounts:</h4>";
       order = UPCOMING_ORDERS[order_num].order;
-      for ( const each of order){
+      for (const each of order) {
         // console.log(each)
         content += getToppingsDivForItem(each);
       }
-      return content
-    }
-    const getToppingsDivForItem = function(item){
-      const name = (item.name === 'Side Choices') ? item.side : item.name;
-      const sizing = (item.hasOwnProperty('size'))? item.size : item.portion;
+      return content;
+    };
+    const getToppingsDivForItem = function(item) {
+      const name = item.name === "Side Choices" ? item.side : item.name;
+      const sizing = item.hasOwnProperty("size") ? item.size : item.portion;
       const options = TOPPING_RULES[name];
-      if ( options == undefined ){
-        return '<p></p>'
+      if (options == undefined) {
+        return "<p></p>";
       }
-      return TOPPINGS.replace('namePlaceholder', name)
-      .replace('countPlaceholder', item.count)
-      .replace('sizePlaceholder', sizing).replace('toppingsPlaceholder', getToppingAmounts(item, options));
-    }
-    const getToppingAmounts = function(item, options){
-      const name = (item.name === 'Side Choices') ? item.side : item.name;
-      const sizing = (item.hasOwnProperty('size'))? item.size : item.portion;
+      return TOPPINGS.replace("namePlaceholder", name)
+        .replace("countPlaceholder", item.count)
+        .replace("sizePlaceholder", sizing)
+        .replace("toppingsPlaceholder", getToppingAmounts(item, options));
+    };
+    const getToppingAmounts = function(item, options) {
+      const name = item.name === "Side Choices" ? item.side : item.name;
+      const sizing = item.hasOwnProperty("size") ? item.size : item.portion;
       // console.log(sizing);
-      let itemDiv = '<p>'
-      for (const option of options ){
+      let itemDiv = "<p>";
+      for (const option of options) {
         // console.log(options)
         itemDiv += addToppingOptionsToDiv(option, item, sizing);
-        // "<span class ='order-keys'>" + option.topping + "</span>: " + option.amount*parseInt(item.count)*getSizeConversion(sizing);
+        // "<span class ='lindo-red'>" + option.topping + "</span>: " + option.amount*parseInt(item.count)*getSizeConversion(sizing);
       }
-      return itemDiv + '</p>'
-    }
-    const addToppingOptionsToDiv = function(option, item, sizing){
-      return "<div class='row indent-row'><span class ='order-keys'>" + option.topping + "</span>: " +
-       getAmount(option, item, sizing);
-    }
-    const getAmount = function(topping, item, sizing){
-      if ( topping.topping === "Salsa (oz)"){
-        if( item.hasOwnProperty("salsa") ){
-          return topping.amount[item.salsa]*parseInt(item.count)*getSizeConversion(sizing) + "</div>";
-        }else{
+      return itemDiv + "</p>";
+    };
+    const addToppingOptionsToDiv = function(option, item, sizing) {
+      return (
+        "<div class='row indent-row'><span class ='lindo-red'>" +
+        option.topping +
+        "</span>: " +
+        getAmount(option, item, sizing)
+      );
+    };
+    const getAmount = function(topping, item, sizing) {
+      if (topping.topping === "Salsa (oz)") {
+        if (item.hasOwnProperty("salsa")) {
+          return (
+            topping.amount[item.salsa] *
+              parseInt(item.count) *
+              getSizeConversion(sizing) +
+            "</div>"
+          );
+        } else {
           // console.log('e=ere')
-          return JSON.stringify(topping.amount) + " x " + parseInt(item.count)*getSizeConversion(sizing) + "</div>";
+          return (
+            JSON.stringify(topping.amount) +
+            " x " +
+            parseInt(item.count) * getSizeConversion(sizing) +
+            "</div>"
+          );
         }
-      } else{
-        return topping.amount*parseInt(item.count)*getSizeConversion(sizing) + "</div>";
+      } else {
+        return (
+          topping.amount * parseInt(item.count) * getSizeConversion(sizing) +
+          "</div>"
+        );
       }
-    }
-    const getSizeConversion = function(sizing){
-      if ( size_rules.hasOwnProperty(sizing) ){
-        return size_rules[sizing]
+    };
+    const getSizeConversion = function(sizing) {
+      if (size_rules.hasOwnProperty(sizing)) {
+        return size_rules[sizing];
       } else {
         return 1;
       }
-    }
-    const viewAmounts = function(order_num){
-        const modalDiv = TOPPINGS_MODAL_DIV.replace(
+    };
+    const viewAmounts = function(order_num) {
+      const modalDiv = TOPPINGS_MODAL_DIV.replace(
         "contentPlaceHolder",
         getInnerModalContent(order_num)
       );
@@ -303,15 +344,15 @@ block head %}
           $("#modal-holder").html("");
         }
       };
-    }
+    };
 
     const reverteButtonAndTextarea = function(orderCode) {
-        $("#" + orderCode+ "button").html("Add Note");
-        $("#" + orderCode+ "notes").empty();
+      $("#" + orderCode + "button").html("Add Note");
+      $("#" + orderCode + "notes").empty();
     };
 
     const TEXT_AREA_DIV =
-      '<span style="text-transform: uppercase;" class="order-keys">SPECIAL-NOTES:</span>' +
+      '<span style="text-transform: uppercase;" class="lindo-red">SPECIAL-NOTES:</span>' +
       '<textarea id="idPlaceholder"></textarea>';
 
     const takeNotes = function(orderCode) {
@@ -325,9 +366,9 @@ block head %}
 
         if (textValue.length === 0) {
           reverteButtonAndTextarea(orderCode);
+        } else {
+          commitNote(orderCode, textValue);
         }
-        commitNote(orderCode, textValue);
-
       } else {
         const replaceId = orderCode + "textarea";
         const FINAL_DIV = TEXT_AREA_DIV.replace("idPlaceholder", replaceId);
@@ -341,7 +382,7 @@ block head %}
         orderId: orderId,
         note: noteToCommit
       }).done(function(data) {
-        if (data.hasOwnProperty('error') ) {
+        if (data.hasOwnProperty("error")) {
           alert(data.error);
         } else {
           location.href = "/scheduled_orders";
@@ -352,21 +393,6 @@ block head %}
     function replaceAll(searchString, keyword, replacement) {
       const reg = new RegExp(keyword, "g");
       return searchString.replace(reg, replacement);
-    }
-
-    function showUpcoming() {
-      const futureOrderSection = $("#future-orders");
-      if (futureOrderSection.hasClass("hidden")) {
-        futureOrderSection.removeClass("hidden");
-        $("#past-orders").addClass("hidden");
-      }
-    }
-    function showPast() {
-      const pastOrdersSection = $("#past-orders");
-      if (pastOrdersSection.hasClass("hidden")) {
-        pastOrdersSection.removeClass("hidden");
-        $("#future-orders").addClass("hidden");
-      }
     }
 
     function stringContainsAny(queryString, listOfKeys) {
@@ -408,6 +434,21 @@ block head %}
       $("#future-input").val(decodedValue);
       filterSection("future-orders", "future-input");
     };
+
+    function showUpcoming() {
+      const futureOrderSection = $("#future-orders");
+      if (futureOrderSection.hasClass("hidden")) {
+        futureOrderSection.removeClass("hidden");
+        $("#past-orders").addClass("hidden");
+      }
+    }
+    function showPast() {
+      const pastOrdersSection = $("#past-orders");
+      if (pastOrdersSection.hasClass("hidden")) {
+        pastOrdersSection.removeClass("hidden");
+        $("#future-orders").addClass("hidden");
+      }
+    }
   </script>
 </div>
 <style>

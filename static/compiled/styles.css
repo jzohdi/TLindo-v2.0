@@ -1,3 +1,6 @@
+/* ############################################# */
+/* ############# START LAYOUT CSS ############## */
+/* ############################################# */
 @font-face {
   font-family: LTPro;
   src: url("customfont/DINNextRoundedLTPro-Regular.otf") format("opentype");
@@ -54,6 +57,7 @@ body,
 }
 /* Override default navbar.less radius of 4px */
 .navbar {
+  font-size: larger;
   background-color: white;
   border-radius: 0px !important;
 }
@@ -88,41 +92,21 @@ body,
 
 .float {
   float: right;
-  font-size: 12px;
   color: white;
 }
 /* https://autoprefixer.github.io/ ----- auto prefixer to use if problems with brower css */
 /*color for layout background*/
-.feather {
-  /* background-image: -webkit-gradient(
-    linear,
-    left top,
-    right bottom,
-    from(white),
-    to(#fdce55)
-  );
-  background-image: -webkit-linear-gradient(top left, white, #fdce55);
-  background-image: -o-linear-gradient(top left, white, #fdce55);
-  background-image: linear-gradient(to bottom right, white, #fdce55); */
-  /*background-color: #0d034c;*/
+.site-background {
   background: url(images/tacos_blur.png) no-repeat;
-  /*width: 100%;*/
-  /*background-size: 100%;*/
-  /*left: 0;*/
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   z-index: -100;
 }
-/* .navbar {
-  background-color: transparent;
-  padding-top: 20px;
-} */
-.question-titles {
-  /*font-family: LTPro, Arial, Helvetica, sans-serif;*/
+.lindo-purple {
   color: #0d034c;
 }
-@media (min-width: 1250px) {
+/* @media (min-width: 1250px) {
   .titles {
     font-size: 24px;
   }
@@ -141,7 +125,7 @@ body,
   .titles {
     font-size: 18px;
   }
-}
+} */
 .titles {
   /*font-family: LTPro, Arial, Helvetica, sans-serif;*/
   color: #0d034c;
@@ -160,7 +144,6 @@ body,
 #titlesb {
   font-family: LTPro, Arial, Helvetica, sans-serif;
   color: white;
-  font-size: 15px;
 }
 
 /* register-content valid and invlad for register page */
@@ -184,27 +167,12 @@ main,
   width: auto;
 }
 .valid {
-  /* color: white;
-  font-size: 12px; */
   display: none;
 }
 .invalid {
   /* color: white; */
-  font-size: 12px;
+
   display: block;
-}
-.forgot-password-link {
-  color: #0d034c;
-  cursor: pointer;
-  -webkit-transition: color 0.7s;
-  -o-transition: color 0.7s;
-  transition: color 0.7s;
-}
-.forgot-password-link:hover {
-  color: #fbbb13;
-}
-.pass-box {
-  color: #0d034c;
 }
 footer {
   border-top: 2px solid white;
@@ -238,106 +206,20 @@ footer {
     table-layout: fixed;
   }
 }
-.entree-header {
-  background-color: #ffffffa6;
-  margin: -10px;
-  padding: 15px;
-  color: #0d034c !important;
-}
-.entree-description {
-  text-align: left;
-  padding-top: 24px;
-}
-/* for index page / main page */
-
-/* most of this content is setatting the styling for the site wide styling
-  Inclduing the main-card which represents the white box with shadow on hover
-  styling. Below are also custom and other fade animations, including specification
-  for cross browser support **** IE excluded?? ****/
-.main-card {
-  -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
-  background-color: rgba(255, 255, 255, 1);
-  /* border-radius: 8px; */
-  -webkit-animation-duration: 0.6s;
-  animation-duration: 0.6s;
-  overflow: hidden;
-  -webkit-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
-  -o-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
-  -webkit-transition: opacity 0.7s, -webkit-box-shadow 0.7s,
-    -webkit-transform 0.8s;
-  transition: opacity 0.7s, -webkit-box-shadow 0.7s, -webkit-transform 0.8s;
-  transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
-  transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s,
-    -webkit-box-shadow 0.7s, -webkit-transform 0.8s;
-}
-#amount-help {
-  margin-bottom: -24px;
-  margin-top: 36px;
+.alert-danger {
   padding: 10px;
-  border: 2px solid;
 }
-.focused-button {
-  background-color: #fbbb13 !important;
+.alert-danger:empty {
+  display: none;
 }
-#card9 {
-  /* border: 2px solid;
-  border-radius: 11px; */
-  padding: 20px;
-}
-.main-menu-box {
-  margin-top: 20px;
-}
-#goBack,
-#goNext {
-  -webkit-animation-duration: 0.6s;
-  animation-duration: 0.6s;
-}
-/*#card-padding{*/
-/*  padding: 3vh 0vh;*/
-/*}*/
-.top-bottom-space {
-  padding: 15px 0px;
-}
-.main-card:hover {
-  -webkit-box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
-    0 17px 50px 0 rgba(0, 0, 0, 0.19);
-  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
-    0 17px 50px 0 rgba(0, 0, 0, 0.19);
-}
+/* ############################################# */
+/* ############# END LAYOUT CSS ############## */
+/* ############################################# */
 
-@media (max-width: 991px) {
-  .main-card {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-}
-/*Override date picker default top margin */
-@media only screen and (min-height: 33.875em) {
-  .picker--opened .picker__frame {
-    top: 20% !important;
-  }
-}
-/* main-card to be same within each row
- but will break bootstrap when it needs to reconcile col ( md-6 = 992 )*/
-@media (min-width: 992px) {
-  .normalize-height {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-  }
-  .main-card {
-    padding-top: 15px;
-    padding-bottom: 15px;
-    margin-top: 10px;
-  }
+/* ############################################# */
+/* ########### START TRANSITIONS CSS ########### */
+/* ############################################# */
 
-  .card-margin2 {
-    margin-left: 10px;
-  }
-}
 /* fade animations for index main-cards */
 @-webkit-keyframes fade-in-left {
   0% {
@@ -380,20 +262,7 @@ footer {
   -webkit-animation-name: fade-in-left;
   animation-name: fade-in-left;
 }
-/* normalize height makes all the elements
-  in a bootstrap row of equal height
-  add the width setting since it will break bootstrap,
-  once it tries to stack elements */
-@media (min-width: 992px) {
-  .normalize-height {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-.normalize-height {
-  margin-left: -25px;
-}
+
 /* fade animations for index main-cards */
 @-webkit-keyframes fade-in-right {
   0% {
@@ -422,93 +291,79 @@ footer {
   -webkit-animation-name: fade-in-right;
   animation-name: fade-in-right;
 }
-.button {
-  text-decoration: none;
-  font-family: LTPro, Arial, Helvetica, sans-serif;
-  font-weight: bold;
-  border-radius: 5px;
-  border-color: #0d034c;
-  background-color: white;
-  color: #0d034c;
-  text-align: center;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  -webkit-transition: border-color 0.4s, background-color 0.5s; /* Safari */
-  -o-transition: border-color 0.4s, background-color 0.5s;
-  transition: border-color 0.4s, background-color 0.5s;
-}
-.button1:hover {
-  background-color: #0d034c;
-  /* background-color: #fbbb13; */
-  border: 2px solid #0d034c;
-  color: white;
-  /*color: #de4621;*/
-  /* box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
-    0 17px 50px 0 rgba(0, 0, 0, 0.19); */
-}
-/* sizing for header-fonts to be responsive to screen width */
-.header-size {
-  font-size: 3vmin;
-}
-#next-button {
-  margin-top: 5vh;
-}
-#back-arrow {
-  padding-left: 0px;
-  -webkit-transition: padding-left 0.5s;
-  -o-transition: padding-left 0.5s;
-  transition: padding-left 0.5s;
-}
-.card-margin1 {
-  border: 2px solid #0d034c;
-}
-.card-margin2 {
-  border: 2px solid #0d034c;
-}
-.helper-screen {
-  min-height: 70vh;
-}
-/* .entree-options {
-  margin: 5px 0px;
-} */
-#selected-food {
-  margin-bottom: 50px;
-  margin-top: 20px;
-}
-.entree-item {
-  margin-top: 5px;
-  margin-bottom: 15px;
-  padding: 10px;
-  border-left: 5px solid #0d034c;
-  /* border-radius: 10px; */
-  /* border: 1px #0d034c solid; */
-  background-color: #c2c1c3;
-  transition: background-color 0.5s;
-}
-/* @media (max-width: 767px) {
-  .entree-item {
-    width: 100%;
+
+/* ############################################# */
+/* ############ END TRANSITIONS CSS ############ */
+/* ############################################# */
+
+/* ############################################# */
+/* ############ SITE WIDE CSS ################## */
+/* ############################################# */
+
+/* normalize height makes all the elements
+  in a bootstrap row of equal height
+  add the width setting since it will break bootstrap,
+  once it tries to stack elements */
+@media (min-width: 992px) {
+  .normalize-height {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
   }
-} */
-.entree-item:hover {
-  cursor: pointer;
-  color: white;
-  background-color: #0d034c80;
 }
-/* .entree-item {
-  -webkit-transition: all 1s;
-  -moz-transition: all 1s;
-  -o-transition: all 1s;
-  transition: all 1s;
-} */
+
+.main-card {
+  -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 1);
+  /* border-radius: 8px; */
+  -webkit-animation-duration: 0.6s;
+  animation-duration: 0.6s;
+  overflow: hidden;
+  -webkit-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+  -o-transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+  -webkit-transition: opacity 0.7s, -webkit-box-shadow 0.7s,
+    -webkit-transform 0.8s;
+  transition: opacity 0.7s, -webkit-box-shadow 0.7s, -webkit-transform 0.8s;
+  transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s;
+  transition: box-shadow 0.7s, transform 0.8s, opacity 0.7s,
+    -webkit-box-shadow 0.7s, -webkit-transform 0.8s;
+}
+
+/* main-card to be same within each row
+ but will break bootstrap when it needs to reconcile col ( md-6 = 992 )*/
+@media (min-width: 992px) {
+  .main-card {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 10px;
+  }
+
+  .card-margin2 {
+    margin-left: 10px;
+  }
+}
+.main-card:hover {
+  -webkit-box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
+}
+
+@media (max-width: 991px) {
+  .main-card {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
 /* These are the stylings that use the modal pop up functionality
   Important for creating pop up window info and input types */
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
-  z-index: 20; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
+  z-index: 100; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
@@ -517,10 +372,28 @@ footer {
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
+/* Location of the box since it will be too tall for the screen 
+   on smaller devices */
+@media (min-height: 720px) {
+  .modal {
+    padding-top: 100px;
+  }
+}
 
+@media (max-height: 719px) and (min-height: 600px) {
+  .modal {
+    padding-top: 35px;
+  }
+}
+
+@media (max-height: 599px) {
+  .modal {
+    padding-top: 5px;
+  }
+}
 /* Modal Content */
 .modal-content {
-  min-height: 60vh;
+  min-height: 40vh;
   background-color: #fefefe;
   margin: auto;
   padding: 20px;
@@ -531,16 +404,20 @@ footer {
     width: 60%;
   }
 }
-@media (max-width: 899px) {
+@media (max-width: 899px) and (min-width: 500px) {
   .modal-content {
     width: 80%;
+  }
+}
+@media (max-width: 499px) {
+  .modal-content {
+    width: 95%;
   }
 }
 /* The Close Button */
 .close {
   color: #aaaaaa;
   float: right;
-  font-size: 28px;
   font-weight: bold;
 }
 
@@ -550,522 +427,13 @@ footer {
   text-decoration: none;
   cursor: pointer;
 }
-.manage-dates-table {
-  width: 90%;
-  margin: 5px 20px;
-  text-align: center;
-  border-bottom: 1px solid;
-}
-.manage-dates-table tbody tr:hover {
-  background-color: rgb(195, 196, 252);
-}
-.manage-dates-table th {
-  border-bottom: 1px solid;
-  text-align: center;
-}
-#dates-selected p:hover {
-  cursor: pointer;
-  color: white;
-  background-color: #0d034c;
-}
 
-.custom-select select {
-  background-color: rgb(240, 240, 240);
-  min-width: 120px;
-  color: #0d034c !important;
-}
-.custom-select select option {
-  background-color: rgb(240, 240, 240);
-  min-width: 120px;
-}
-.custom-select select:hover {
-  color: #0d034c;
-}
-.custom-select select option:hover {
-  color: #0d034c;
-}
-/**************************************************************/
-/* include admin menu setter styling
-  This is only styling for admin page : menusetter  */
-.menu-table {
-  margin-top: 40px;
-  width: 100%;
-}
-.menu-table tbody tr td input {
-  width: 100%;
-}
-.menu-table tbody tr th {
-  text-align: center;
-  border-right: 1px solid;
-  border-left: 1px solid;
-}
-.menu-modal {
-  background-color: #fefefe;
-  padding: 20px;
-  border: 1px solid #888;
-  border-radius: 15px;
-}
-.menu-text {
-  width: 80%;
-  height: 40vh;
-}
-/* .add-item-button {
-  float: right;
-} */
-.add-row-button {
-  padding: 1vw;
-  text-align: center;
-  font-weight: 10;
-}
-.delete-row-button {
-  padding: 1vw;
-  text-align: center;
-  font-weight: 10;
-  float: right;
-}
-
-@media (max-width: 700px) {
-  .add-row-button {
-    font-size: 1.5vw;
-    width: 6vw;
-  }
-  .delete-row-button {
-    font-size: 1.5vw;
-    width: 6.2vw;
-  }
-}
-@media (min-width: 701px) {
-  .add-row-button {
-    font-size: 1vw;
-    width: 6vw;
-  }
-  .delete-row-button {
-    font-size: 1vw;
-    width: 6.9vw;
-  }
-}
-@media (min-width: 1200px) {
-  .add-row-button {
-    font-size: 0.6vw;
-    width: 4.5vw;
-    padding: 0.3vw;
-  }
-  .delete-row-button {
-    font-size: 0.6vw;
-    width: 4.9vw;
-    padding: 0.3vw;
-  }
-}
-.submit-button {
-  width: 12vmin;
-  font-size: 2vmin;
-  height: 2.8vmin;
-  padding: 0.1vmin;
-}
-.download-menu-div {
-  float: right;
-}
-.submit-menu-div {
-  float: left;
-}
-@media (max-width: 780px) {
-  .user-name {
-    display: none;
-  }
-}
-@media (min-width: 781px) and (max-width: 885px) {
-  .user-name {
-    -webkit-transform: translate(10vw, 12px);
-    -ms-transform: translate(10vw, 12px);
-    transform: translate(10vw, 12px);
-  }
-}
-/* * * * * * * * * * * * * * * * * * * */
-
-/* * * * * * * * * * * * * * * END OF MENUSETTER
-
-************
-
-START OF MENU SELECTION FOR USER
-
-*****************
-
-*/
-.choose-help-box {
-  cursor: pointer;
-  -webkit-transition: background-color 0.5s, color 0.5s;
-  -o-transition: background-color 0.5s, color 0.5s;
-  transition: background-color 0.5s, color 0.5s;
-  -webkit-transition: box-shadow 0.7s, transform 1s, opacity 1s;
-  -o-transition: box-shadow 0.7s, transform 1s, opacity 1s;
-  -webkit-transition: opacity 1s, -webkit-box-shadow 0.7s, -webkit-transform 1s;
-  transition: opacity 1s, -webkit-box-shadow 0.7s, -webkit-transform 1s;
-  transition: box-shadow 0.7s, transform 1s, opacity 1s;
-  transition: box-shadow 0.7s, transform 1s, opacity 1s, -webkit-box-shadow 0.7s,
-    -webkit-transform 1s;
-}
-
-.choose-help-box:hover {
-  background-color: #fbbb13;
-  color: #de4621;
-}
-.checkout-button {
-  border: 2px solid;
-  /* position: absolute; */
-  min-width: 109px;
-}
-.total-style {
-  text-align: right;
-  padding-right: 25px;
-}
-#cart-click {
-  background-color: #dbdada;
-  font-size: 26px;
-  cursor: pointer;
-  padding: 8px;
-}
-#cart-click:hover {
-  /* background-color: #0d034c;*/
-  color: black;
-}
-.cart-header {
-  text-align: left;
-  /* position: unset; */
-  font-weight: 200;
-  font-size: calc(18px + 1.3vw);
-  margin-top: 24px;
-  padding-left: 15px;
-  /* transform: translateY(0px); */
-  /* padding-top: 15px; */
-  padding-right: 115px;
-}
-.main-menu-headers {
-  /* border-bottom: 3px solid; */
-  font-size: calc(31px + 1vw);
-}
-.move-step-over {
-  margin-top: -15px;
-  margin-left: -20px;
-}
-.selection {
-  /* border: 1px solid; */
-  padding: 10px;
-  /* border-radius: 5px; */
-}
-.selection div {
-  padding: 4px;
-}
-.selection select {
-  text-align: center;
-  border-radius: 5px;
-  min-width: 160px;
-}
-.title-cart {
-  cursor: pointer;
-}
-.cart-title-row td {
-  padding-top: calc(22px - 0.3vw);
-}
-.spacing {
-  margin-left: 40px;
-}
-.add-select {
-  border-radius: 5px;
-  background-color: #0d034c;
-  color: white;
-  -webkit-transition: color 1s, background-color 0.5s;
-  -o-transition: color 1s, background-color 0.5s;
-  transition: color 1s, background-color 0.5s;
-  font-size: 12px;
-  height: auto;
-  display: block;
-  padding: 5px 20px !important;
-  width: auto;
-  background-color: #0d034c;
-  /* padding: 2px !important; */
-}
-.add-select:hover {
-  background-color: #0d034cc2;
-  cursor: pointer;
-}
-.confirm-cart-login-button {
-  width: 100%;
-  max-width: 300px;
-  min-width: 175px;
-}
-.modal-add-to-order {
-  font-size: 20px;
-  border-bottom: 2px solid;
-  width: 80%;
-  margin-left: 10%;
-  margin-top: 5%;
-  margin-bottom: 3%;
-  text-align: left;
-}
-#cart-table {
-  font-size: calc(21px - 0.2vw);
-  width: 100%;
-}
-
-.cart-item-description {
-  padding-left: 20px;
-  font-size: 13px;
-  padding-bottom: 10px;
-}
-#modal-cart {
-  text-align: left;
-  font-size: calc(22px - 0.5vw);
-  padding-left: 5%;
-}
-@media (max-width: 376px) {
-  #modal-cart {
-    margin-left: -45px;
-  }
-  #modal-cart div .span {
-    width: 20px;
-  }
-}
-@media (min-width: 377px) {
-  #modal-cart div .span {
-    width: 40px;
-  }
-}
-#modal-cart div {
-  margin-bottom: 8px;
-}
-.count-column {
-  width: 18%;
-  min-width: 110px;
-}
-.price-column {
-  text-align: right;
-  padding-right: 41px;
-  min-width: 120px;
-}
-.increase,
-.decrease {
-  width: 32px;
-  display: inline-block;
-  cursor: pointer;
-  margin: 0px 5px;
-  text-align: center;
-  border-radius: 4px;
-}
-.increase:hover,
-.decrease:hover {
-  background-color: #0d034c;
-  color: white;
-}
-#cart-icon-style {
-  font-size: calc(29px - 0.5vw);
-}
-#my-cart {
-  text-align: left;
-  font-size: calc(22px - 0.5vw);
-}
-@media (max-width: 376px) {
-  #my-cart div .span {
-    width: 20px;
-  }
-}
-@media (min-width: 377px) {
-  #my-cart div .span {
-    width: 40px;
-  }
-}
-@media (min-width: 460px) {
-  #my-cart {
-    margin-left: 10%;
-  }
-}
-
-.choose-option {
-  margin-left: 15%;
-  margin-bottom: 13px;
-  font-size: calc(19px - 0.3vw);
-}
-.my-cart-key {
-  white-space: nowrap;
-}
-/* @media (min-width: 786px) {
-  .two-panel-spacing {
-    margin-left: 5px;
-  }
-} */
-.confirm-cart-titles {
-  color: #de4621;
-}
-@media (min-width: 768px) {
-  .sm-offset-1 {
-    margin-left: 8.33333333% !important;
-  }
-}
-.dropdown-menu > li > a:hover {
-  color: #fbbb13;
-  background-color: #0d034c;
-}
-.dropdown-menu > li > a {
-  z-index: 2;
-}
-/* @media (min-width: 992px) {
-  .please-select-from {
-  }
-} */
-.please-select-from {
-  color: #de4621;
-  text-align: left;
-  margin-top: 2vh;
-}
-.step-style {
-  text-align: left;
-  margin-top: 5px;
-}
-hr {
-  border-top: 1px solid #0d034c;
-}
-.confirm-cart-form {
-  margin-bottom: 30px;
-}
-.confirm-cart-form input {
-  width: 100%;
-}
-.place-order-button {
-  margin-top: 5vh;
-  font-size: 20px;
-}
-@media (max-width: 500px) {
-  .place-order-button {
-    width: 100%;
-  }
-}
-@media (min-width: 501px) {
-  .place-order-button {
-    margin-left: 25%;
-    width: 50%;
-  }
-}
-.red-title {
-  color: #de4621;
-}
-.want-more-button {
-  font-size: 1em;
-  padding: 0px 5px;
-  margin-left: 10px;
-}
-.want-more-button {
-  position: relative;
-  display: inline-block;
-}
-.want-more-button .tooltiptext {
-  font-size: 16px;
-  background-color: black;
-  color: white;
-  padding: 10px;
-  width: calc(100px + 20vw) !important;
-  visibility: hidden;
-  text-align: center;
-  min-width: 200px;
-  position: absolute;
-  -webkit-transform: translateX(-200px);
-  -ms-transform: translateX(-200px);
-  transform: translateX(-200px);
-  z-index: 2;
-}
-.want-more-button:hover .tooltiptext {
-  visibility: visible;
-}
-/* Admin View Orders Page */
-.each-order-style {
-  padding-bottom: 4vh;
-  border-bottom: 10px solid #0d034c;
-  margin-top: 2vh;
-  margin-bottom: 2vh;
-}
-.view-button-row {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-@media (max-width: 620px) {
-  .view-button-row {
-    width: 100%;
-  }
-}
-@media (min-width: 621px) and (max-width: 900px) {
-  .view-button-row {
-    width: 80%;
-    margin-left: 10%;
-  }
-}
-@media (min-width: 901px) and (max-width: 1200px) {
-  .view-button-row {
-    width: 70%;
-    margin-left: 15%;
-  }
-}
-@media (min-width: 1201px) {
-  .view-button-row {
-    width: 50%;
-    margin-left: 25%;
-  }
-}
-.order-keys {
-  color: #de4621;
-}
-.responsive-header {
-  color: #de4621;
-  font-size: calc(11px + 1.1vw);
-}
-.order-items-section {
-  border: 1px solid;
-  clear: left;
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-.order-items-section div {
-  margin-bottom: 5px;
-}
-.edit-order-button {
-  z-index: 10;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  height: 30px;
-  width: 100px;
-  font-size: 12px;
-  padding: 5px 5px;
-}
-.edit-contact-div {
-  margin-top: 5px;
-}
-.edit-contact-input {
-  width: 100%;
-  text-align: center;
-}
-.special-notes-area {
-  margin-top: 25px;
-  margin-bottom: -15px;
-}
-.special-notes-area > textarea {
-  width: 100%;
-  height: 12vh;
-}
-#billingCheckbox {
-  margin-left: 20px;
-  -webkit-transform: scale(1.5);
-  -ms-transform: scale(1.5);
-  transform: scale(1.5);
-}
-#done-button {
-  margin-top: 30px;
-}
-#done-selection {
-  /*bottom: 25px;*/
-  /* width: 50%; */
-  position: static;
-  /* margin-left: 22%; */
-  margin-top: 5vmin;
-}
+/* ############################################# */
+/* ############ END SITE WIDE CSS ############## */
+/* ############################################# */
+/* ######################################################### */
+/* ######################### STRIPE CSS #################### */
+/* ######################################################### */
 @media (max-width: 991px) and (min-width: 768px) {
   .shift-right {
     -webkit-transform: translateX(10px);
@@ -1112,8 +480,13 @@ hr {
     padding-top: 8px;
   }
 }
+/* ######################################################### */
+/* ##################### END STRIPE CSS #################### */
+/* ######################################################### */
 
-/* custom spinner */
+/* ######################################################### */
+/* ################### LOADING DOTS CSS #################### */
+/* ######################################################### */
 .lds-ellipsis {
   margin-left: calc(50% - 32px);
   display: inline-block;
@@ -1211,10 +584,835 @@ hr {
     transform: translate(19px, 0);
   }
 }
+
+/* ######################################################### */
+/* ####################### END DOTS CSS #################### */
+/* ######################################################### */
+
+/* ###################################################### */
+/* ############### BUTTONS SECTION ###################### */
+/* ###################################################### */
+.danger-button {
+  background-color: #de4621;
+}
+#delete-account {
+  background-color: #de4621;
+}
+#delete-account:hover {
+  color: black;
+}
+.add-row-button {
+  padding: 1vw;
+  text-align: center;
+  font-weight: 10;
+}
+.delete-row-button {
+  padding: 1vw;
+  text-align: center;
+  font-weight: 10;
+  float: right;
+}
+
+@media (max-width: 700px) {
+  .add-row-button {
+    width: 6vw;
+  }
+  .delete-row-button {
+    width: 6.2vw;
+  }
+}
+@media (min-width: 701px) {
+  .add-row-button {
+    width: 6vw;
+  }
+  .delete-row-button {
+    width: 6.9vw;
+  }
+}
+@media (min-width: 1200px) {
+  .add-row-button {
+    width: 4.5vw;
+    padding: 0.3vw;
+  }
+  .delete-row-button {
+    font-size: 0.6vw;
+    width: 4.9vw;
+    padding: 0.3vw;
+  }
+}
+.submit-button {
+  width: 12vmin;
+  font-size: 2vmin;
+  height: 2.8vmin;
+  padding: 0.1vmin;
+}
+.focused-button {
+  background-color: #0d034c !important;
+  color: white !important;
+}
+.button {
+  text-decoration: none;
+  font-family: LTPro, Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  border-radius: 5px;
+  border: 2px solid white;
+  /* border-color: #0d034c !important; */
+  /* background-color: white;
+  color: #0d034c; */
+  background-color: #0d034c;
+  color: white;
+  text-align: center;
+  padding: 10px 20px;
+  cursor: pointer;
+  -webkit-transition: border-color 0.4s, background-color 0.5s, color 0.7s; /* Safari */
+  -o-transition: border-color 0.4s, background-color 0.5s, color 0.7s;
+  transition: border-color 0.4s, background-color 0.5s, color 0.7s;
+}
+.button1:hover {
+  border: 2px solid #0d034c !important;
+  color: #de4621;
+  background-color: black;
+}
+.button1:active {
+  background-color: white;
+  color: #0d034c;
+}
+.back-to-menu-button {
+  margin-left: 14vw;
+}
+#next-button {
+  margin-top: 5vh;
+}
+#back-arrow {
+  padding-left: 0px;
+  -webkit-transition: padding-left 0.5s;
+  -o-transition: padding-left 0.5s;
+  transition: padding-left 0.5s;
+}
+.place-order-button {
+  margin-top: 5vh;
+}
+@media (max-width: 500px) {
+  .place-order-button {
+    width: 100%;
+  }
+}
+@media (min-width: 501px) {
+  .place-order-button {
+    margin-left: 25%;
+    width: 50%;
+  }
+}
+.confirm-cart-login-button {
+  width: 100%;
+  max-width: 300px;
+  min-width: 175px;
+}
+.checkout-button {
+  border: 2px solid;
+  /* position: absolute; */
+  min-width: 109px;
+}
+.want-more-button {
+  padding: 0px 5px;
+  margin-left: 10px;
+}
+.want-more-button {
+  position: relative;
+  display: inline-block;
+}
+.red-title {
+  color: #de4621;
+}
+
+.want-more-button .tooltiptext {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  width: calc(100px + 20vw) !important;
+  visibility: hidden;
+  text-align: center;
+  min-width: 200px;
+  position: absolute;
+  -webkit-transform: translateX(-200px);
+  -ms-transform: translateX(-200px);
+  transform: translateX(-200px);
+  z-index: 2;
+}
+.view-button-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+@media (max-width: 620px) {
+  .view-button-row {
+    width: 100%;
+  }
+}
+@media (min-width: 621px) and (max-width: 900px) {
+  .view-button-row {
+    width: 80%;
+    margin-left: 10%;
+  }
+}
+@media (min-width: 901px) and (max-width: 1200px) {
+  .view-button-row {
+    width: 70%;
+    margin-left: 15%;
+  }
+}
+@media (min-width: 1201px) {
+  .view-button-row {
+    width: 50%;
+    margin-left: 25%;
+  }
+}
+.want-more-button:hover .tooltiptext {
+  visibility: visible;
+}
+/* STYLING FOR INDEX PAGE RADIO BUTTONS SELECT */
+/* The container */
+.radio-button-container {
+  font-weight: 500 !important;
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 13px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.radio-button-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.radio-button-container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.radio-button-container input:checked ~ .checkmark {
+  background-color: #0d034c;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.radio-button-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.radio-button-container .checkmark:after {
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+#done-button {
+  margin-top: 30px;
+}
+.edit-order-button {
+  z-index: 10;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 30px;
+  width: 100px;
+  padding: 5px 5px;
+}
+@media (min-width: 1001px) {
+  .amount-help-button {
+    width: 33%;
+  }
+}
+@media (min-width: 631px) and (max-width: 1000px) {
+  .amount-help-button {
+    width: 50%;
+  }
+}
+@media (max-width: 630px) {
+  .amount-help-button {
+    width: 100%;
+  }
+}
+#amount-help {
+  margin-top: 36px;
+  padding: 10px;
+  border: 2px solid;
+}
+#amount-help-anchor {
+  position: absolute;
+  bottom: 45;
+  right: 0;
+}
+.settings-button {
+  min-width: 200px;
+}
+/* ############################################# */
+/* ############# END BUTTONS ################### */
+/* ############################################# */
+
 #down-glyph {
   float: right;
   transition: transform 0.2s;
 }
 .rotated {
   transform: rotate(180deg);
+}
+
+#hide-help-steps {
+  cursor: pointer;
+  float: right;
+  margin-right: 60px;
+}
+/* Styling added to cart bar to fix to top after
+   scrolling past  */
+.fixed-top-bar {
+  position: fixed;
+  margin-top: 0px !important;
+  background-color: white;
+  top: 45px;
+  height: 45px;
+  z-index: 50;
+}
+@media (min-width: 551px) {
+  .fixed-top-bar {
+    left: 6.5vw;
+    width: 65.5vw;
+  }
+}
+@media (max-width: 550px) {
+  .fixed-top-bar {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    left: 0px;
+    width: 100vw;
+  }
+}
+.fixed-top-amount {
+  position: fixed;
+  margin-top: 0px !important;
+  top: 0px;
+  height: 45px;
+  z-index: 50;
+}
+@media (min-width: 551px) {
+  .fixed-top-amount {
+    left: calc(10vw + 6.5vw);
+    width: 65.5vw;
+  }
+}
+@media (max-width: 550px) {
+  .fixed-top-amount {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    left: 0px;
+    width: 100vw;
+  }
+}
+.forgot-password-link {
+  color: #0d034c;
+  cursor: pointer;
+  -webkit-transition: color 0.7s;
+  -o-transition: color 0.7s;
+  transition: color 0.7s;
+}
+.forgot-password-link:hover {
+  color: #fbbb13;
+}
+
+.entree-header {
+  /* background-color: #ffffffa6; */
+  margin: -10px;
+  padding: 15px;
+  color: #4d3cbc;
+}
+.entree-description {
+  text-align: left;
+  padding-top: 24px;
+}
+
+.number-rec-steps {
+  text-align: left;
+  padding: 10px 6vw;
+  margin: 10px;
+}
+.number-rec-steps > span {
+  margin-bottom: 5px;
+}
+
+.main-menu-box {
+  margin-top: 20px;
+}
+
+.top-bottom-space {
+  padding: 15px 0px;
+}
+
+/*Override date picker default top margin */
+@media only screen and (min-height: 33.875em) {
+  .picker--opened .picker__frame {
+    top: 20% !important;
+  }
+}
+
+.cart-bar-container {
+  margin-top: 20px;
+  margin-left: 10vw;
+  margin-right: 10vw;
+  border: 3px solid;
+}
+.cart-load-bar {
+  margin: 1px 0px;
+  transition: width 0.6s, color 0.6s;
+  height: 65px;
+}
+
+/* sizing for header-fonts to be responsive to screen width */
+.header-size {
+  font-size: 3vmin;
+}
+.card-margin1 {
+  border: 2px solid #0d034c;
+}
+.card-margin2 {
+  border: 2px solid #0d034c;
+}
+.helper-screen {
+  min-height: 70vh;
+}
+/* .entree-options {
+  margin: 5px 0px;
+} */
+#selected-food {
+  margin-bottom: 50px;
+  margin-top: 20px;
+}
+.entree-item {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-left: 5px solid #0d034c;
+  background-color: #e8e8e8;
+  transition: background-color 0.5s;
+}
+
+.entree-item:hover {
+  cursor: pointer;
+  color: white;
+  background-color: #0d034c52;
+}
+
+.manage-dates-table {
+  width: 90%;
+  margin: 5px 20px;
+  text-align: center;
+  border-bottom: 1px solid;
+}
+
+.manage-dates-table th {
+  border-bottom: 1px solid;
+  text-align: center;
+}
+
+.manage-dates-row {
+  cursor: pointer;
+  height: 40px;
+}
+.manage-dates-row:hover {
+  background-color: rgb(195, 196, 252);
+}
+
+#dates-selected p:hover {
+  cursor: pointer;
+  color: white;
+  background-color: #0d034c;
+}
+
+.custom-select select {
+  background-color: rgb(240, 240, 240);
+  min-width: 120px;
+  color: #0d034c !important;
+}
+.custom-select select option {
+  background-color: rgb(240, 240, 240);
+  min-width: 120px;
+}
+.custom-select select:hover {
+  color: #0d034c;
+}
+.custom-select select option:hover {
+  color: #0d034c;
+}
+/**************************************************************/
+/* include admin menu setter styling
+  This is only styling for admin page : menusetter  */
+.menu-table {
+  margin-top: 40px;
+  width: 100%;
+}
+.menu-table tbody tr td input {
+  width: 100%;
+}
+.menu-table tbody tr th {
+  text-align: center;
+  border-right: 1px solid;
+  border-left: 1px solid;
+}
+.menu-modal {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 15px;
+}
+.menu-text {
+  width: 80%;
+  height: 40vh;
+}
+
+.download-menu-div {
+  float: right;
+}
+.submit-menu-div {
+  float: left;
+}
+@media (max-width: 780px) {
+  .user-name {
+    display: none;
+  }
+}
+@media (min-width: 781px) and (max-width: 885px) {
+  .user-name {
+    -webkit-transform: translate(10vw, 12px);
+    -ms-transform: translate(10vw, 12px);
+    transform: translate(10vw, 12px);
+  }
+}
+
+.choose-help-box {
+  cursor: pointer;
+  -webkit-transition: background-color 0.5s, color 0.5s;
+  -o-transition: background-color 0.5s, color 0.5s;
+  transition: background-color 0.5s, color 0.5s;
+  -webkit-transition: box-shadow 0.7s, transform 1s, opacity 1s;
+  -o-transition: box-shadow 0.7s, transform 1s, opacity 1s;
+  -webkit-transition: opacity 1s, -webkit-box-shadow 0.7s, -webkit-transform 1s;
+  transition: opacity 1s, -webkit-box-shadow 0.7s, -webkit-transform 1s;
+  transition: box-shadow 0.7s, transform 1s, opacity 1s;
+  transition: box-shadow 0.7s, transform 1s, opacity 1s, -webkit-box-shadow 0.7s,
+    -webkit-transform 1s;
+}
+
+.choose-help-box:hover {
+  background-color: #fbbb13;
+  color: #de4621;
+}
+
+.total-style {
+  text-align: right;
+  padding-right: 25px;
+}
+#cart-click {
+  border: 2px solid white;
+  background-color: #dbdada;
+  cursor: pointer;
+  padding: 8px;
+}
+#cart-click:hover {
+  color: black;
+}
+.cart-header {
+  text-align: left;
+  font-weight: 200;
+  margin-top: 24px;
+  padding-left: 15px;
+  padding-right: 115px;
+}
+/* .main-menu-headers {
+  font-size: calc(31px + 1vw);
+} */
+.move-step-over {
+  margin-top: -15px;
+  margin-left: -20px;
+}
+.selection {
+  padding: 10px;
+}
+.selection div {
+  padding: 4px;
+}
+.selection select {
+  text-align: center;
+  border-radius: 5px;
+  min-width: 160px;
+}
+.title-cart {
+  cursor: pointer;
+}
+.cart-title-row td {
+  text-align: center;
+  padding-bottom: calc(11px - 0.3vw);
+  padding-top: calc(11px - 0.3vw);
+}
+.spacing {
+  margin-left: 20px;
+}
+.item-title {
+  padding-right: 20px;
+}
+.index-item-prices {
+  white-space: nowrap;
+}
+.add-select {
+  border-radius: 5px;
+  background-color: #0d034c;
+  color: white;
+  -webkit-transition: color 1s, background-color 0.5s;
+  -o-transition: color 1s, background-color 0.5s;
+  transition: color 1s, background-color 0.5s;
+  /* font-size: 15px; */
+  padding: 5px 20px !important;
+  width: auto;
+  background-color: #0d034c;
+  float: right;
+  margin-right: 50px;
+  text-align: center;
+  width: 150px;
+  position: -webkit-sticky;
+  position: sticky;
+}
+.add-select:hover {
+  background-color: #0d034cc2;
+  cursor: pointer;
+}
+
+.modal-add-to-order {
+  /* font-size: 20px; */
+  border-bottom: 2px solid;
+  width: 80%;
+  margin-left: 10%;
+  margin-top: 5%;
+  margin-bottom: 3%;
+  text-align: left;
+}
+#cart-table {
+  /* font-size: calc(21px - 0.2vw); */
+  width: 100%;
+}
+
+.cart-item-description {
+  padding-left: 20px;
+  /* font-size: 13px; */
+  padding-bottom: 10px;
+}
+
+#modal-cart {
+  text-align: left;
+  /* font-size: calc(22px - 0.5vw); */
+  padding-left: 5%;
+}
+
+@media (max-width: 376px) {
+  #modal-cart {
+    margin-left: -45px;
+  }
+  #modal-cart div .span {
+    width: 20px;
+  }
+}
+@media (min-width: 377px) {
+  #modal-cart div .span {
+    width: 40px;
+  }
+}
+#modal-cart div {
+  margin-bottom: 8px;
+}
+.count-column {
+  width: 18%;
+  min-width: 110px;
+}
+.price-column {
+  text-align: right;
+  padding-right: 41px;
+  min-width: 120px;
+}
+
+.increase,
+.decrease {
+  width: 32px;
+  display: inline-block;
+  cursor: pointer;
+  margin: 0px 5px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.increase:hover,
+.decrease:hover {
+  background-color: #0d034c;
+  color: white;
+}
+
+#my-cart {
+  text-align: left;
+  /* font-size: calc(22px - 0.5vw); */
+}
+@media (max-width: 376px) {
+  #my-cart div .span {
+    width: 20px;
+  }
+}
+@media (min-width: 377px) {
+  #my-cart div .span {
+    width: 40px;
+  }
+}
+.options-spacing {
+  margin-bottom: 50px;
+}
+.options-spacing:empty {
+  margin-bottom: 0px;
+}
+@media (min-width: 650px) {
+  .choose-option {
+    margin-left: 15%;
+  }
+}
+
+.choose-option {
+  margin-bottom: 13px;
+  /* font-size: calc(19px - 0.3vw); */
+}
+.my-cart-key {
+  white-space: nowrap;
+}
+/* @media (min-width: 786px) {
+  .two-panel-spacing {
+    margin-left: 5px;
+  }
+} */
+.order-limit-modal-div {
+  text-align: center;
+  /* font-size: calc(15px + 0.5vw); */
+  margin: 5vh;
+}
+.confirm-cart-titles {
+  color: #de4621;
+}
+@media (min-width: 768px) {
+  .sm-offset-1 {
+    margin-left: 8.33333333% !important;
+  }
+}
+.dropdown-menu > li > a:hover {
+  color: #fbbb13;
+  background-color: #0d034c;
+}
+.dropdown-menu > li > a {
+  z-index: 2;
+}
+
+.please-select-from {
+  color: #de4621;
+  text-align: left;
+  margin-top: 2vh;
+}
+.step-style {
+  text-align: left;
+  margin-top: 5px;
+}
+hr {
+  border-top: 1px solid #0d034c;
+}
+.confirm-cart-form {
+  margin-bottom: 30px;
+}
+.confirm-cart-form input {
+  width: 100%;
+}
+
+/* Admin View Orders Page */
+.each-order-style {
+  padding-bottom: 4vh;
+  border-bottom: 10px solid #0d034c;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+}
+.lindo-red {
+  color: #de4621;
+}
+.responsive-header {
+  color: #de4621;
+  /* font-size: calc(11px + 1.1vw); */
+}
+.order-items-section {
+  border: 1px solid;
+  clear: left;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.order-items-section div {
+  margin-bottom: 5px;
+}
+
+.edit-contact-div {
+  margin-top: 5px;
+}
+.edit-contact-input {
+  width: 100%;
+  text-align: center;
+}
+.special-notes-area {
+  margin-top: 25px;
+  margin-bottom: -15px;
+}
+.special-notes-area > textarea {
+  width: 100%;
+  height: 12vh;
+}
+#billingCheckbox {
+  margin-left: 20px;
+  -webkit-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  transform: scale(1.5);
+}
+
+#done-selection,
+#add-more-cart {
+  border: 2px solid;
+  position: static;
+  margin-top: 5vmin;
+}
+.phone-cart-description {
+  padding-left: 10%;
+}
+#cart-table tr:nth-child(odd) {
+  background-color: #f2f2f2;
 }

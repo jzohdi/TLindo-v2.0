@@ -38,7 +38,7 @@ function editOrder(div) {
 }
 
 var CONTACT_MODAL_DIV =
-  '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
+  '<div id="myModal" class="modal lindo-purple"><div class="modal-content main-card">' +
   '<span class="close">X</span>' +
   "contentPlaceHolder" +
   "</div></div>";

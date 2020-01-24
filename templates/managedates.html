@@ -8,8 +8,8 @@ block head %}
 <div style="margin-top: 5vh;" class="container">
   <div class="row">
     <div class="col-lg-6">
-      <div class="main-card question-titles">
-        <p class="order-keys">{{ error }}</p>
+      <div class="main-card lindo-purple">
+        <p class="alert-danger">{{ error }}</p>
         <form action="{{ url_for('managedates') }}" method="post">
           <h3 class="red-title">Disable and Enable Dates Tool</h3>
           <fieldset>
@@ -44,7 +44,7 @@ block head %}
       </div>
     </div>
     <div class="col-lg-6">
-      <div class="main-card question-titles">
+      <div class="main-card lindo-purple" style="padding-bottom: 50px;">
         <h3
           class="red-title"
           style="border-bottom: 1px #0d034c solid; padding: 5px 15px;"
@@ -64,7 +64,8 @@ block head %}
           {% for date in sorted_dates %} {% if date.disabled == 'True' %}
           <tr
             onclick="goToScheduled('{{ date._id }}')"
-            style="cursor: pointer;font-weight: bold; color: #ff0202;"
+            class="manage-dates-row"
+            style="font-weight: bold;color: #ff0202;"
           >
             <td>{{ date._id }}</td>
             <td>{{ date.sum }}</td>
@@ -72,7 +73,7 @@ block head %}
           {% else %}
           <tr
             onclick="goToScheduled('{{ date._id }}')"
-            style="cursor: pointer;"
+            class="manage-dates-row"
           >
             <td>{{ date._id }}</td>
             <td>{{ date.sum }}</td>

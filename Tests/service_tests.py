@@ -55,12 +55,53 @@ def test_send_email():
     email = "taco.lindo.catering@gmail.com"
     username = "admin"
     response = Email_Service.thank_for_sign_up(email, username)
-    # print(response)
-    # check inbox
 
 
+def test_changed_email():
+    email = "jakez1@live.com"
+    response = Email_Service.notify_changed_email(email)
+
+
+def test_changed_password():
+    email = "jzohdi@gmail.com"
+    resonse = Email_Service.notify_changed_password(email)
+
+# this is to test how a date is added into the database
+# wanted is for the date to be stored as a data object or isodate
+# so that mongo $gt, or $lt operations can be used.
+
+
+def insert_date(mydb):
+    example_date = "30 November, 2019"
+    iso = datetime.datetime.strptime(
+        example_date, "%d %B, %Y")
+    mydb["all_orders"].insert_one({"_id": "date", "datetime": iso})
+
+
+def test_pretty_order():
+    order_list = [
+        {"count": 2,
+         'name': "Taco Tray",
+         "type": "Entree",
+         "flavor": "Ground Beef",
+         "size": "Shallow Half Pan(24 Tacos)",
+         "tortilla": "Soft Shell", "cost": 108.0},
+        {"count": 2,
+         'name': "Taco Tray",
+         "type": "Entree",
+         "flavor": "Shredded Chicken",
+         "size": "Shallow Half Pan(24 Tacos)",
+         "tortilla": "Soft Shell", "cost": 108.0}]
+    pretty = Email_Service.prettify_order(order_list)
+    print(pretty)
+
+
+# Controllers.connect_to_db(insert_date)
+# Controllers.connect_to_db(initalize_collections)
 if __name__ == "__main__":
-    methods = [test_connection, test_send_email]
-    for method in methods:
-        method()
-    # Controllers.connect_to_db(initalize_collections)
+
+     # test_changed_email()
+
+    test_changed_password()
+
+    # test_pretty_order()

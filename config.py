@@ -10,7 +10,8 @@ def getKeys(os):
         if file:
             file.close()
         return env_vars
-    except:
+
+    except Exception:
         new_obj = {}
         environment = [
             'BETA_KEY', 'DATABASE_URL', 'DB',

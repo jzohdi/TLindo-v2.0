@@ -6,6 +6,8 @@ class Email_Service:
         self.recovery_uri = "password_recovery"
         self.order_placed_uri = "order_placed"
         self.sign_up_uri = "sign_up"
+        self.changed_email_uri = "email_changed"
+        self.changed_pass_uri = "password_changed"
         self.other_uri = "general"
 
     def send_password_recovery(self, recipient, link):
@@ -34,11 +36,48 @@ class Email_Service:
         result = self.requests.get(ENPOINT, data=data)
         return result.json()
 
+    def notify_changed_email(self, recipient):
+        ENDPOINT = self.environ.get(
+            "EMAIL_SERVER_BASE_URI") + self.changed_email_uri
+        AUTH = self.environ.get("AUTH")
+        data = {"AUTH": AUTH, "recipient": recipient}
+        result = self.requests.get(ENDPOINT, data=data)
+        return result.json()
+
+    def notify_changed_password(self, recipient):
+        ENDPOINT = self.environ.get(
+            "EMAIL_SERVER_BASE_URI") + self.changed_pass_uri
+        AUTH = self.environ.get("AUTH")
+        data = {"AUTH": AUTH, "recipient": recipient}
+        result = self.requests.get(ENDPOINT, data=data)
+        return result.json()
+
     def prettify(self, order_dict):
+
         final_string = "\n"
         for key, value in order_dict.items():
-            final_string = final_string + key + ": " + str(value) + "\n"
+            if "order" == key.lower():
+                final_string += (key.capitalize() + ": " +
+                                 self.prettify_order(value) + "\n")
+            else:
+                final_string += key.capitalize() + ": " + str(value) + "\n"
+
         return final_string
+
+    def prettify_order(self, list_of_order):
+        return_string = ""
+
+        for index, item in enumerate(list_of_order):
+            this_item = ""
+            for key, value in item.items():
+                if key.lower() == "name":
+                    this_item = str(index + 1) + ". " + \
+                        item.get("name") + "\n" + this_item
+                else:
+                    this_item += key.capitalize() + ": " + str(value) + "\n"
+            return_string += this_item + "\n"
+
+        return return_string[:-1]
 
 
 class GSpread:

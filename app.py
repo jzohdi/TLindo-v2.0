@@ -66,11 +66,11 @@ app.static_path = STATIC_ROOT
 jsglue = JSGlue(app)
 
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+# session_file_dir is for development only
 # app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-
 app.config.update({
     'SECRET_KEY': os.environ.get('SECRET_KEY', settings.get('SECRET_KEY'))
 })
@@ -114,18 +114,10 @@ def dated_url_for(endpoint, **values):
     return url_for(endpoint, **values)
 
 
-""""""
-
-
 @app.route('/', methods=["POST", "GET"])
 def index():
     # check for password in beta version, remove in final production
-    # pw = request.args.get('pw')
 
-    # if pw != settings.get('BETA_KEY') and not session.get('beta'):
-    #     return "access denied :("
-
-    # session['beta'] = True
     # if logged in and gotten to index, reroute to scheduled orders
     if 'admin' in session:
         return redirect(url_for('scheduled_orders'))
@@ -151,8 +143,9 @@ def user_orders():
 
     if all_orders.get('status'):
         all_orders = all_orders.get("return_value")
-        (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(
-            all_orders, True)
+        (past_dates,
+         upcoming_dates,
+         errors) = Controllers.split_list_of_orders(all_orders, True)
 
         past_dates_sorted = Controllers.sort_list_of_dates(
             past_dates,
@@ -193,10 +186,99 @@ def orderlookup():
         return render_template("orderlookup.html")
 
 
+@app.route("/delete_account", methods=["POST"])
+def delete_account():
+    fetch_error = 'A problem occured while fetching current user information.'
+    incorrect_error = 'Incorrect Username or Email entered.'
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    user_id = session["user_id"]
+    username_or_email = request.form.get("username_or_email")
+
+    kwargs = {"user_id": user_id}
+
+    current_user = Controllers.connect_to_db(
+        Controllers.get_user_from_id, kwargs)
+
+    if not current_user.get("status"):
+        return redirect(url_for('user_settings.html',
+                                delete_error=fetch_error))
+
+    current_user = current_user.get("return_value")
+
+    if (current_user.get("username") != username_or_email and
+            current_user.get("email") != username_or_email):
+        return redirect(url_for('user_settings.html',
+                                delete_error=incorrect_error))
+
+    Controllers.connect_to_db(Controllers.delete_user, kwargs)
+
+    session.clear()
+    return redirect(url_for("index"))
+
+
+@app.route("/change_email", methods=["POST"])
+def change_email():
+    same_emails_error = 'Both emails entered were identical.'
+    not_valid_email = 'The new email entered is not a valid email address'
+    fetch_user_error = ('A problem occured while fetching '
+                        'current user information.')
+    email_match_error = 'The entered current email does not match our records.'
+    unknown_error = 'Something went wrong while updating new email.'
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    current_email = request.form.get("current-email")
+    new_email = request.form.get("new-email")
+
+    # check that the two emails given are not the same.
+    # if so dont do rest of the work.
+    if current_email == new_email:
+        return redirect(url_for('user_settings.html',
+                                email_error=same_emails_error))
+
+    # check that the new email is a valid email address.
+    is_valid_email = Controllers.validate_email(new_email)
+
+    if not is_valid_email:
+        return redirect(url_for('user_settings.html',
+                                email_error=not_valid_email))
+
+    # get the info of the currrent logged in user
+    user_id = session["user_id"]
+    kwargs = {"user_id": user_id}
+    current_user = Controllers.connect_to_db(
+        Controllers.get_user_from_id, kwargs)
+
+    if not current_user.get("status"):
+        return redirect(url_for('user_settings.html',
+                                email_error=fetch_user_error))
+
+    current_user = current_user.get("return_value")
+
+    # check that the entered email matches the records
+    if current_user.get("email") != current_email:
+        return redirect(url_for('user_settings.html',
+                                email_error=email_match_error))
+
+    # set new email, which returns error message in return value
+    # if the email already is taken by another user.
+    kwargs["new_email"] = new_email
+    result = Controllers.connect_to_db(Controllers.set_new_user_email, kwargs)
+    Email_Service.notify_changed_email(new_email)
+
+    if not result.get("status"):
+        return redirect(url_for('user_settings.html',
+                                email_error=unknown_error))
+
+    return redirect(url_for('user_settings.html',
+                            email_error=result.get("return_value")))
+
+
 @app.route('/change_password', methods=["POST"])
 def change_password():
-    # if not session.get('beta'):
-    #     return "access denied :("
+
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -207,25 +289,29 @@ def change_password():
     unique = session.get('user_id')
 
     if not old_password or not new_password or not confirm_new_password:
-        return render_template('user_settings.html',
-                               error='Could not validate password')
+        return redirect(url_for('user_settings.html',
+                                error='Could not validate password'))
     if new_password != confirm_new_password:
-        return render_template('user_settings.html',
-                               error='Passwords do not match')
+        return redirect(url_for('user_settings.html',
+                                error='Passwords do not match'))
     if not Controllers.is_valid_password(new_password):
-        return render_template('user_settings.html',
-                               error='Could not validate password')
+        return redirect(url_for('user_settings.html',
+                                error='Could not validate password'))
 
     kwargs = {"user_id": unique, "new_pass": new_password,
               'old_pass': old_password}
     change_pass_result = Controllers.connect_to_db(
         Controllers.change_user_pass, kwargs)
 
-    if not change_pass_result.get('status') or not change_pass_result.get('return_value'):
-        return render_template("user_settings.html",
-                               error="Password could not be changed")
+    if not change_pass_result.get('status'):
+        return redirect(url_for("user_settings.html",
+                                error="Password could not be changed"))
 
-    return render_template('user_settings.html', error='New password set!')
+    email = change_pass_result.get('return_value').get("email")
+    Email_Service.notify_changed_password(email)
+
+    return redirect(url_for('user_settings',
+                            error='New password set!'))
 
 
 @app.route('/forgotpassword', methods=["POST", "GET"])
@@ -283,10 +369,12 @@ def password_recovery():
         new_password = request.form.get('new-password')
         confirm_new_password = request.form.get('confirm-new-password')
 
-        if not new_password or not confirm_new_password or new_password != confirm_new_password:
+        if (not new_password or
+            not confirm_new_password or
+                new_password != confirm_new_password):
             return render_template('password_recovery.html',
-                                   error='One or more fields were empty,' +
-                                         ' or passwords did not match.')
+                                   error=('One or more fields were empty,'
+                                          ' or passwords did not match.'))
 
         if not Controllers.is_valid_password(new_password):
             return render_template('password_recovery.html',
@@ -297,7 +385,8 @@ def password_recovery():
         update_password = Controllers.connect_to_db(
             Controllers.update_user_password, kwargs)
 
-        if not update_password.get("status") or not update_password.get("return_value"):
+        if (not update_password.get("status") or
+           not update_password.get("return_value")):
             return render_template("password_recovery.html",
                                    error=("Something went wrong"
                                           "updateing user password"))
@@ -318,7 +407,8 @@ def password_recovery():
         kwargs = {'code': code, 'email': email}
         validate_url_credentials = Controllers.connect_to_db(
             Controllers.check_password_recovery, kwargs)
-        if not validate_url_credentials.get("status") or not validate_url_credentials.get("return_value"):
+        if (not validate_url_credentials.get("status") or
+           not validate_url_credentials.get("return_value")):
             return render_template('forgotpassword.html',
                                    error=("Could authenticate email, "
                                           "please request a new link"))
@@ -346,6 +436,18 @@ def user_settings():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
+    if 'error' in request.args:
+        return render_template('user_settings.html',
+                               error=request.args.get("error"))
+
+    if "email_error" in request.args:
+        return render_template('user_settings.html',
+                               email_error=request.args.get("error"))
+
+    if "delete_error" in request.args:
+        return render_template('user_settings.html',
+                               delete_error=request.args.get("error"))
+
     return render_template('user_settings.html')
 
 
@@ -353,7 +455,9 @@ def user_settings():
 def confirmCart():
     # if not session.get('beta'):
     #     return "access denied :("
-
+    pw = request.args.get('pw')
+    if pw != settings.get("BETA_KEY"):
+        return "Sorry this page is still in development."
     if 'order_in_queue' in session:
         session.pop('order_in_queue')
     return render_template("confirmCart.html")
@@ -375,28 +479,32 @@ def order_placed():
         return render_template('order_placed.html',
                                error=error_message)
     order = order.get('return_value')
-    print(order)
-    total = order.pop("price")
+    total = order.pop("price").get("total")
     paid = order.pop("paid")
     comments = order.pop("comments")
+    order.pop("datetime")
+
     return render_template('order_placed.html', order=order,
                            total=total, paid=paid, comments=comments)
 
 
 @app.route('/charge', methods=["POST"])
 def charge():
-    if not session.get('beta'):
-        return "access denied :("
 
     if 'user_id' not in session and 'confirmation_code' not in session:
         return jsonify({'error': 'must log in or continue as guest'})
+
     # if user is logged in get user_id else set to False
     user_id = session.get('user_id') if 'user_id' in session else False
+
     # there will be confirmation code in session if the user requested guest
     # login, else generate new code.
-    confirmation_code = session.pop("confirmation_code")
+    confirmation_code = session.get("confirmation_code")
+
     if not confirmation_code:
         confirmation_code = Controllers.generate_confirmation_code()
+    else:
+        session.pop("confirmation_code")
 
     order_information = {
         '_id': confirmation_code,
@@ -406,7 +514,26 @@ def charge():
         'email': request.form.get('email'),
         'address': request.form.get('address'),
         'order': request.form.get('order'),
-        'comments': request.form.get('notes')}
+        "delivery": request.form.get("delivery"),
+        'comments': request.form.get('notes'),
+        "zip": request.form.get("zip")}
+
+    # convert order date to date time for later parsing.
+    order_information["datetime"] = datetime.datetime.strptime(
+        request.form.get('date'), "%d %B, %Y")
+
+    # check that this is a valid date to place the order on.
+    kwargs = {"date": order_information["date"]}
+    date_is_available = Controllers.connect_to_db(
+        Controllers.is_date_available, kwargs)
+
+    # the next blocks of code, validate the date, phone and order price.
+    if not date_is_available.get("status"):
+        return jsonfiy({"Error": ("Could not validate that "
+                                  "date is available for order.")
+                        })
+    if not date_is_available.get("return_value"):
+        return jsonify({"Error": "Date not available for order."})
 
     validate_phone = phonenumbers.parse("+1" +
                                         order_information.get('phone'), "US")
@@ -420,22 +547,44 @@ def charge():
         return jsonify({'error': 'Some information missing from order'})
 
     current_prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
+
     if current_prices.get("status"):
         current_prices = current_prices.get("return_value")
     else:
         error_message = "there was a problem verifying your cart total."
         return jsonify({"error": error_message})
 
-    (order_information["price"], order_information['order']) = Controllers.validate_order(
-        order_information['order'], current_prices)
+    # calculate the order price and validate order
+    (order_information["price"],
+     order_information['order']) = Controllers.validate_order(
+                                            order_information['order'],
+                                            current_prices)
 
-    if not order_information.get('price') or not order_information.get('order'):
+    # if delivery, add delivery cost to total and show iin the price breakdown
+    if order_information["delivery"] == "yes":
+        delivery_addresses = set(["08085", "08014", "08067"])
+
+        if order_information["zip"] not in delivery_addresses:
+            return jsonify({"error": "Address not valid for delivery."})
+
+        delivery_cost = float(current_prices.get("delivery").get("price"))
+        order_information["price"]["total"] += delivery_cost
+        order_information["price"]["delivery"] = delivery_cost
+
+    # if either of these went missing, then abort charge.
+    if (not order_information.get('price') or
+       not order_information.get('order')):
         return jsonify({'error': 'could not confirm order pricing'})
 
+    # validate user entered email, this is a regex not smtp verification
     recipient_email = request.form.get('email')
     is_valid_email = parseaddr(recipient_email)
+
     if not is_valid_email[0] == '' and is_valid_email[1] == '':
         return jsonify({'error': "Email address not valid."})
+
+    # block for testing
+    # return jsonify({'testing': True})
 
     stripe.api_key = settings.get("STRIPE_KEY")
     token = request.form['stripeToken']
@@ -455,16 +604,35 @@ def charge():
             source=token)
 
         amount_charged = charge.get("amount", "Charge was not processed")
+
         didPay = charge.get('paid')
+
         if not didPay:
             return jsonify({"error": "charge could not be complete"})
+
+        # save charge id in database
+        charge_id = charge.get("id")
+        Controllers.connect_to_db(Controllers.add_charge_to_db, {
+                    "timestamp": Controllers.datetime.datetime.now(),
+                    "confirmation_code": confirmation_code,
+                    "_id": order_information["_id"],
+                    "charge_id": charge_id})
+
+        # capture charge is required by stripe API in order to finalize,
+        # otherwise the charge will be refunded in 7 days.
+        stripe.Charge.capture(charge_id)
 
         order_information['paid'] = "$" + \
             str(amount_charged)[:-2] + "." + str(amount_charged)[-2:]
 
+        """ add field to order for date placed """
+        order_information["placed_on "] = datetime.datetime.now(
+        ).isoformat()
+
         kwargs = {'date': order_information.get("date"),
                   'order_total': order_information.get("price").get('total')}
         Controllers.connect_to_db(Controllers.reconcile_managedates, kwargs)
+
         if user_id:
             confirmation_code_to_user_kwargs = {'user_id': user_id,
                                                 'confirmation_code':
@@ -476,12 +644,17 @@ def charge():
         add_order_to_db_kwargs = {'order': order_information}
         Controllers.connect_to_db(Controllers.add_order_to_db,
                                   add_order_to_db_kwargs)
+
         # email placed order to user.
+        order_information.pop("datetime")
+        order_information["price"] = Controllers.format_price(
+            order_information["price"])
+        order_information["confirmation code"] = order_information.pop("_id")
         Email_Service.placed_order_email(recipient_email,
                                          order_information,
                                          confirmation_code)
 
-        session['order_code'] = order_information['_id']
+        session['order_code'] = order_information["confirmation code"]
         return jsonify({'success': 'success'})
 
     except stripe.error.CardError as e:
@@ -595,7 +768,7 @@ def edit_order():
         return redirect(url_for("user_orders"))
     user_id = session.get("user_id")
 
-    confirmation_code_matches_user = Controllers.validate_user_placed_confirmation_code(
+    confirmation_code_matches_user = Controllers.validate_user_with_code(
         user_id, confirmation_code)
 
     if not confirmation_code_matches_user:
@@ -642,6 +815,7 @@ def commit_edit():
     new_order = request.form.get('order')
     current_prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
     confirmation_code = session.get("confirmation_code")
+
     if not confirmation_code:
         return jsonify({'error': 'Could not get confirmation code for order.'})
 
@@ -651,8 +825,10 @@ def commit_edit():
 
     kwargs = {'order_info': order_information}
     Controllers.connect_to_db(Controllers.log_old_order, kwargs)
+
     if not current_prices.get("status"):
         return jsonify({"error": "Could not verify your new total."})
+
     current_prices = current_prices.get("return_value")
 
     old_total = order_information.get("price").get("total")
@@ -660,7 +836,9 @@ def commit_edit():
 
     (order_information["price"], order_information['order']
      ) = Controllers.validate_order(new_order, current_prices)
-    if not order_information.get('price') or not order_information.get('order'):
+
+    if (not order_information.get('price') or
+       not order_information.get('order')):
         return jsonify({'error': 'could not confirm order pricing'})
 
     new_total = order_information.get("price").get("total")
@@ -669,9 +847,11 @@ def commit_edit():
     Controllers.connect_to_db(Controllers.reconcile_managedates, kwargs)
 
     confirmation_code = order_information.pop("_id")
+
     if order_information.get("confirmation_code"):
         order_information.pop("confirmation_code")
-    kwargs = {"id": confirmation_code, "new_order": order_information}
+
+    kwargs = {"order_id": confirmation_code, "new_order": order_information}
     Controllers.connect_to_db(Controllers.update_order, kwargs)
     return jsonify({'success': 'success'})
 
@@ -735,7 +915,7 @@ def request_register():
 
     register_user = register_user.get('return_value')
 
-    if hasattr(register_user, 'error'):
+    if "error" in register_user:
         return jsonify({'error': register_user.get("error")})
 
     # send thank you for registering email.
@@ -769,8 +949,9 @@ def login():
         kwargs = {'username_or_email': username, 'password': provided_pass}
         verify_user = Controllers.connect_to_db(Controllers.login_user, kwargs)
 
-        if not verify_user.get("status") or (
-                not verify_user.get("return_value") and verify_user.get('return_value') != 0):
+        if (not verify_user.get("status") or
+           (not verify_user.get("return_value") and
+           verify_user.get('return_value') != 0)):
             return render_template('login.html',
                                    error="Invalid username or email/password.")
 
@@ -826,9 +1007,9 @@ def register():
         if not registered_user.get('status'):
             return render_template('register.html',
                                    error="Something went wrong.")
-        registered_user = registered_user.get('return_value')
 
-        if hasattr(registered_user, 'error'):
+        registered_user = registered_user.get('return_value')
+        if "error" in registered_user:
             return render_template("register.html",
                                    error=registered_user.get('error'))
         # send thank you for sign up email
@@ -900,22 +1081,38 @@ def scheduled_orders():
     if "admin" not in session:
         return redirect(url_for('login'))
 
-    all_orders = Controllers.connect_to_db(Controllers.get_all_orders)
+    # all_orders = Controllers.connect_to_db(Controllers.get_all_orders)
 
-    if all_orders.get("status"):
-        all_orders = all_orders.get("return_value")
+    # if all_orders.get("status"):
+    #     all_orders = all_orders.get("return_value")
 
-    (past_dates, upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders)
+    # (past_dates,
+    # upcoming_dates, errors) = Controllers.split_list_of_orders(all_orders)
+    upcoming_dates = Controllers.connect_to_db(Controllers.get_upcoming_orders)
+    past_dates = Controllers.connect_to_db(Controllers.get_passed_orders)
+    if not upcoming_dates["status"] or not past_dates["status"]:
+        return redirect(url_for("login"))
 
     past_dates_sorted = Controllers.sort_list_of_dates(
-        past_dates, "date", True)
+        past_dates["return_value"], "date", True)
+
     upcoming_dates_sorted = Controllers.sort_list_of_dates(
-        upcoming_dates, "date")
+        upcoming_dates["return_value"], "date")
 
     return render_template('scheduled_orders.html',
                            admin=True,
                            upcoming_orders=upcoming_dates_sorted,
                            past_orders=past_dates_sorted)
+
+
+@app.route("/get_upcoming_orders", methods=["GET"])
+def get_upcoming_orders():
+    if 'admin' not in session:
+        return {"Status": "Failed", "Error": "Permission denied."}
+    orders = Controllers.connect_to_db(Controllers.get_upcoming_orders)
+    if not orders.get("status"):
+        return jsonify({"Status": "Failed", "Error": "Something went wrong."})
+    return jsonify({"Status": "Success", "Data": orders.get("return_value")})
 
 
 @app.route('/commit_special_note/', methods=["POST"])
@@ -949,16 +1146,33 @@ def get_menu():
 
     menu = Controllers.connect_to_db(Controllers.get_menu_items)
 
-    if menu.get("status") and (menu.get('return_value') or menu.get('return_value') == []):
+    if (menu.get("status") and
+       (menu.get('return_value') or
+       menu.get('return_value') == [])):
         return jsonify({'Status': "Success", 'Menu': menu.get('return_value')})
     return jsonify({"Status": "Failed"})
+
+
+@app.route("/get_menu/get_prices/", methods=["GET"])
+def get_menu_and_prices():
+    menu = Controllers.connect_to_db(Controllers.get_menu_items)
+    if (menu.get("status") and
+       (menu.get('return_value') or
+       menu.get('return_value') == [])):
+        prices = Controllers.connect_to_db(Controllers.parse_menu_prices)
+        if prices.get("status") and prices.get("return_value"):
+            return jsonify({'Status': "Success",
+                            "Prices": prices.get("return_value"),
+                            'Menu': menu.get('return_value')})
+
+    return jsonify({"Error": "Something went wrong."})
 
 
 @app.route('/update_menu/', methods=["POST"])
 def update_menu():
     result = Sheets_Service.read_menu()
-    if type(result) != type(['list']):
-        if hasattr(result, "Error"):
+    if isinstance(result, list):
+        if "Error" in result:
             return jsonify({"Status": "Failed",
                             "Message": result.get("Error")})
         error_message = "Something went wrong reading google sheets."
@@ -966,7 +1180,8 @@ def update_menu():
                         "Message": error_message})
     kwargs = {'list_of_menu': result}
     Controllers.connect_to_db(Controllers.update_menu_to_db, kwargs)
-    return jsonify({"Status": "Success", "Message": "Menu updated."})
+    return jsonify({"Status": "Success",
+                    "Message": "Menu updated."})
 
 
 @app.route("/error_logs/<string:password>", methods=["GET"])

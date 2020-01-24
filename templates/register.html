@@ -10,7 +10,7 @@ head %}
       To Register, please fill in the fields below.
     </h4>
     <div class="col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
-      <p class="order-keys">{{ error }}</p>
+      <p class="alert-danger">{{ error }}</p>
       <form action="{{ url_for('register') }}" method="post">
         <fieldset>
           <div class="form-group">
@@ -65,7 +65,7 @@ head %}
       </form>
     </div>
 
-    <div class="col-sm-3 pass-box" id="message">
+    <div class="col-sm-3 lindo-purple" id="message">
       <h4>Password still needs:</h4>
       <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
       <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>

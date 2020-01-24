@@ -5,11 +5,12 @@
 </script>
 {{ super() }} {% endblock %} {% block main %}
 <div class="container">
-
   <div class="row main-card">
-    <h4 class='top-bottom-space responsive-header'>Welcome back! Please provide your login information.</h4>
+    <h4 class="top-bottom-space responsive-header">
+      Welcome back! Please provide your login information.
+    </h4>
     <div class="col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
-      <p class="order-keys">{{ error }}</p>
+      <p class="alert-danger">{{ error }}</p>
       <form action="{{ url_for('login') }}" method="post">
         <fieldset>
           <div class="form-group">

@@ -1,10 +1,5 @@
 const BASE_ROOT = "/static/MyScripts/";
 
-// const MAIN_CARD_WIDTH = "col-md-10 col-md-offset-1";
-
-// const script1 = $.getScript(BASE_ROOT + "helpers.js");
-
-// $.when(script1).done(function() {});
 function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));
 }
@@ -87,34 +82,3 @@ function setDatePicker(selectDate, finalArrayOfDates) {
 }
 
 setPicker();
-
-const MODAL_DIV =
-  '<div id="myModal" class="modal question-titles"><div class="modal-content main-card">' +
-  '<span class="close">X</span>' +
-  "contentPlaceHolder" +
-  "</div></div>";
-
-const createModal = (someIdOnPage, content) => {
-  const modalContent = MODAL_DIV.replace("contentPlaceHolder", content);
-  $(someIdOnPage).html(modalContent);
-
-  const modal = document.getElementById("myModal");
-  // const openButton = document.getElementById(triggerId);
-  const span = document.getElementsByClassName("close")[0];
-  const done = document.getElementById("done-selection");
-
-  modal.style.display = "block";
-
-  span.onclick = function() {
-    modal.style.display = "none";
-    $(someIdOnPage).empty();
-  };
-  done.onclick = () => {
-    span.click();
-  };
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      span.click();
-    }
-  };
-};

@@ -56,14 +56,12 @@
       crossorigin="anonymous"
     ></script>
     <script id="append-css" type="text/css"></script>
-    {{
-      JSGlue.include()
-    }}
+    {{ JSGlue.include() }}
 
     <title>{% block title %} Lindo Catering {% endblock %}</title>
   </head>
 
-  <body style="overflow-x:hidden;" class="feather">
+  <body style="overflow-x:hidden;" class="site-background">
     <div id="bootstrapCssTest" class="hidden"></div>
     <div id="layout-page" class="container-fullwidth">
       <nav class="navbar">
@@ -143,7 +141,7 @@
                   class="dropdown-toggle titles main-nav-item"
                   data-toggle="dropdown"
                   href="#"
-                  >Manage Account<span class="caret"></span
+                  >Account<span class="caret"></span
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
@@ -271,7 +269,7 @@
     <!-- Copyright -->
 
     <div class="footer-copyright text-center py-3">
-      © 2018 Copyright Taco Lindo | Made with Bootstrap | JQuery | pickadate.js
+      © 2019 Copyright Taco Lindo
     </div>
 
     <!-- Copyright -->
@@ -281,6 +279,7 @@
       $(this).toggleClass("rotate");
     });
   </script>
+  <!-- bootstrap js fall back. -->
   <script>
     if (typeof $.fn.modal === "undefined") {
       document.write(
